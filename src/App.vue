@@ -1,14 +1,16 @@
 <template>
   <div id="app">
-    Hello World
+    <Community />
   </div>
 </template>
 
 <script>
+import Community from './components/Community'
 
 export default {
   name: 'App',
   components: {
+    Community,
   },
   created() {
     this.$store.dispatch('setup')
