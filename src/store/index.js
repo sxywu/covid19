@@ -57,19 +57,19 @@ export default new Vuex.Store({
           id: houseIndex,
           destinations: _.chain(_.random(5, 11))
             // randomly assign 5 - 10 destinations to this house
-            .times(i => destinations[_.random(destinations.length)])
+            .times(i => _.random(destinations.length - 1))
             // but make sure we don't get the same destinations more than once
-            .uniqBy('id').filter().value(),
+            .uniq().filter().value(),
         }
         // and likewise register that house to its destinations
-        _.each(house.destinations, destination => destination.houses.push(house))
+        _.each(house.destinations, index => destinations[index].houses.push(houseIndex))
         houses.push(house)
 
         // for each person in house, create object
         _.times(numPeopleInHouse, i => {
           people.push({
             id: personIndex + i,
-            house, // reference house person lives in
+            houseId: houseIndex, // reference house person lives in
             destination: 0, // index of establishment or 0 if stay at home?
             age: 0, // TODO: UPDATE
             health: 0,
@@ -84,7 +84,7 @@ export default new Vuex.Store({
 
       // set all new numbers
       commit('setPeople', people)
-      commit('setHouses', houseIndex)
+      commit('setHouses', houses)
       commit('setDestinations', destinations)
     },
     infect ({ commit }) {
