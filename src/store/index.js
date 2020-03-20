@@ -46,8 +46,8 @@ export default new Vuex.Store({
       let houseIndex = 0
       while(personIndex < totalPopulation) {
         // randomly assign number of people to a house
-        // between 1 and 5 people
-        let numPeopleInHouse = _.random(1, 6)
+        // between 1 and 4 people
+        let numPeopleInHouse = _.random(1, 4)
         // make sure it doesn't go over total population
         if (personIndex + numPeopleInHouse > totalPopulation) {
           numPeopleInHouse = totalPopulation - personIndex
@@ -78,7 +78,7 @@ export default new Vuex.Store({
       const destHouseRatio = destinations.length / houses.length
       _.each(houses, (house, i) => {
         const start = _.floor(i * destHouseRatio)
-        house.destinations = _.chain(_.random(5, 11))
+        house.destinations = _.chain(_.random(5, 10))
           // randomly assign 5 - 10 destinations to this house
           .times(num => _.random(start, start + 20))
           // but make sure we don't get the same destinations more than once
