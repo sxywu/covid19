@@ -29,12 +29,12 @@ export default new Vuex.Store({
   actions: {
     setup ({ commit }) {
       // for now, assume population size
-      const totalPopulation = 100
+      const totalPopulation = 1000
       // ~184 bars&restaurants for 1000 people in America (need to source this)
-      const numDestinations = _.floor(0.184 * totalPopulation)
+      const numDestinations = _.floor(0.05 * totalPopulation) || 1
       const destinations = _.times(numDestinations, i => {
         return {
-          id: i,
+          id: `dest${i}`,
           houses: [], // houses whose people visit that establishment
         }
       })
@@ -54,12 +54,12 @@ export default new Vuex.Store({
         }
 
         const house = {
-          id: houseIndex,
+          id: `house${houseIndex}`,
           destinations: _.chain(_.random(5, 11))
             // randomly assign 5 - 10 destinations to this house
             .times(i => _.random(destinations.length - 1))
             // but make sure we don't get the same destinations more than once
-            .uniq().filter().value(),
+            .uniq().value(),
         }
         // and likewise register that house to its destinations
         _.each(house.destinations, index => destinations[index].houses.push(houseIndex))
@@ -68,7 +68,7 @@ export default new Vuex.Store({
         // for each person in house, create object
         _.times(numPeopleInHouse, i => {
           people.push({
-            id: personIndex + i,
+            id: `person${personIndex + i}`,
             houseId: houseIndex, // reference house person lives in
             destination: 0, // index of establishment or 0 if stay at home?
             age: 0, // TODO: UPDATE
