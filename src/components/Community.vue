@@ -11,6 +11,11 @@
         <rect v-for='d in destinations' :x='d.x - d.size / 2' :y='d.y - d.size / 2'
           :width='d.size' :height='d.size' stroke='#000' fill='#999' />
       </g>
+      <!-- <g id='people'>
+        <circle v-for='d in people' :cx='houses[d.houseIndex] && houses[d.houseIndex].x'
+          :cy='houses[d.houseIndex] && houses[d.houseIndex].y'
+          r='4' fill='orange' />
+      </g> -->
     </svg>
   </div>
 </template>
@@ -27,6 +32,7 @@ export default {
       height: 400,
       houses: [],
       destinations: [],
+      // links: null,
     }
   },
   computed: {
@@ -35,7 +41,10 @@ export default {
     },
     destinationsData() {
       return this.$store.state.destinations
-    }
+    },
+    peopleData() {
+      return this.$store.state.people
+    },
   },
   mounted() {
     this.setupPositions()
@@ -53,38 +62,45 @@ export default {
       // if the data hasn't loaded, or if we've done the setup
       if (!this.housesData.length || !this.destinationsData.length || this.links) return
 
-      const houses = _.map(this.housesData, house => {
-        return {
+      const cutoff = 150
+      const houses = []
+      const destinations = []
+      const links = []
+      _.each(this.housesData, (house, i) => {
+        if (i >= cutoff) return
+
+        const source = {
           id: house.id,
-          size: 18,
-        }
-      })
-      const destinations = _.map(this.destinationsData, destination => {
-        return {
-          id: destination.id,
           size: 30,
         }
-      })
-      const links = []
-      _.each(this.housesData, (d, index) => {
-        const source = houses[index]
-        _.each(d.destinations, index => {
-          const target = destinations[index]
-          links.push({source, target, strength: _.random(1, 0.25)})
+        houses.push(source)
+        _.each(house.destinations, index => {
+          let target = destinations[index]
+          if (!target) {
+            target = destinations[index] = {
+              id: this.destinationsData[index].id,
+              size: 50,
+            }
+          }
+          links.push({source, target})
         })
       })
 
       const simulation = d3.forceSimulation(_.union(houses, destinations))
-        // .force("charge", d3.forceManyBody())
+        .force("charge", d3.forceManyBody())
         .force('collide', d3.forceCollide().radius(d => d.size))
         .force("center", d3.forceCenter(this.width / 2, this.height / 2))
-        .force("link", d3.forceLink(links).strength(d => d.strength))
+        .force("link", d3.forceLink(links))
         .stop()
 
-      _.times(1000, i => simulation.tick())
+      _.times(250, i => simulation.tick())
 
       this.houses = houses
       this.destinations = destinations
+      // this.links = links
+    },
+    personNextPosition() {
+
     },
   },
 }
