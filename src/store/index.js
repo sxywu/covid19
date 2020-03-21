@@ -106,7 +106,7 @@ export default new Vuex.Store({
         const dests = [0]
         _.each(houses[person.houseIndex].destinations, dest => dests.push(dest + 1))
         return Object.assign(person, {
-          health: _.random(6),
+          health: _.random(4),
           destination: dests[_.random(dests.length - 1)]
         })
       })

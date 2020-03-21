@@ -12,7 +12,7 @@
           :width='d.size' :height='d.size' stroke='#000' fill='#999' />
       </g>
       <g id='people'>
-        <circle v-for='d in people' :cx='d.x' :cy='d.y' :r='d.r' :fill='d.color' />
+        <circle v-for='d in people' :key='d.id' :cx='d.x' :cy='d.y' :r='d.r' :fill='d.color' />
       </g>
     </svg>
   </div>
@@ -25,7 +25,7 @@ import _ from 'lodash'
 const personR = 5
 const houseSize = 40
 const destSize = 60
-const baseColor = '#ffdd00'
+const colors = ['#ffdd00', '#0a911e', '#5a0d91', '#910a0a', '#333']
 
 export default {
   name: 'Community',
@@ -122,43 +122,57 @@ export default {
 
       // create people whose houses appear within community view
       const people = []
-      _.some(this.peopleData, (person, i) => {
-        if (person.houseIndex >= cutoff) return true // terminate loop here
-        const house = houses[person.houseIndex]
+      _.some(this.peopleData, ({id, houseIndex, health}, i) => {
+        if (houseIndex >= cutoff) return true // terminate loop here
+
+        const house = houses[houseIndex]
+        const color = colors[health]
         people.push({
-          id: person.id,
-          color: baseColor,
+          id,
           house, x: house.x, y: house.y,
+          prevColor: color, color,
           r: personR,
         })
       })
 
       this.houses = houses
       this.destinations = destinations
-      this.people = people
+      this.people = this.allPeople = people
     },
     updatePeople(goDestination) {
       if (!this.peopleData.length && !this.people.length) return
 
-      _.each(this.people, (person, i) => {
-        const destination = this.peopleData[i].destination
-        const {x, y} = !goDestination || !destination ?
-          person.house : this.destinations[destination - 1]
+      this.people = _.chain(this.allPeople)
+        .map((person, i) => {
+          const {health, destination} = this.peopleData[i]
+          if (health > 2) return
 
-        Object.assign(person, {focusX: x, focusY: y})
-      })
+          const {x, y} = !goDestination || !destination ?
+            person.house : this.destinations[destination - 1]
+
+          return Object.assign(person, {
+            focusX: x,
+            focusY: y,
+            colorInterpolate: d3.interpolateHsl(person.prevColor, colors[health]),
+            prevColor: person.color,
+          })
+        }).filter().value()
 
       if (goDestination) {
         this.simulation
           .velocityDecay(0.5)
           .alphaMin(0.89)
+          .on('tick', null)
           .on('end', () => this.updatePeople())
       } else {
         // go home
         this.simulation
           .velocityDecay(0.65)
           .alphaMin(0.75)
-          .on('end', null)
+          .on('tick', () => {
+            const progress = 1 - _.clamp((this.simulation.alpha() - 0.75) / 0.25, 0, 1)
+            _.each(this.people, d => d.color = d.colorInterpolate(progress))
+          }).on('end', null)
       }
       this.simulation.nodes(this.people).alpha(1).restart()
     },
