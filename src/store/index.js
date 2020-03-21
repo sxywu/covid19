@@ -16,6 +16,9 @@ export default new Vuex.Store({
 
   },
   mutations: {
+    setDay(state, day) {
+      state.day = day
+    },
     setPeople(state, people) {
       state.people = people
     },
@@ -96,8 +99,18 @@ export default new Vuex.Store({
       commit('setHouses', houses)
       commit('setDestinations', destinations)
     },
-    infect ({ commit }) {
+    updateDecision ({ commit, state }, decision) {
+      const {day, people, houses, destinations} = state
+      // TODO: FILL WITH ACTUAL SIMULATION
+      _.each(people, person => {
+        const dests = houses[person.houseIndex].destinations
+        return Object.assign(person, {
+          health: _.random(6),
+          destination: dests[_.random(dests.length - 1)]
+        })
+      })
 
+      commit('setDay', day + 1)
     },
   }
 })

@@ -12,8 +12,7 @@
           :width='d.size' :height='d.size' stroke='#000' fill='#999' />
       </g>
       <g id='people'>
-        <circle v-for='d in people' :cx='d.x' :cy='d.y'
-          :r='d.r' :fill='d.color' />
+        <circle v-for='d in people' :cx='d.x' :cy='d.y' :r='d.r' :fill='d.color' />
       </g>
     </svg>
   </div>
@@ -23,9 +22,9 @@
 import * as d3 from 'd3'
 import _ from 'lodash'
 
-const personR = 4
-const houseSize = 30
-const destSize = 50
+const personR = 5
+const houseSize = 40
+const destSize = 60
 const baseColor = '#ffdd00'
 
 export default {
@@ -41,6 +40,9 @@ export default {
     }
   },
   computed: {
+    day() {
+      return this.$store.state.day
+    },
     housesData() {
       return this.$store.state.houses
     },
@@ -57,13 +59,19 @@ export default {
       .force('collide', d3.forceCollide().radius(d => 1.5 * d.r))
       .force('x', d3.forceX().x(d => d.focusX))
       .force('y', d3.forceY().y(d => d.focusY))
-      .alphaDecay(0)
+      .alphaDecay(0.001)
+      .alphaMin(0.85)
+      .velocityDecay(0.7)
+      .on('end', () => this.updatePeople(true))
       .stop()
 
     this.setupPositions()
     this.updatePeople()
   },
   watch: {
+    day() {
+      this.updatePeople(false)
+    },
     housesData() {
       this.setupPositions()
     },
@@ -81,7 +89,7 @@ export default {
       if (!this.housesData.length || !this.destinationsData.length ||
         !this.peopleData.length || this.links) return
 
-      const cutoff = 150
+      const cutoff = 100
       const houses = []
       const destinations = []
       const links = []
@@ -113,7 +121,7 @@ export default {
         .force("center", d3.forceCenter(this.width / 2, this.height / 2))
         .force("link", d3.forceLink(links))
         .stop()
-      _.times(250, i => simulation.tick())
+        .tick(250)
 
       // create people whose houses appear within community view
       const people = []
@@ -132,17 +140,18 @@ export default {
       this.destinations = destinations
       this.people = people
     },
-    updatePeople() {
+    updatePeople(goHome) {
       if (!this.peopleData.length && !this.people.length) return
 
       _.each(this.people, (person, i) => {
         const destination = this.peopleData[i].destination
-        const {x, y} = !destination ? person.house : this.destinations[destination - 1]
+        const {x, y} = goHome || !destination ?
+          person.house : this.destinations[destination - 1]
 
         Object.assign(person, {focusX: x, focusY: y})
       })
 
-      this.simulation.nodes(this.people).restart()
+      this.simulation.nodes(this.people).alpha(1).restart()
     },
   },
 }

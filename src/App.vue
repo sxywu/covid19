@@ -1,6 +1,8 @@
 <template>
   <div id="app">
+    <h2>Day {{ day + 1 }}</h2>
     <Community />
+    <button @click='$store.dispatch("updateDecision")'>Decide</button>
   </div>
 </template>
 
@@ -11,6 +13,11 @@ export default {
   name: 'App',
   components: {
     Community,
+  },
+  computed: {
+    day() {
+      return this.$store.state.day
+    },
   },
   created() {
     this.$store.dispatch('setup')
