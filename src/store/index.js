@@ -103,7 +103,8 @@ export default new Vuex.Store({
       const {day, people, houses, destinations} = state
       // TODO: FILL WITH ACTUAL SIMULATION
       _.each(people, person => {
-        const dests = houses[person.houseIndex].destinations
+        const dests = [0]
+        _.each(houses[person.houseIndex].destinations, dest => dests.push(dest + 1))
         return Object.assign(person, {
           health: _.random(6),
           destination: dests[_.random(dests.length - 1)]
