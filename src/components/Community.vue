@@ -59,10 +59,7 @@ export default {
       .force('collide', d3.forceCollide().radius(d => 1.5 * d.r))
       .force('x', d3.forceX().x(d => d.focusX))
       .force('y', d3.forceY().y(d => d.focusY))
-      .alphaDecay(0.001)
-      .alphaMin(0.85)
-      .velocityDecay(0.7)
-      .on('end', () => this.updatePeople(true))
+      .alphaDecay(0.002)
       .stop()
 
     this.setupPositions()
@@ -70,7 +67,7 @@ export default {
   },
   watch: {
     day() {
-      this.updatePeople(false)
+      this.updatePeople(true)
     },
     housesData() {
       this.setupPositions()
@@ -121,7 +118,7 @@ export default {
         .force("center", d3.forceCenter(this.width / 2, this.height / 2))
         .force("link", d3.forceLink(links))
         .stop()
-        .tick(250)
+        .tick(225)
 
       // create people whose houses appear within community view
       const people = []
@@ -140,17 +137,29 @@ export default {
       this.destinations = destinations
       this.people = people
     },
-    updatePeople(goHome) {
+    updatePeople(goDestination) {
       if (!this.peopleData.length && !this.people.length) return
 
       _.each(this.people, (person, i) => {
         const destination = this.peopleData[i].destination
-        const {x, y} = goHome || !destination ?
+        const {x, y} = !goDestination || !destination ?
           person.house : this.destinations[destination - 1]
 
         Object.assign(person, {focusX: x, focusY: y})
       })
 
+      if (goDestination) {
+        this.simulation
+          .velocityDecay(0.5)
+          .alphaMin(0.89)
+          .on('end', () => this.updatePeople())
+      } else {
+        // go home
+        this.simulation
+          .velocityDecay(0.65)
+          .alphaMin(0.75)
+          .on('end', null)
+      }
       this.simulation.nodes(this.people).alpha(1).restart()
     },
   },
