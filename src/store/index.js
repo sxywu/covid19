@@ -10,7 +10,7 @@ export default new Vuex.Store({
     people: [],
     houses: [], // linked houses & destinations so that people only go to
     destinations: [], // destinations that are close to their homes
-    totalHospitalBeds: 0,
+    numBeds: 0,
   },
   getters: {
 
@@ -28,11 +28,18 @@ export default new Vuex.Store({
     setDestinations(state, destinations) {
       state.destinations = destinations
     },
+    setNumBeds(state, numBeds) {
+      state.numBeds = numBeds
+    }
   },
   actions: {
     setup ({ commit }) {
       // for now, assume population size
-      const totalPopulation = 1000
+      const totalPopulation = 50000
+
+      // 2.8 beds for every 1000
+      const numBeds = _.round(0.0028 * totalPopulation)
+
       // ~184 bars&restaurants for 1000 people in America (need to source this)
       const numDestinations = _.floor(0.05 * totalPopulation) || 1
       const destinations = _.times(numDestinations, i => {
@@ -98,18 +105,21 @@ export default new Vuex.Store({
       commit('setPeople', people)
       commit('setHouses', houses)
       commit('setDestinations', destinations)
+      commit('setNumBeds', numBeds)
     },
     updateDecision ({ commit, state }, decision) {
-      const {day, people, houses, destinations} = state
+      const {day, people, houses, destinations, numBeds} = state
       // TODO: FILL WITH ACTUAL SIMULATION
       _.each(people, person => {
         const dests = [0]
         _.each(houses[person.houseIndex].destinations, dest => dests.push(dest + 1))
         return Object.assign(person, {
-          health: _.random(4),
+          health: _.random(2),
           destination: dests[_.random(dests.length - 1)]
         })
       })
+
+      _.times(_.random(numBeds), i => people[_.random(people.length - 1)].health = 3)
 
       commit('setDay', day + 1)
     },

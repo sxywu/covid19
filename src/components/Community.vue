@@ -127,9 +127,12 @@ export default {
 
         const house = houses[houseIndex]
         const color = colors[health]
+
         people.push({
           id,
-          house, x: house.x, y: house.y,
+          house,
+          x: house.x + [1, -1][_.random(1)] * _.random(10),
+          y: house.y + [1, -1][_.random(1)] * _.random(10),
           prevColor: color, color,
           r: personR,
         })
@@ -180,8 +183,9 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 #community {
+  display: inline-block;
 }
 
 svg {
