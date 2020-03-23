@@ -1,10 +1,13 @@
 <template>
   <div id="app">
-    <h2>Day {{ day + 1 }}</h2>
+    <h2>
+      {{ zipCode }}: {{ population.total }} residents<br />
+      Day {{ day + 1 }}
+    </h2>
     <Community />
     <Hospital />
     <br />
-    <button @click='$store.dispatch("updateDecision")'>Decide</button>
+    <button @click='$store.commit("setDay", day + 1)'>Decide</button>
   </div>
 </template>
 
@@ -21,9 +24,16 @@ export default {
     day() {
       return this.$store.state.day
     },
+    zipCode() {
+      return this.$store.state.zipCode
+    },
+    population() {
+      return this.$store.getters.population || {}
+    },
   },
   created() {
-    this.$store.dispatch('setup')
+    this.$store.dispatch('getRawData')
+    this.$store.commit('setZipCode', '94110')
   }
 }
 </script>

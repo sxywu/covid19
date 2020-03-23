@@ -43,14 +43,11 @@ export default {
     day() {
       return this.$store.state.day
     },
-    housesData() {
-      return this.$store.state.houses
+    community() {
+      return this.$store.getters.community
     },
-    destinationsData() {
-      return this.$store.state.destinations
-    },
-    peopleData() {
-      return this.$store.state.people
+    infected() {
+      return this.$store.getters.infected
     },
   },
   mounted() {
@@ -66,31 +63,23 @@ export default {
     this.updatePeople()
   },
   watch: {
-    day() {
-      this.updatePeople(true)
-    },
-    housesData() {
-      this.setupPositions()
-    },
-    destinationsData() {
-      this.setupPositions()
-    },
-    peopleData() {
+    community() {
       this.setupPositions()
       this.updatePeople()
+    },
+    infected() {
+      this.updatePeople(true)
     },
   },
   methods: {
     setupPositions() {
-      // if the data hasn't loaded, or if we've done the setup
-      if (!this.housesData.length || !this.destinationsData.length ||
-        !this.peopleData.length || this.links) return
+      if (!this.community) return
 
       const cutoff = 100
       const houses = []
       const destinations = []
       const links = []
-      _.some(this.housesData, (house, i) => {
+      _.some(this.community.houses, (house, i) => {
         if (i >= cutoff) return true // terminate loop here
 
         const source = {
@@ -102,7 +91,7 @@ export default {
           let target = destinations[index]
           if (!target) {
             target = destinations[index] = {
-              id: this.destinationsData[index].id,
+              id: this.community.destinations[index].id,
               size: destSize,
             }
           }
@@ -122,11 +111,11 @@ export default {
 
       // create people whose houses appear within community view
       const people = []
-      _.some(this.peopleData, ({id, houseIndex, health}, i) => {
+      _.some(this.community.people, ({id, houseIndex}, i) => {
         if (houseIndex >= cutoff) return true // terminate loop here
 
         const house = houses[houseIndex]
-        const color = colors[health]
+        const color = colors[0]
 
         people.push({
           id,
@@ -143,11 +132,11 @@ export default {
       this.people = this.allPeople = people
     },
     updatePeople(goDestination) {
-      if (!this.peopleData.length && !this.people.length) return
+      if (!this.community && !this.people.length) return
 
       this.people = _.chain(this.allPeople)
         .map((person, i) => {
-          const {health, destination} = this.peopleData[i]
+          const {health, destination} = this.infected[i]
           if (health > 2) return
 
           const {x, y} = !goDestination || !destination ?
@@ -156,7 +145,7 @@ export default {
           return Object.assign(person, {
             focusX: x,
             focusY: y,
-            colorInterpolate: d3.interpolateHsl(person.prevColor, colors[health]),
+            colorInterpolate: d3.interpolate(person.prevColor, colors[health]),
             prevColor: person.color,
           })
         }).filter().value()
