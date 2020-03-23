@@ -11,6 +11,7 @@
     <button @click='$store.commit("setDay", day + 1)'>Decide</button>
     <div>
       <BarChart v-bind='{ageGroups, healthStatus, colorsByHealth}' />
+      <AreaChart v-bind='{ageGroups, healthStatus, colorsByHealth}' />
     </div>
   </div>
 </template>
@@ -19,11 +20,12 @@
 import Community from './components/Community'
 import Hospital from './components/Hospital'
 import BarChart from './components/BarChart'
+import AreaChart from './components/AreaChart'
 
 export default {
   name: 'App',
   components: {
-    Community, Hospital, BarChart,
+    Community, Hospital, BarChart, AreaChart,
   },
   data() {
     return {
