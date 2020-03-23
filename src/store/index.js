@@ -32,8 +32,8 @@ export default new Vuex.Store({
 
       const totalPopulation = population.total
 
-      // ~184 bars&restaurants for 1000 people in America (need to source this)
-      const numDestinations = _.floor(0.05 * totalPopulation) || 1
+      // make 100 establishments per 1000 people
+      const numDestinations = _.floor(0.1 * totalPopulation) || 1
       const destinations = _.times(numDestinations, i => {
         return {
           id: `dest${i}`,
@@ -41,15 +41,15 @@ export default new Vuex.Store({
         }
       })
 
-      // go through and assign each person to a house
+      // go through, create people, and assign each person to a house
       const people = []
       const houses = []
       let personIndex = 0
       let houseIndex = 0
       while(personIndex < totalPopulation) {
         // randomly assign number of people to a house
-        // between 1 and 4 people
-        let numPeopleInHouse = _.random(1, 4)
+        // between 1 and 6 people
+        let numPeopleInHouse = _.random(1, 5)
         // make sure it doesn't go over total population
         if (personIndex + numPeopleInHouse > totalPopulation) {
           numPeopleInHouse = totalPopulation - personIndex

@@ -22,9 +22,9 @@
 import * as d3 from 'd3'
 import _ from 'lodash'
 
-const personR = 5
-const houseSize = 40
-const destSize = 60
+const personR = 3
+const houseSize = 25
+const destSize = 40
 const colors = ['#ffdd00', '#0a911e', '#5a0d91', '#910a0a', '#333']
 
 export default {
@@ -75,7 +75,7 @@ export default {
     setupPositions() {
       if (!this.community) return
 
-      const cutoff = 100
+      const cutoff = 300
       const houses = []
       const destinations = []
       const links = []
@@ -102,7 +102,6 @@ export default {
       const nodes = _.chain(houses).union(destinations).filter().value()
       // simulation for just houses & dest positions
       const simulation = d3.forceSimulation(nodes)
-        .force("charge", d3.forceManyBody())
         .force('collide', d3.forceCollide().radius(d => d.size))
         .force("center", d3.forceCenter(this.width / 2, this.height / 2))
         .force("link", d3.forceLink(links))
