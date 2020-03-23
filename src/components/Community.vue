@@ -68,14 +68,12 @@ export default {
       this.updatePeople()
     },
     infected() {
-      console.log('infected')
       this.updatePeople(true)
     },
   },
   methods: {
     setupPositions() {
       if (!this.community) return
-      console.log('setup')
 
       const cutoff = 100
       const houses = []

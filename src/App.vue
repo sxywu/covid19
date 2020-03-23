@@ -1,6 +1,9 @@
 <template>
   <div id="app">
-    <h2>Day {{ day + 1 }}</h2>
+    <h2>
+      {{ zipCode }}: {{ population.total }} residents<br />
+      Day {{ day + 1 }}
+    </h2>
     <Community />
     <Hospital />
     <br />
@@ -21,10 +24,16 @@ export default {
     day() {
       return this.$store.state.day
     },
+    zipCode() {
+      return this.$store.state.zipCode
+    },
+    population() {
+      return this.$store.getters.population || {}
+    },
   },
   created() {
     this.$store.dispatch('getRawData')
-    this.$store.commit('setZipCode', '94080')
+    this.$store.commit('setZipCode', '94110')
   }
 }
 </script>

@@ -1,5 +1,6 @@
 <template>
-  <div id="hospital">
+  <div id="hospital" :style='{width: `${width}px`}'>
+    <div>{{ filledBeds }} filled out of {{ totalBeds }} total beds</div>
     <svg :width='width' :height='height'>
       <rect v-for='d in beds' :x='d.x' :y='d.y'
         :width='bedWidth - padding' :height='bedHeight - padding'
@@ -11,9 +12,9 @@
 <script>
 import _ from 'lodash'
 
-const bedWidth = 20
-const bedHeight = 30
-const padding = 5
+const bedWidth = 10
+const bedHeight = 15
+const padding = 2
 export default {
   name: 'Hospital',
   data() {
@@ -25,14 +26,17 @@ export default {
     }
   },
   computed: {
-    day() {
-      return this.$store.state.day
+    hospital() {
+      return _.maxBy(this.$store.getters.hospitals, 'beds')
     },
-    numBeds() {
-      return this.$store.state.numBeds
+    infected() {
+      return this.$store.getters.infected
     },
-    people() {
-      return this.$store.state.people
+    totalBeds() {
+      return this.$store.getters.totalBeds
+    },
+    filledBeds() {
+      return _.countBy(this.infected, ({health}) => health === 3).true || 0 // hospitalized
     },
   },
   mounted() {
@@ -40,19 +44,19 @@ export default {
     this.updateBeds()
   },
   watch: {
-    day() {
-      this.updateBeds()
-    },
-    numBeds() {
+    totalBeds() {
       this.setupBeds()
+    },
+    infected() {
+      this.updateBeds()
     },
   },
   methods: {
     setupBeds() {
-      if (!this.numBeds || this.beds.length) return
+      if (!this.totalBeds || this.beds.length) return
 
       const perRow = this.width / bedWidth
-      this.beds = _.times(this.numBeds, i => {
+      this.beds = _.times(this.totalBeds, i => {
         return {
           color: '#efefef',
           x: Math.floor(i % perRow) * bedWidth,
@@ -61,9 +65,8 @@ export default {
       })
     },
     updateBeds() {
-      const filledBeds = _.countBy(this.people, ({health}) => health === 3).true || 0 // hospitalized
       _.each(this.beds, (bed, i) => {
-        bed.color = i < filledBeds ? '#910a0a' : '#efefef'
+        bed.color = i < this.filledBeds ? '#910a0a' : '#efefef'
       })
     },
   },
