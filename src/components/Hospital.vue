@@ -1,5 +1,5 @@
 <template>
-  <div id="hospital" :style='{width: `${width}px`}'>
+  <div id="hospital" >
     <div>{{ filledBeds }} filled out of {{ totalBeds }} total beds</div>
     <svg :width='width' :height='height'>
       <rect v-for='d in beds' :x='d.x' :y='d.y'
