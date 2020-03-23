@@ -8,7 +8,7 @@
           :width='d.size' :height='d.size' stroke='#000' fill='#fff' />
       </g>
       <g id='destinations'>
-        <rect v-for='d in destinations' :x='d.x - d.size / 2' :y='d.y - d.size / 2'
+        <rect v-for='d in destinations' v-if='d' :x='d.x - d.size / 2' :y='d.y - d.size / 2'
           :width='d.size' :height='d.size' stroke='#000' fill='#999' />
       </g>
       <g id='people'>
