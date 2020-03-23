@@ -42,7 +42,7 @@ export default new Vuex.Store({
       })
 
       const ageGroups = _.map(['<19', '20', '40', '60', '>80'], (key, i) => {
-        return [i * 20, population[key]]
+        return [i * 20, population[key], key]
       })
       // go through, create people, and assign each person to a house
       const people = []
@@ -67,20 +67,23 @@ export default new Vuex.Store({
         _.times(numPeopleInHouse, i => {
           // calculate person's age
           let age
+          let ageGroup
           while (true) {
             const index = _.random(ageGroups.length - 1)
-            const [baseAge, remaining] = ageGroups[index]
+            const [baseAge, remaining, key] = ageGroups[index]
             if (remaining > 0) {
               age = _.random(baseAge, baseAge + 19)
+              ageGroup = key
               ageGroups[index][1] = remaining - 1
               break
             }
           }
 
           people.push({
+            index: personIndex + i,
             id: `person${personIndex + i}`,
             houseIndex, // reference house person lives in
-            age,
+            age, ageGroup,
             susceptibility: 0, // TODO: UPDATE
           })
         })
@@ -112,12 +115,13 @@ export default new Vuex.Store({
       if (!community) return
       const {people, houses, destinations} = community
 
-      const infected = _.map(people, person => {
+      const infected = _.map(people, (person, i) => {
         const dests = [0]
         _.each(houses[person.houseIndex].destinations, dest => dests.push(dest + 1))
 
         return {
-          health: _.random(2),
+          index: i,
+          health: _.random(6),
           destination: dests[_.random(dests.length - 1)],
           daysSinceInfection: 0,
         }
