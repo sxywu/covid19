@@ -41,6 +41,9 @@ export default new Vuex.Store({
         }
       })
 
+      const ageGroups = _.map(['<19', '20', '40', '60', '>80'], (key, i) => {
+        return [i * 20, population[key]]
+      })
       // go through, create people, and assign each person to a house
       const people = []
       const houses = []
@@ -62,10 +65,22 @@ export default new Vuex.Store({
 
         // for each person in house, create object
         _.times(numPeopleInHouse, i => {
+          // calculate person's age
+          let age
+          while (true) {
+            const index = _.random(ageGroups.length - 1)
+            const [baseAge, remaining] = ageGroups[index]
+            if (remaining > 0) {
+              age = _.random(baseAge, baseAge + 19)
+              ageGroups[index][1] = remaining - 1
+              break
+            }
+          }
+
           people.push({
             id: `person${personIndex + i}`,
             houseIndex, // reference house person lives in
-            age: 0, // TODO: UPDATE
+            age,
             susceptibility: 0, // TODO: UPDATE
           })
         })
@@ -73,17 +88,6 @@ export default new Vuex.Store({
         personIndex += numPeopleInHouse
         houseIndex += 1
       }
-
-      // assign age to every person
-      const peopleIndices = _.range(totalPopulation)
-      _.each(['<19', '20', '40', '60', '>80'], (key, i) => {
-        const baseAge = i * 20
-        _.times(population[key], i => {
-          const index = _.random(peopleIndices.length - 1)
-          Object.assign(people[index], {age: _.random(baseAge, baseAge + 19)})
-          peopleIndices.splice(index, 1)
-        })
-      })
 
       // assign houses and destinations to each other
       const destHouseRatio = destinations.length / houses.length
