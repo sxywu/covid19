@@ -3,6 +3,8 @@
     <svg :width='width' :height='height'>
       <rect v-for='d in bars' :x='d.x' :y='d.y'
         :width='barWidth' :height='d.height' :fill='d.color' />
+      <g ref='xAxis' :transform='`translate(0, ${height - margin.bottom})`' />
+      <g ref='yAxis' :transform='`translate(${margin.left}, 0)`' />
     </svg>
   </div>
 </template>
@@ -11,14 +13,15 @@
 import * as d3 from 'd3'
 import _ from 'lodash'
 
-const margin = {top: 20, right: 20, bottom: 20, left: 20}
+const margin = {top: 20, right: 20, bottom: 40, left: 40}
 export default {
   name: 'BarChart',
   props: ['ageGroups', 'healthStatus', 'colorsByHealth'],
   data() {
     return {
-      width: 200,
+      width: 400,
       height: 200,
+      margin,
       bars: [],
       barWidth: 0,
     }
@@ -31,9 +34,14 @@ export default {
 
     this.xScale = d3.scaleBand().domain(_.values(this.ageGroups))
       .range([margin.left, this.width - margin.right])
-      .paddingInner(0.2)
+      .padding(0.45)
     this.yScale = d3.scaleLinear().range([this.height - margin.bottom, margin.top])
     this.barWidth = this.xScale.bandwidth()
+
+    this.xAxis = d3.axisBottom().scale(this.xScale)
+    this.yAxis = d3.axisLeft().scale(this.yScale)
+      .ticks(5)
+      .tickFormat(d => d >= 1000 ? `${_.round(d / 1000)}k` : d)
   },
   computed: {
     population() {
@@ -49,6 +57,8 @@ export default {
   watch: {
     infected() {
       this.updateBarChart()
+      d3.select(this.$refs.xAxis).call(this.xAxis)
+      d3.select(this.$refs.yAxis).call(this.yAxis)
     },
   },
   methods: {
