@@ -121,12 +121,12 @@ export default new Vuex.Store({
 
         return {
           index: i,
-          health: _.random(6),
+          health: _.random(3),
           destination: dests[_.random(dests.length - 1)],
           daysSinceInfection: 0,
         }
       })
-      _.times(_.random(totalBeds), i => infected[_.random(infected.length - 1)].health = 3)
+      _.times(_.random(totalBeds), i => infected[_.random(infected.length - 1)].health = 4)
 
       return infected
     },

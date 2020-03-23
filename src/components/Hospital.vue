@@ -36,7 +36,7 @@ export default {
       return this.$store.getters.totalBeds
     },
     filledBeds() {
-      return _.countBy(this.infected, ({health}) => health === 3).true || 0 // hospitalized
+      return _.sumBy(this.infected, ({health}) => health === 4) // hospitalized
     },
   },
   mounted() {
