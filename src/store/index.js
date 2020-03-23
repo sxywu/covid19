@@ -5,6 +5,9 @@ import _ from 'lodash'
 
 Vue.use(Vuex)
 
+let populationsByZip
+let hospitalsByZip
+
 export default new Vuex.Store({
   state: {
     day: 0,
@@ -13,40 +16,14 @@ export default new Vuex.Store({
     dataLoaded: false,
   },
   getters: {
-  },
-  mutations: {
-    setDay(state, day) {
-      state.day = day
+    population({zipCode, dataLoaded}) {
+      if (!zipCode || !dataLoaded) return
+      return _.find(populationsByZip, d => d.zip === zipCode)
     },
-    setZipCode(state, zipCode) {
-      state.zipCode = zipCode
-    },
-    setDataLoaded(state, dataLoaded) {
-      state.dataLoaded = dataLoaded
-    },
-  },
-  actions: {
-    getRawData({commit, state}) {
-      function formatData(obj) {
-        const zip = obj.zip // make sure zip doesn't get turned into integers
-        return Object.assign(d3.autoType(obj), {zip}) // but everything else is formatted correctly
-      }
-      Promise.all([
-        d3.csv('./population-by-zip-code.csv', formatData),
-        d3.csv('./hospitals-by-zip-code.csv', formatData),
-      ]).then(([populations, hospitals]) => {
-        this.populations = populations
-        this.hospitals = hospitals
+    community(state, {population}) {
+      if (!population) return
 
-        commit('setDataLoaded', true)
-      })
-    },
-    setup ({ commit }) {
-      // for now, assume population size
-      const totalPopulation = 50000
-
-      // 2.8 beds for every 1000
-      const numBeds = _.round(0.0028 * totalPopulation)
+      const totalPopulation = population.total
 
       // ~184 bars&restaurants for 1000 people in America (need to source this)
       const numDestinations = _.floor(0.05 * totalPopulation) || 1
@@ -81,11 +58,8 @@ export default new Vuex.Store({
           people.push({
             id: `person${personIndex + i}`,
             houseIndex, // reference house person lives in
-            destination: 0, // index of establishment or 0 if stay at home?
             age: 0, // TODO: UPDATE
-            health: 0,
             susceptibility: 0, // TODO: UPDATE
-            daysSinceInfection: 0,
           })
         })
 
@@ -109,11 +83,35 @@ export default new Vuex.Store({
         _.each(house.destinations, index => destinations[index].houses.push(houseIndex))
       })
 
-      // set all new numbers
-      commit('setPeople', people)
-      commit('setHouses', houses)
-      commit('setDestinations', destinations)
-      commit('setNumBeds', numBeds)
+      return {people, houses, destinations}
+    }
+  },
+  mutations: {
+    setDay(state, day) {
+      state.day = day
+    },
+    setZipCode(state, zipCode) {
+      state.zipCode = zipCode
+    },
+    setDataLoaded(state, dataLoaded) {
+      state.dataLoaded = dataLoaded
+    },
+  },
+  actions: {
+    getRawData({commit, state}) {
+      function formatData(obj) {
+        const zip = obj.zip // make sure zip doesn't get turned into integers
+        return Object.assign(d3.autoType(obj), {zip}) // but everything else is formatted correctly
+      }
+      Promise.all([
+        d3.csv('./population-by-zip-code.csv', formatData),
+        d3.csv('./hospitals-by-zip-code.csv', formatData),
+      ]).then(([populations, hospitals]) => {
+        populationsByZip = populations
+        hospitalsByZip = hospitals
+
+        commit('setDataLoaded', true)
+      })
     },
     updateDecision ({ commit, state }, decision) {
       const {day, people, houses, destinations, numBeds} = state

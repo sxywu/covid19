@@ -43,14 +43,8 @@ export default {
     day() {
       return this.$store.state.day
     },
-    housesData() {
-      return this.$store.state.houses
-    },
-    destinationsData() {
-      return this.$store.state.destinations
-    },
-    peopleData() {
-      return this.$store.state.people
+    community() {
+      return this.$store.getters.community
     },
   },
   mounted() {
@@ -69,28 +63,20 @@ export default {
     day() {
       this.updatePeople(true)
     },
-    housesData() {
+    community() {
       this.setupPositions()
-    },
-    destinationsData() {
-      this.setupPositions()
-    },
-    peopleData() {
-      this.setupPositions()
-      this.updatePeople()
     },
   },
   methods: {
     setupPositions() {
       // if the data hasn't loaded, or if we've done the setup
-      if (!this.housesData.length || !this.destinationsData.length ||
-        !this.peopleData.length || this.links) return
+      if (!this.community || this.links) return
 
       const cutoff = 100
       const houses = []
       const destinations = []
       const links = []
-      _.some(this.housesData, (house, i) => {
+      _.some(this.community.houses, (house, i) => {
         if (i >= cutoff) return true // terminate loop here
 
         const source = {
@@ -102,7 +88,7 @@ export default {
           let target = destinations[index]
           if (!target) {
             target = destinations[index] = {
-              id: this.destinationsData[index].id,
+              id: this.community.destinations[index].id,
               size: destSize,
             }
           }
@@ -122,7 +108,7 @@ export default {
 
       // create people whose houses appear within community view
       const people = []
-      _.some(this.peopleData, ({id, houseIndex, health}, i) => {
+      _.some(this.community.people, ({id, houseIndex, health}, i) => {
         if (houseIndex >= cutoff) return true // terminate loop here
 
         const house = houses[houseIndex]
@@ -143,41 +129,41 @@ export default {
       this.people = this.allPeople = people
     },
     updatePeople(goDestination) {
-      if (!this.peopleData.length && !this.people.length) return
-
-      this.people = _.chain(this.allPeople)
-        .map((person, i) => {
-          const {health, destination} = this.peopleData[i]
-          if (health > 2) return
-
-          const {x, y} = !goDestination || !destination ?
-            person.house : this.destinations[destination - 1]
-
-          return Object.assign(person, {
-            focusX: x,
-            focusY: y,
-            colorInterpolate: d3.interpolate(person.prevColor, colors[health]),
-            prevColor: person.color,
-          })
-        }).filter().value()
-
-      if (goDestination) {
-        this.simulation
-          .velocityDecay(0.5)
-          .alphaMin(0.89)
-          .on('tick', null)
-          .on('end', () => this.updatePeople())
-      } else {
-        // go home
-        this.simulation
-          .velocityDecay(0.65)
-          .alphaMin(0.75)
-          .on('tick', () => {
-            const progress = 1 - _.clamp((this.simulation.alpha() - 0.75) / 0.25, 0, 1)
-            _.each(this.people, d => d.color = d.colorInterpolate(progress))
-          }).on('end', null)
-      }
-      this.simulation.nodes(this.people).alpha(1).restart()
+      if (!this.community && !this.people.length) return
+      //
+      // this.people = _.chain(this.allPeople)
+      //   .map((person, i) => {
+      //     const {health, destination} = this.community.people[i]
+      //     if (health > 2) return
+      //
+      //     const {x, y} = !goDestination || !destination ?
+      //       person.house : this.destinations[destination - 1]
+      //
+      //     return Object.assign(person, {
+      //       focusX: x,
+      //       focusY: y,
+      //       colorInterpolate: d3.interpolate(person.prevColor, colors[health]),
+      //       prevColor: person.color,
+      //     })
+      //   }).filter().value()
+      //
+      // if (goDestination) {
+      //   this.simulation
+      //     .velocityDecay(0.5)
+      //     .alphaMin(0.89)
+      //     .on('tick', null)
+      //     .on('end', () => this.updatePeople())
+      // } else {
+      //   // go home
+      //   this.simulation
+      //     .velocityDecay(0.65)
+      //     .alphaMin(0.75)
+      //     .on('tick', () => {
+      //       const progress = 1 - _.clamp((this.simulation.alpha() - 0.75) / 0.25, 0, 1)
+      //       _.each(this.people, d => d.color = d.colorInterpolate(progress))
+      //     }).on('end', null)
+      // }
+      // this.simulation.nodes(this.people).alpha(1).restart()
     },
   },
 }
