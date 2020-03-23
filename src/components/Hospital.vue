@@ -1,5 +1,5 @@
 <template>
-  <div id="hospital" :style='{width: `${width}px`}'>
+  <div id="hospital" >
     <div>{{ filledBeds }} filled out of {{ totalBeds }} total beds</div>
     <svg :width='width' :height='height'>
       <rect v-for='d in beds' :x='d.x' :y='d.y'
@@ -36,7 +36,7 @@ export default {
       return this.$store.getters.totalBeds
     },
     filledBeds() {
-      return _.countBy(this.infected, ({health}) => health === 3).true || 0 // hospitalized
+      return _.sumBy(this.infected, ({health}) => health === 4) // hospitalized
     },
   },
   mounted() {

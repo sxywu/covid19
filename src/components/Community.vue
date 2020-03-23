@@ -8,7 +8,7 @@
           :width='d.size' :height='d.size' stroke='#000' fill='#fff' />
       </g>
       <g id='destinations'>
-        <rect v-for='d in destinations' :x='d.x - d.size / 2' :y='d.y - d.size / 2'
+        <rect v-for='d in destinations' v-if='d' :x='d.x - d.size / 2' :y='d.y - d.size / 2'
           :width='d.size' :height='d.size' stroke='#000' fill='#999' />
       </g>
       <g id='people'>
@@ -22,13 +22,13 @@
 import * as d3 from 'd3'
 import _ from 'lodash'
 
-const personR = 5
-const houseSize = 40
-const destSize = 60
-const colors = ['#ffdd00', '#0a911e', '#5a0d91', '#910a0a', '#333']
+const personR = 3
+const houseSize = 25
+const destSize = 40
 
 export default {
   name: 'Community',
+  props: ['colorsByHealth'],
   data() {
     return {
       width: 800,
@@ -75,7 +75,7 @@ export default {
     setupPositions() {
       if (!this.community) return
 
-      const cutoff = 100
+      const cutoff = 300
       const houses = []
       const destinations = []
       const links = []
@@ -102,7 +102,6 @@ export default {
       const nodes = _.chain(houses).union(destinations).filter().value()
       // simulation for just houses & dest positions
       const simulation = d3.forceSimulation(nodes)
-        .force("charge", d3.forceManyBody())
         .force('collide', d3.forceCollide().radius(d => d.size))
         .force("center", d3.forceCenter(this.width / 2, this.height / 2))
         .force("link", d3.forceLink(links))
@@ -115,7 +114,7 @@ export default {
         if (houseIndex >= cutoff) return true // terminate loop here
 
         const house = houses[houseIndex]
-        const color = colors[0]
+        const color = this.colorsByHealth[0]
 
         people.push({
           id,
@@ -137,7 +136,7 @@ export default {
       this.people = _.chain(this.allPeople)
         .map((person, i) => {
           const {health, destination} = this.infected[i]
-          if (health > 2) return
+          if (health > 3) return
 
           const {x, y} = !goDestination || !destination ?
             person.house : this.destinations[destination - 1]
@@ -145,7 +144,7 @@ export default {
           return Object.assign(person, {
             focusX: x,
             focusY: y,
-            colorInterpolate: d3.interpolate(person.prevColor, colors[health]),
+            colorInterpolate: d3.interpolate(person.prevColor, this.colorsByHealth[health]),
             prevColor: person.color,
           })
         }).filter().value()
