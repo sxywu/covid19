@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import * as d3 from 'd3'
 import _ from 'lodash'
 
 Vue.use(Vuex)
@@ -7,32 +8,39 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     day: 0,
-    people: [],
-    houses: [], // linked houses & destinations so that people only go to
-    destinations: [], // destinations that are close to their homes
+    zipCode: '',
     numBeds: 0,
+    dataLoaded: false,
   },
   getters: {
-
   },
   mutations: {
     setDay(state, day) {
       state.day = day
     },
-    setPeople(state, people) {
-      state.people = people
+    setZipCode(state, zipCode) {
+      state.zipCode = zipCode
     },
-    setHouses(state, houses) {
-      state.houses = houses
+    setDataLoaded(state, dataLoaded) {
+      state.dataLoaded = dataLoaded
     },
-    setDestinations(state, destinations) {
-      state.destinations = destinations
-    },
-    setNumBeds(state, numBeds) {
-      state.numBeds = numBeds
-    }
   },
   actions: {
+    getRawData({commit, state}) {
+      function formatData(obj) {
+        const zip = obj.zip // make sure zip doesn't get turned into integers
+        return Object.assign(d3.autoType(obj), {zip}) // but everything else is formatted correctly
+      }
+      Promise.all([
+        d3.csv('./population-by-zip-code.csv', formatData),
+        d3.csv('./hospitals-by-zip-code.csv', formatData),
+      ]).then(([populations, hospitals]) => {
+        this.populations = populations
+        this.hospitals = hospitals
+
+        commit('setDataLoaded', true)
+      })
+    },
     setup ({ commit }) {
       // for now, assume population size
       const totalPopulation = 50000

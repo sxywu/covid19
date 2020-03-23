@@ -23,7 +23,8 @@ export default {
     },
   },
   created() {
-    this.$store.dispatch('setup')
+    this.$store.dispatch('getRawData')
+    this.$store.commit('setZipCode', '94080')
   }
 }
 </script>
