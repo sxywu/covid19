@@ -46,6 +46,9 @@ export default {
     community() {
       return this.$store.getters.community
     },
+    infected() {
+      return this.$store.getters.infected
+    },
   },
   mounted() {
     // setup force simulation for people positions
@@ -60,17 +63,19 @@ export default {
     this.updatePeople()
   },
   watch: {
-    day() {
-      this.updatePeople(true)
-    },
     community() {
       this.setupPositions()
+      this.updatePeople()
+    },
+    infected() {
+      console.log('infected')
+      this.updatePeople(true)
     },
   },
   methods: {
     setupPositions() {
-      // if the data hasn't loaded, or if we've done the setup
-      if (!this.community || this.links) return
+      if (!this.community) return
+      console.log('setup')
 
       const cutoff = 100
       const houses = []
@@ -108,11 +113,11 @@ export default {
 
       // create people whose houses appear within community view
       const people = []
-      _.some(this.community.people, ({id, houseIndex, health}, i) => {
+      _.some(this.community.people, ({id, houseIndex}, i) => {
         if (houseIndex >= cutoff) return true // terminate loop here
 
         const house = houses[houseIndex]
-        const color = colors[health]
+        const color = colors[0]
 
         people.push({
           id,
@@ -130,40 +135,40 @@ export default {
     },
     updatePeople(goDestination) {
       if (!this.community && !this.people.length) return
-      //
-      // this.people = _.chain(this.allPeople)
-      //   .map((person, i) => {
-      //     const {health, destination} = this.community.people[i]
-      //     if (health > 2) return
-      //
-      //     const {x, y} = !goDestination || !destination ?
-      //       person.house : this.destinations[destination - 1]
-      //
-      //     return Object.assign(person, {
-      //       focusX: x,
-      //       focusY: y,
-      //       colorInterpolate: d3.interpolate(person.prevColor, colors[health]),
-      //       prevColor: person.color,
-      //     })
-      //   }).filter().value()
-      //
-      // if (goDestination) {
-      //   this.simulation
-      //     .velocityDecay(0.5)
-      //     .alphaMin(0.89)
-      //     .on('tick', null)
-      //     .on('end', () => this.updatePeople())
-      // } else {
-      //   // go home
-      //   this.simulation
-      //     .velocityDecay(0.65)
-      //     .alphaMin(0.75)
-      //     .on('tick', () => {
-      //       const progress = 1 - _.clamp((this.simulation.alpha() - 0.75) / 0.25, 0, 1)
-      //       _.each(this.people, d => d.color = d.colorInterpolate(progress))
-      //     }).on('end', null)
-      // }
-      // this.simulation.nodes(this.people).alpha(1).restart()
+
+      this.people = _.chain(this.allPeople)
+        .map((person, i) => {
+          const {health, destination} = this.infected[i]
+          if (health > 2) return
+
+          const {x, y} = !goDestination || !destination ?
+            person.house : this.destinations[destination - 1]
+
+          return Object.assign(person, {
+            focusX: x,
+            focusY: y,
+            colorInterpolate: d3.interpolate(person.prevColor, colors[health]),
+            prevColor: person.color,
+          })
+        }).filter().value()
+
+      if (goDestination) {
+        this.simulation
+          .velocityDecay(0.5)
+          .alphaMin(0.89)
+          .on('tick', null)
+          .on('end', () => this.updatePeople())
+      } else {
+        // go home
+        this.simulation
+          .velocityDecay(0.65)
+          .alphaMin(0.75)
+          .on('tick', () => {
+            const progress = 1 - _.clamp((this.simulation.alpha() - 0.75) / 0.25, 0, 1)
+            _.each(this.people, d => d.color = d.colorInterpolate(progress))
+          }).on('end', null)
+      }
+      this.simulation.nodes(this.people).alpha(1).restart()
     },
   },
 }

@@ -4,7 +4,7 @@
     <Community />
     <Hospital />
     <br />
-    <button @click='$store.dispatch("updateDecision")'>Decide</button>
+    <button @click='$store.commit("setDay", day + 1)'>Decide</button>
   </div>
 </template>
 

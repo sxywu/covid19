@@ -12,13 +12,20 @@ export default new Vuex.Store({
   state: {
     day: 0,
     zipCode: '',
-    numBeds: 0,
     dataLoaded: false,
   },
   getters: {
     population({zipCode, dataLoaded}) {
       if (!zipCode || !dataLoaded) return
       return _.find(populationsByZip, d => d.zip === zipCode)
+    },
+    hospitals({zipCode, dataLoaded}) {
+      if (!zipCode || !dataLoaded) return
+      return _.filter(hospitalsByZip, d => d.zip === zipCode)
+    },
+    totalBeds(state, {hospitals}) {
+      if (!hospitals) return
+      return _.sumBy(hospitals, 'beds')
     },
     community(state, {population}) {
       if (!population) return
@@ -84,7 +91,25 @@ export default new Vuex.Store({
       })
 
       return {people, houses, destinations}
-    }
+    },
+    infected({day}, {community, totalBeds}) {
+      if (!community) return
+      const {people, houses, destinations} = community
+
+      const infected = _.map(people, person => {
+        const dests = [0]
+        _.each(houses[person.houseIndex].destinations, dest => dests.push(dest + 1))
+
+        return {
+          health: _.random(2),
+          destination: dests[_.random(dests.length - 1)],
+          daysSinceInfection: 0,
+        }
+      })
+      _.times(_.random(totalBeds), i => infected[_.random(infected.length - 1)].health = 3)
+
+      return infected
+    },
   },
   mutations: {
     setDay(state, day) {
@@ -112,22 +137,6 @@ export default new Vuex.Store({
 
         commit('setDataLoaded', true)
       })
-    },
-    updateDecision ({ commit, state }, decision) {
-      const {day, people, houses, destinations, numBeds} = state
-      // TODO: FILL WITH ACTUAL SIMULATION
-      _.each(people, person => {
-        const dests = [0]
-        _.each(houses[person.houseIndex].destinations, dest => dests.push(dest + 1))
-        return Object.assign(person, {
-          health: _.random(2),
-          destination: dests[_.random(dests.length - 1)]
-        })
-      })
-
-      _.times(_.random(numBeds), i => people[_.random(people.length - 1)].health = 3)
-
-      commit('setDay', day + 1)
     },
   }
 })
