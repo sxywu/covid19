@@ -25,10 +25,10 @@ import _ from 'lodash'
 const personR = 3
 const houseSize = 25
 const destSize = 40
-const colors = ['#ffdd00', '#0a911e', '#5a0d91', '#910a0a', '#333']
 
 export default {
   name: 'Community',
+  props: ['colorsByHealth'],
   data() {
     return {
       width: 800,
@@ -114,7 +114,7 @@ export default {
         if (houseIndex >= cutoff) return true // terminate loop here
 
         const house = houses[houseIndex]
-        const color = colors[0]
+        const color = this.colorsByHealth[0]
 
         people.push({
           id,
@@ -136,7 +136,7 @@ export default {
       this.people = _.chain(this.allPeople)
         .map((person, i) => {
           const {health, destination} = this.infected[i]
-          if (health > 2) return
+          if (health > 3) return
 
           const {x, y} = !goDestination || !destination ?
             person.house : this.destinations[destination - 1]
@@ -144,7 +144,7 @@ export default {
           return Object.assign(person, {
             focusX: x,
             focusY: y,
-            colorInterpolate: d3.interpolate(person.prevColor, colors[health]),
+            colorInterpolate: d3.interpolate(person.prevColor, this.colorsByHealth[health]),
             prevColor: person.color,
           })
         }).filter().value()
