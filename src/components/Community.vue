@@ -156,7 +156,7 @@ export default {
           return Object.assign(person, {
             focusX: x,
             focusY: y,
-            colorInterpolate: d3.interpolateHsl(person.prevColor, colors[health]),
+            colorInterpolate: d3.interpolate(person.prevColor, colors[health]),
             prevColor: person.color,
           })
         }).filter().value()
