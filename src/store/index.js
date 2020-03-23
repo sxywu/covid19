@@ -74,6 +74,18 @@ export default new Vuex.Store({
         houseIndex += 1
       }
 
+      // assign age to every person
+      const peopleIndices = _.range(totalPopulation)
+      _.each(['<19', '20', '40', '60', '>80'], (key, i) => {
+        const baseAge = i * 20
+        _.times(population[key], i => {
+          const index = _.random(peopleIndices.length - 1)
+          Object.assign(people[index], {age: _.random(baseAge, baseAge + 19)})
+          peopleIndices.splice(index, 1)
+        })
+      })
+
+      // assign houses and destinations to each other
       const destHouseRatio = destinations.length / houses.length
       _.each(houses, (house, i) => {
         const start = _.floor(i * destHouseRatio)
