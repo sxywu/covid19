@@ -19,13 +19,20 @@ export default new Vuex.Store({
       if (!zipCode || !dataLoaded) return
       return _.find(populationsByZip, d => d.zip === zipCode)
     },
-    hospitals({zipCode, dataLoaded}) {
-      if (!zipCode || !dataLoaded) return
-      return _.filter(hospitalsByZip, d => d.zip === zipCode)
+    zipsInCounty(state, {population}) {
+      if (!population) return
+      return _.filter(populationsByZip, d => d.county === population.county)
     },
-    totalBeds(state, {hospitals}) {
-      if (!hospitals) return
-      return _.sumBy(hospitals, 'beds')
+    hospitals(state, {zipsInCounty}) {
+      if (!zipsInCounty) return
+      const zips = _.map(zipsInCounty, 'zip')
+      return _.filter(hospitalsByZip, d => _.includes(zips, d.zip))
+    },
+    totalBeds(state, {hospitals, population, zipsInCounty}) {
+      if (!population || !hospitals || !zipsInCounty) return
+      const countyPopulation = _.sumBy(zipsInCounty, 'total')
+      const bedsPerPerson = _.sumBy(hospitals, 'beds') / countyPopulation
+      return Math.floor(population.total * bedsPerPerson)
     },
     community(state, {population}) {
       if (!population) return
