@@ -1,5 +1,6 @@
 <template>
   <div id="barChart">
+    <strong>Total severe, mild, and asymptomatic cases by age group</strong><br />
     <svg :width='width' :height='height'>
       <rect v-for='d in bars' :x='d.x' :y='d.y'
         :width='barWidth' :height='d.height' :fill='d.color' />
@@ -13,13 +14,13 @@
 import * as d3 from 'd3'
 import _ from 'lodash'
 
-const margin = {top: 20, right: 20, bottom: 40, left: 40}
+const margin = {top: 20, right: 20, bottom: 40, left: 30}
 export default {
   name: 'BarChart',
   props: ['ageGroups', 'healthStatus', 'colorsByHealth'],
   data() {
     return {
-      width: 400,
+      width: 300,
       height: 200,
       margin,
       bars: [],
@@ -93,6 +94,7 @@ export default {
 
 <style scoped>
 #barChart {
+  width: 300px;
   display: inline-block;
 }
 </style>

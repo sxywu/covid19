@@ -8,7 +8,9 @@
       <Community v-bind='{colorsByHealth}' />
       <Hospital />
     </div>
-    <button @click='$store.commit("setDay", day + 1)'>Decide</button>
+    <p>
+      <button @click='$store.commit("setDay", day + 1)'>Decide</button>
+    </p>
     <div>
       <BarChart v-bind='{ageGroups, healthStatus, colorsByHealth}' />
       <AreaChart v-bind='{ageGroups, healthStatus, colorsByHealth}' />
