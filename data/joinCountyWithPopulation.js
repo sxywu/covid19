@@ -1,24 +1,18 @@
 const fs = require('fs')
 const _ = require('lodash')
+const csv = require('csvtojson')
+const {parse} = require('json2csv')
 
-const populations = fs.readFileSync('./public/population-by-zip-code.csv', {encoding: 'utf8'})
-const counties = {}
-_.each(fs.readFileSync('./data/zip-to-county.csv', {encoding: 'utf8'}).split('\n'), (d, i) => {
-  if (i === 0) return
-  const [zip, county] = d.split(',')
-  counties[zip] = county
-})
+csv().fromFile('./data/zip-to-county.csv')
+  .then(counties => {
+    counties = _.keyBy(counties, 'zip')
 
+    csv().fromFile('./public/population-by-zip-code.csv')
+      .then(population => {
+        _.each(population, pop => Object.assign(pop, {
+          county: counties[pop.zip] && counties[pop.zip].county
+        }))
 
-let data = ''
-// go through each population zip code
-_.each(populations.split('\n'), (pop, i) => {
-  if (i === 0) {
-    data += `${pop},county\n`
-    return
-  }
-  const [zip] = pop.split(',')
-  data += `${pop},${counties[zip]}\n`
-})
-
-fs.writeFileSync('./data/population-by-zip-code.csv', data, {encoding: 'utf8'})
+        fs.writeFileSync('./data/population-by-zip-code.csv', parse(population), {encoding: 'utf8'})
+      })
+  })
