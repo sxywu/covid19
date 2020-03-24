@@ -7,6 +7,7 @@ Vue.use(Vuex)
 
 let populationsByZip
 let hospitalsByZip
+let prevInfected
 
 export default new Vuex.Store({
   state: {
@@ -84,7 +85,10 @@ export default new Vuex.Store({
             id: `person${personIndex + i}`,
             houseIndex, // reference house person lives in
             age, ageGroup,
-            susceptibility: 0, // TODO: UPDATE
+            susceptibility: 0.03, // TODO: UPDATE
+            symptomaticIfInfected: _.random(99) < 80 ? 1 : 0,  // TODO: updated based on age
+            hospitalIfInfected: _.random(99) < 20 ? 1 : 0 , // TODO: updated based on age
+            dieIfInfected: _.random(99) < 3 ? 1 : 0, // TODO: updated based on age
           })
         })
 
@@ -111,24 +115,71 @@ export default new Vuex.Store({
 
       return {people, houses, destinations}
     },
+    
+  	function assignHealth(person, daysSinceInfection ){ 
+		// health statuses: 1 = healthy, 2 = recovered, 3 = infected+asymptomatic, 4 = infected+ symptomatic, 5 = hospitalized from infection, 6 = died from infection. Option to add additional for infected+presymptomatic; and/or to include infectious here rather than as a separate variable
+		    let newHealth = 1;
+        let newInfectious = 0; 
+        if ( daysSinceInfection >= 14 ){ 
+        	newHealth = person.dieIfInfected == 1 ? 6 : 2 // dead or recovered
+        	newInfectious = 0 
+        } else if (daysSinceInfection >= 7 & person.hospitalIfInfected == 1 ) {
+        	newHealth = 5 // hospitalized 
+        	newInfectious = 1 
+        } else if (daysSinceInfection >= 6 ) { 
+        	newHealth = person.symptomaticIfInfected ? 4 : 3 // symptomatic or asymptomatic 
+        	newInfectious = 1        							 // and infectious
+        } else if (daysSinceInfection >= 4 ) {
+        	newHealth = 3  // asymptomatic 
+        	newInfectious = 1 // and infectious
+        } else if (daysSinceInfection >= 0 ) { 
+        	newHealth = 3  // asymptomatic
+        	newInfectious = 0 // and not infectious
+        } 
+        return {health: newHealth, infectious: newInfectious}
+	 }
+
+    
     infected({day}, {community, totalBeds}) {
       if (!community) return
       const {people, houses, destinations} = community
 
-      const infected = _.map(people, (person, i) => {
-        const dests = [0]
-        _.each(houses[person.houseIndex].destinations, dest => dests.push(dest + 1))
+      // id who was exposed and how many times
+      let exposedToday = {};
+	    prevInfected.filter(d => d.infectious == 1)
+	  	  .forEach(function (d){
+	 		    prevInfected.forEach(function (o, i ){
+	 		 		  if (people[o.index].houseIndex == people[d.index].houseIndex )  { 
+	 		 			  exposedToday[i] = exposedToday[i] ? exposedToday[i] + 5 : 5; 
+	 		 		  } else if (o.destination != 0 & o.destination == d.destination) {
+	 		 		  	exposedToday[i] = exposedToday[i] ? exposedToday[i] + 1 : 1; 
+					  }
+	 		 	  })
+	    })
 
+	    // update to tomorrow's destinations and health status 
+      const infected = people.map(function (person, i) {
+        let curDest = d3.shuffle(houses[person.houseIndex].destinations).slice(0,1)[0]
+        
+        // iterate infection days if they are already infected or they were exposed today and their susceptibility * number of exposures > random number from 0-1          
+        let newDaysSinceInfection = (prevInfected[i].daysSinceInfection > 0 | 
+          							(exposedToday[i] & ((person.susceptibility * exposedToday[i]) > Math.random() ))) ? 
+          						prevInfected[i].daysSinceInfection + 1 : 0; 
+
+		curHealth = assignHealth(person, newDaysSinceInfection)
+        
         return {
           index: i,
-          health: _.random(3),
-          destination: dests[_.random(dests.length - 1)],
-          daysSinceInfection: 0,
+          health: curHealth.health,
+          destination: curDest,
+          daysSinceInfection: newDaysSinceInfection,
+          infectious: curHealth.infectious,
         }
       })
-      _.times(_.random(totalBeds), i => infected[_.random(infected.length - 1)].health = 4)
+      
+	  prevInfected = infected
 
-      return infected
+    return infected
     },
   },
   mutations: {
