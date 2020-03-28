@@ -1,6 +1,6 @@
 <template>
   <div id="areaChart">
-    <strong>Total severe, mild, and asymptomatic cases by day</strong><br />
+    <strong>Infected cases by day</strong><br />
     <svg :width='width' :height='height'>
       <path v-for='d in paths' :d='d.path' :fill='d.color' />
       <g ref='xAxis' :transform='`translate(0, ${height - margin.bottom})`' />
@@ -13,14 +13,14 @@
 import * as d3 from 'd3'
 import _ from 'lodash'
 
-const margin = {top: 20, right: 20, bottom: 40, left: 30}
+const margin = {top: 20, right: 20, bottom: 20, left: 30}
 export default {
   name: 'AreaChart',
   props: ['ageGroups', 'healthStatus', 'colorsByHealth'],
   data() {
     return {
       width: 500,
-      height: 200,
+      height: 150,
       margin,
       paths: [],
     }
@@ -38,6 +38,7 @@ export default {
 
     this.areaGenerator = d3.area()
       .x(d => _.round(d.x, 2)).y1(d => _.round(d.y1, 2)).y0(d => _.round(d.y0, 2))
+      .curve(d3.curveCatmullRom)
 
     this.xAxis = d3.axisBottom().scale(this.xScale)
     this.yAxis = d3.axisLeft().scale(this.yScale)
@@ -92,6 +93,6 @@ export default {
 <style scoped>
 #areaChart {
   display: inline-block;
-  margin: 10px;
+  border-left: #efefef;
 }
 </style>
