@@ -13,7 +13,8 @@
           :width='d.size' :height='d.size' :href='d.href' />
       </g>
       <g id='people'>
-        <circle v-for='d in people' :key='d.id' :cx='d.x' :cy='d.y' :r='d.r' :fill='d.color' />
+        <circle v-for='d in people' :key='d.id' :cx='d.x' :cy='d.y' :r='d.r'
+          :fill='d.fill' :stroke='d.stroke' stroke-width='2' />
       </g>
     </svg>
   </div>
@@ -153,8 +154,8 @@ export default {
           return Object.assign(person, {
             focusX: x,
             focusY: y,
-            colorInterpolate: d3.interpolate(person.prevColor, this.colorsByHealth[health]),
-            prevColor: person.color,
+            fill: health === 1 ? '#fff' : this.colorsByHealth[health],
+            stroke: this.colorsByHealth[health],
           })
         }).filter().value()
 
