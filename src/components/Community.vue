@@ -36,11 +36,9 @@ const destImages = _.map(['cafe', 'restaurant', 'park'], file => require(`../ass
 
 export default {
   name: 'Community',
-  props: ['colorsByHealth'],
+  props: ['colorsByHealth', 'width', 'height'],
   data() {
     return {
-      width: 800,
-      height: 400,
       houses: [],
       destinations: [],
       people: [],
@@ -131,7 +129,6 @@ export default {
           house,
           x: house.x + [1, -1][_.random(1)] * _.random(10),
           y: house.y + [1, -1][_.random(1)] * _.random(10),
-          prevColor: color, color,
           r: personR,
         })
       })
@@ -172,7 +169,6 @@ export default {
           .alphaMin(0.75)
           .on('tick', () => {
             const progress = 1 - _.clamp((this.simulation.alpha() - 0.75) / 0.25, 0, 1)
-            _.each(this.people, d => d.color = d.colorInterpolate(progress))
           }).on('end', null)
       }
       this.simulation.nodes(this.people).alpha(1).restart()
@@ -183,11 +179,9 @@ export default {
 
 <style scoped>
 #community {
-  display: inline-block;
-}
-
-svg {
-  border: 1px solid;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
 svg {

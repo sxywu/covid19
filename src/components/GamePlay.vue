@@ -1,20 +1,21 @@
 <template>
   <div id="gameplay" :style='{width: `${width}px`, height: `${height}px`}'>
-    <h2>
-      {{ zipCode }}: {{ population.total }} residents<br />
-      Day {{ day + 1 }}
-    </h2>
-    <div>
-      <Community v-bind='{colorsByHealth}' />
+    <div class='container'>
+      <!-- BACKGROUND -->
+      <Community v-bind='{colorsByHealth, width, height}' />
+      <h2>
+        Day {{ day + 1 }}
+      </h2>
       <Hospital />
+      <p>
+        <button @click='$store.commit("setDay", day + 1)'>Decide</button>
+      </p>
+      <div>
+        <BarChart v-bind='$props' />
+        <AreaChart v-bind='$props' />
+      </div>
     </div>
-    <p>
-      <button @click='$store.commit("setDay", day + 1)'>Decide</button>
-    </p>
-    <div>
-      <BarChart v-bind='$props' />
-      <AreaChart v-bind='$props' />
-    </div>
+    <div class='zipCode'>ZIP CODE: <strong>{{ zipCode }}</strong> ({{ population.total }} residents)</div>
   </div>
 </template>
 
@@ -71,8 +72,19 @@ export default {
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  border-radius: 3px;
+}
+
+.container {
+  width: 100%;
+  height: 100%;
   overflow: hidden;
+  border-radius: 5px;
   background: #fff;
+}
+
+.zipCode {
+  position: absolute;
+  top: -20px;
+  right: 0px;
 }
 </style>
