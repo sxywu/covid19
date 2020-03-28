@@ -4,12 +4,13 @@
       <!-- <line v-for='d in links' :x1='d.source.x' :y1='d.source.y'
         :x2='d.target.x' :y2='d.target.y' stroke='#000' /> -->
       <g id='houses'>
-        <rect v-for='d in houses' :x='d.x - d.size / 2' :y='d.y - d.size / 2'
-          :width='d.size' :height='d.size' stroke='#000' fill='#fff' />
+        <image v-for='d in houses' :x='d.x - d.size / 2' :y='d.y - 0.7 * d.size'
+          :width='d.size' :height='d.size' :href='d.href' />
       </g>
       <g id='destinations'>
-        <rect v-for='d in destinations' v-if='d' :x='d.x - d.size / 2' :y='d.y - d.size / 2'
-          :width='d.size' :height='d.size' stroke='#000' fill='#999' />
+        <image v-for='d in destinations' v-if='d'
+          :x='d.x - d.size / 2' :y='d.y - 0.7 * d.size'
+          :width='d.size' :height='d.size' :href='d.href' />
       </g>
       <g id='people'>
         <circle v-for='d in people' :key='d.id' :cx='d.x' :cy='d.y' :r='d.r' :fill='d.color' />
@@ -22,9 +23,15 @@
 import * as d3 from 'd3'
 import _ from 'lodash'
 
-const personR = 3
-const houseSize = 25
-const destSize = 40
+const personR = 3.5
+const houseSizes = [45, 60]
+const destSize = 90
+
+const houseImages = _.map([
+  'house-sm-left', 'house-sm-right',
+  'house-lg-left', 'house-lg-right'
+  ], file => require(`../assets/${file}.png`))
+const destImages = _.map(['cafe', 'restaurant', 'park'], file => require(`../assets/${file}.png`))
 
 export default {
   name: 'Community',
@@ -84,7 +91,8 @@ export default {
 
         const source = {
           id: house.id,
-          size: houseSize,
+          size: houseSizes[house.numPeople < 3 ? 0 : 1],
+          href: houseImages[house.numPeople < 3 ? _.random(1) : _.random(2, 3)],
         }
         houses.push(source)
         _.each(house.destinations, index => {
@@ -93,6 +101,7 @@ export default {
             target = destinations[index] = {
               id: this.community.destinations[index].id,
               size: destSize,
+              href: destImages[index % 4 ? _.random(1) : 2],
             }
           }
           links.push({source, target})
@@ -102,7 +111,7 @@ export default {
       const nodes = _.chain(houses).union(destinations).filter().value()
       // simulation for just houses & dest positions
       const simulation = d3.forceSimulation(nodes)
-        .force('collide', d3.forceCollide().radius(d => d.size))
+        .force('collide', d3.forceCollide().radius(d => 0.55 * d.size))
         .force("center", d3.forceCenter(this.width / 2, this.height / 2))
         .force("link", d3.forceLink(links))
         .stop()
@@ -178,5 +187,13 @@ export default {
 
 svg {
   border: 1px solid;
+}
+
+svg {
+  isolation: isolate;
+}
+
+#people {
+  mix-blend-mode: multiply;
 }
 </style>

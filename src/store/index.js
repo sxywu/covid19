@@ -67,6 +67,7 @@ export default new Vuex.Store({
 
         const house = {
           id: `house${houseIndex}`,
+          numPeople: numPeopleInHouse,
         }
         houses.push(house)
 
