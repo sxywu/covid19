@@ -13,6 +13,7 @@ export default new Vuex.Store({
     day: 0,
     zipCode: '',
     dataLoaded: false,
+    bedOccupancyRate: 0.66,
   },
   getters: {
     population({zipCode, dataLoaded}) {
@@ -33,6 +34,9 @@ export default new Vuex.Store({
       const countyPopulation = _.sumBy(zipsInCounty, 'total')
       const bedsPerPerson = _.sumBy(hospitals, 'beds') / countyPopulation
       return Math.floor(population.total * bedsPerPerson)
+    },
+    totalAvailableBeds({bedOccupancyRate}, {totalBeds}) {
+      return Math.floor((1 - bedOccupancyRate) * totalBeds)
     },
     community(state, {population}) {
       if (!population) return
@@ -119,7 +123,7 @@ export default new Vuex.Store({
 
       return {people, houses, destinations}
     },
-    infected({day}, {community, totalBeds}) {
+    infected({day}, {community, totalAvailableBeds}) {
       if (!community) return
       const {people, houses, destinations} = community
 
@@ -134,7 +138,7 @@ export default new Vuex.Store({
           daysSinceInfection: 0,
         }
       })
-      _.times(_.random(totalBeds), i => infected[_.random(infected.length - 1)].health = 4)
+      _.times(_.random(totalAvailableBeds), i => infected[_.random(infected.length - 1)].health = 4)
 
       return infected
     },

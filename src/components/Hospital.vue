@@ -1,10 +1,11 @@
 <template>
   <div id="hospital" >
-    <div>{{ filledBeds }} filled out of {{ totalBeds }} total beds</div>
+    <div>{{ filledBeds }} filled of {{ totalAvailableBeds }} available</div>
+    <div>{{ totalBeds }} total beds</div>
     <svg :width='width' :height='height'>
-      <rect v-for='d in beds' :x='d.x' :y='d.y'
+      <image v-for='d in beds' :x='d.x' :y='d.y'
         :width='bedWidth - padding' :height='bedHeight - padding'
-        :fill='d.color' stroke='#333' />
+        :href='bedImage' />
     </svg>
   </div>
 </template>
@@ -12,8 +13,10 @@
 <script>
 import _ from 'lodash'
 
-const bedWidth = 10
-const bedHeight = 15
+const bedImage = require('../assets/bed.png')
+const bedWidthHeightRatio = 1.071
+const bedWidth = 30
+const bedHeight = (1 / bedWidthHeightRatio) * bedWidth
 const padding = 2
 export default {
   name: 'Hospital',
@@ -23,6 +26,7 @@ export default {
       height: 400,
       bedWidth, bedHeight, padding,
       beds: [],
+      bedImage,
     }
   },
   computed: {
@@ -34,6 +38,9 @@ export default {
     },
     totalBeds() {
       return this.$store.getters.totalBeds
+    },
+    totalAvailableBeds() {
+      return this.$store.getters.totalAvailableBeds
     },
     filledBeds() {
       return _.sumBy(this.infected, ({health}) => health === 4) // hospitalized
@@ -55,8 +62,8 @@ export default {
     setupBeds() {
       if (!this.totalBeds || this.beds.length) return
 
-      const perRow = this.width / bedWidth
-      this.beds = _.times(this.totalBeds, i => {
+      const perRow = Math.floor(this.width / bedWidth)
+      this.beds = _.times(this.totalAvailableBeds, i => {
         return {
           color: '#efefef',
           x: Math.floor(i % perRow) * bedWidth,
