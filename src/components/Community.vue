@@ -24,9 +24,9 @@
 import * as d3 from 'd3'
 import _ from 'lodash'
 
-const personR = 3.5
-const houseSizes = [45, 60]
-const destSize = 90
+const personR = 4
+const houseSizes = [75, 90]
+const destSize = 140
 
 const houseImages = _.map([
   'house-sm-left', 'house-sm-right',
