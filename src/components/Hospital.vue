@@ -17,9 +17,9 @@ const bedHeight = 15
 const padding = 2
 export default {
   name: 'Hospital',
+  props: ['width'],
   data() {
     return {
-      width: 300,
       height: 400,
       bedWidth, bedHeight, padding,
       beds: [],
@@ -76,7 +76,6 @@ export default {
 <style scoped>
 #hospital {
   display: inline-block;
-  padding-left: 10px;
 }
 
 svg {

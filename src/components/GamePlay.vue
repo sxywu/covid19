@@ -3,16 +3,19 @@
     <div class='container'>
       <!-- BACKGROUND -->
       <Community v-bind='{colorsByHealth, width, height}' />
-      <h2>
-        Day {{ day + 1 }}
-      </h2>
-      <Hospital />
-      <p>
-        <button @click='$store.commit("setDay", day + 1)'>Decide</button>
-      </p>
-      <div>
+      <!-- BOTTOM PANEL -->
+      <div class='panel' id='bottomPanel' :style='{width: `${width - rightWidth}px`}'>
         <BarChart v-bind='$props' />
         <AreaChart v-bind='$props' />
+      </div>
+      <!-- RIGHT PANEL -->
+      <div class='panel' id='rightPanel' :style='{height: `${height - topHeight}px`}'>
+        <Hospital v-bind='{width: rightWidth}' />
+      </div>
+      <!-- TOP PANEL -->
+      <div class='panel' id='topPanel' :style='{height: `${topHeight}px`}'>
+        <strong>Day {{ day + 1 }}</strong>
+        <button @click='$store.commit("setDay", day + 1)'>Decide</button>
       </div>
     </div>
     <div class='zipCode'>ZIP CODE: <strong>{{ zipCode }}</strong> ({{ population.total }} residents)</div>
@@ -37,6 +40,8 @@ export default {
     return {
       width: window.innerWidth,
       height: window.innerHeight,
+      topHeight: 40,
+      rightWidth: 320,
     }
   },
   computed: {
@@ -75,11 +80,35 @@ export default {
 }
 
 .container {
+  position: absolute;
   width: 100%;
   height: 100%;
   overflow: hidden;
   border-radius: 5px;
   background: #fff;
+}
+
+.panel {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+#topPanel {
+  width: 100%;
+  top: 0;
+  border-bottom: 1px solid #efefef;
+}
+
+#rightPanel {
+  right: 0px;
+  bottom: 0px;
+  border-left: 1px solid #efefef;
+}
+
+#bottomPanel {
+  left: 0px;
+  bottom: 0px;
+  border-top: 1px solid #efefef;
 }
 
 .zipCode {
