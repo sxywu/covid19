@@ -1,5 +1,5 @@
 <template>
-  <div id="gameplay">
+  <div id="gameplay" :style='{width: `${width}px`, height: `${height}px`}'>
     <h2>
       {{ zipCode }}: {{ population.total }} residents<br />
       Day {{ day + 1 }}
@@ -24,12 +24,20 @@ import Hospital from './Hospital'
 import BarChart from './BarChart'
 import AreaChart from './AreaChart'
 
+const widthHeightRatio = 16 / 9
+const padding = 40
 export default {
   name: 'GamePlay',
   components: {
     Community, Hospital, BarChart, AreaChart,
   },
   props: ['ageGroups', 'healthStatus', 'colorsByHealth'],
+  data() {
+    return {
+      width: window.innerWidth,
+      height: window.innerHeight,
+    }
+  },
   computed: {
     day() {
       return this.$store.state.day
@@ -41,15 +49,30 @@ export default {
       return this.$store.getters.population || {}
     },
   },
+  mounted() {
+    window.addEventListener('resize', this.calculateDimensions)
+    this.calculateDimensions()
+  },
+  destroyed() {
+    window.removeEventListener('resize', this.calculateDimensions)
+  },
+  methods: {
+    calculateDimensions() {
+      this.width = window.innerWidth - padding
+      this.height = (1 / widthHeightRatio) * this.width
+    },
+  },
 }
 </script>
 
-<style>
+<style scoped>
 #gameplay {
-}
-
-button {
-  font-size: 1.25em;
-  margin-top: 20px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 3px;
+  overflow: hidden;
+  background: #fff;
 }
 </style>
