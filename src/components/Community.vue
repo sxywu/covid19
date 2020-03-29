@@ -78,7 +78,6 @@ export default {
   watch: {
     community() {
       this.setupPositions()
-      this.updateTimeline()
     },
     infected() {
       this.updateTimeline()
@@ -207,7 +206,7 @@ export default {
 
         this.nodes = _.union(this.people, this.buildings)
         this.simulation.nodes(this.nodes)
-      }, `day${this.day + 1}`)
+      }, `day${this.day}`)
 
       // phase 2: update colors
       this.tl.to(this.people, {
@@ -215,7 +214,7 @@ export default {
         color: (i, person) => person.nextColor,
         outline: (i, person) => person.nextOutline,
         stagger: 0.003,
-      }, `day${this.day + 1}+=${duration1}`)
+      }, `day${this.day}-1`)
 
       // phase 3: go back home
       this.tl.add(() => {
@@ -225,13 +224,9 @@ export default {
           focusY: person.house.y,
         }))
         this.simulation.nodes(this.nodes)
-      }, `day${this.day + 1}+=${duration1 + duration2}`)
+      }, `day${this.day}-2`)
 
-      this.tl.add(() => {
-
-      }, `day${this.day + 1}+=${duration1 + duration2 + duration3}`)
-
-      this.playTimeline()
+      this.playTimeline('community')
     },
   },
 }

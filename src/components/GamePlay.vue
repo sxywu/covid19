@@ -17,7 +17,7 @@
       </div>
       <!-- TOP PANEL -->
       <div class='panel' id='topPanel' :style='{height: `${topHeight}px`}'>
-        <strong>Day {{ day + 1 }}</strong>
+        <strong>Day {{ day }}</strong>
         <button @click='updateDecision'>Decide</button>
       </div>
     </div>
@@ -35,6 +35,8 @@ import AreaChart from './AreaChart'
 
 const widthHeightRatio = 16 / 9
 const padding = 40
+const needSetup = ['community']
+
 export default {
   name: 'GamePlay',
   components: {
@@ -62,6 +64,9 @@ export default {
       return this.$store.getters.population || {}
     },
   },
+  created() {
+    this.updateDay()
+  },
   mounted() {
     window.addEventListener('resize', this.calculateDimensions)
     this.calculateDimensions()
@@ -75,10 +80,25 @@ export default {
       this.height = (1 / widthHeightRatio) * this.width
     },
     updateDecision() {
-      this.tl.add(`day${this.day + 1}`)
+      this.updateDay()
+    },
+    updateDay() {
+      this.setupDone = []
+
+      let prevLabel = `day${this.day + 1}`
+      this.tl.add(prevLabel)
+      _.each(this.phases, (d, i) => {
+        let label = `day${this.day + 1}-${i + 1}`
+        this.tl.add(label, `${prevLabel}+=${d}`)
+        prevLabel = label
+      })
       this.$store.commit("setDay", this.day + 1)
     },
-    playTimeline() {
+    playTimeline(child) {
+      this.setupDone.push(child)
+      if (_.difference(needSetup, this.setupDone).length) return
+
+      // if all children have been setup, then play
       this.tl.play(`day${this.day}`)
     },
   },
