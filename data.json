@@ -1,0 +1,50 @@
+{
+    "Age bin": {
+        "<25": {
+            "susceptibility to infection from exposure": 0.005,
+            "daily contacts": 17,
+            "proportion of infected people who develop symptoms": 0.70,
+            "proportion of symptomatic who get hospitalized": 0.03,
+            "proportion of symptomatic who need ICU": 0.001,
+            "mortality rate (of those who become symptomatic)": 0.0001
+        },
+        "25-55": {
+            "susceptibility to infection from exposure": 0.010,
+            "daily contacts": 17,
+            "proportion of infected people who develop symptoms": 0.75,
+            "proportion of symptomatic who get hospitalized": 0.20,
+            "proportion of symptomatic who need ICU": 0.040,
+            "mortality rate (of those who become symptomatic)": 0.0020
+        },
+        "55-75": {
+            "susceptibility to infection from exposure": 0.025,
+            "daily contacts": 17,
+            "proportion of infected people who develop symptoms": 0.80,
+            "proportion of symptomatic who get hospitalized": 0.30,
+            "proportion of symptomatic who need ICU": 0.100,
+            "mortality rate (of those who become symptomatic)": 0.0200
+        },
+        "75+": {
+            "susceptibility to infection from exposure": 0.035,
+            "daily contacts": 17,
+            "proportion of infected people who develop symptoms": 0.85,
+            "proportion of symptomatic who get hospitalized": 0.50,
+            "proportion of symptomatic who need ICU": 0.200,
+            "mortality rate (of those who become symptomatic)": 0.1200
+        },
+    },
+    "Disease Course": {
+        "Infectious": 4,
+        "Symptomatic": 6,
+        "Hospitalization": 7,
+        "Death": 14,
+        "Recovery": 14
+    },
+    "Other Parameters": {
+        "People Per House": 2.6,
+        "People Per Destination": 20,
+        "Baseline Probability of leaving house if healthy": 0.85,
+        "Baseline Probability of leaving house if sick": 0.5,
+        "Baseline Proportion of hospital beds full": 0.66
+    }
+}

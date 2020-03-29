@@ -3,6 +3,22 @@ import Vuex from 'vuex'
 import * as d3 from 'd3'
 import _ from 'lodash'
 
+/*
+
+//https://gist.github.com/johnlindquist/632409821b13693efe73913b93ac3ed2
+
+fetch(`https://api.github.com/gists/632409821b13693efe73913b93ac3ed2`, {
+  headers: {
+    "Content-Type": "application/json"
+  }
+})
+  .then(response => response.json())
+  .then(data => {
+    console.log(data.files["data.json"].content);
+  });
+*/
+
+
 Vue.use(Vuex)
 
 let populationsByZip = []
