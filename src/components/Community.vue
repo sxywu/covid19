@@ -4,13 +4,12 @@
       <!-- <line v-for='d in links' :x1='d.source.x' :y1='d.source.y'
         :x2='d.target.x' :y2='d.target.y' stroke='#000' /> -->
       <g id='houses'>
-        <image v-for='d in houses' :key='d.id'
-          :x='d.x - d.size / 2' :y='d.y - 0.5 * d.size'
+        <image v-for='d in houses' :x='d.x - d.size / 2' :y='d.y - 0.7 * d.size'
           :width='d.size' :height='d.size' :href='d.href' />
       </g>
       <g id='destinations'>
-        <image v-for='d in destinations' :key='d.id'
-          :x='d.x - d.size / 2' :y='d.y - 0.5 * d.size'
+        <image v-for='d in destinations' v-if='d'
+          :x='d.x - d.size / 2' :y='d.y - 0.7 * d.size'
           :width='d.size' :height='d.size' :href='d.href' />
       </g>
       <g id='people'>
@@ -83,66 +82,39 @@ export default {
       if (!this.community) return
 
       const cutoff = 300
-      const destinationsPerGroup = 3
       const houses = []
       const destinations = []
       const links = []
-      this.destinationsByIndex = {}
-      // set up and link houses to destinations
       _.some(this.community.houses, (house, i) => {
         if (i >= cutoff) return true // terminate loop here
 
-        const size = houseSizes[house.numPeople < 3 ? 0 : 1]
         const source = {
           id: house.id,
-          size, collide: 0.55 * size,
+          size: houseSizes[house.numPeople < 3 ? 0 : 1],
           href: houseImages[house.numPeople < 3 ? _.random(1) : _.random(2, 3)],
         }
         houses.push(source)
         _.each(house.destinations, index => {
-          let target = this.destinationsByIndex[index]
+          let target = destinations[index]
           if (!target) {
-            target = this.destinationsByIndex[index] = {
+            target = destinations[index] = {
               id: this.community.destinations[index].id,
-              size: destSize, collide: 0.5 * destSize,
+              size: destSize,
+              href: destImages[index % 4 ? _.random(1) : 2],
             }
-            destinations.push(target)
           }
           links.push({source, target})
         })
       })
 
-      // put destinations into groups
-      const numGroups = Math.ceil(destinations.length / destinationsPerGroup)
-      const groups = _.times(numGroups, i => {
-        const dests = _.chain(destinations)
-          .slice(i * destinationsPerGroup, (i + 1) * destinationsPerGroup)
-          .map((d, i) => Object.assign(d, {href: destImages[i]}))
-          .value()
-        const group = {dests, collide: 300}
-        if (i === 0) {
-          Object.assign(group, {fx: this.width / 2, fy: this.height / 2})
-        }
-        return group
-      })
-
+      const nodes = _.chain(houses).union(destinations).filter().value()
       // simulation for just houses & dest positions
-      const simulation = d3.forceSimulation(groups)
-        .force('collide', d3.forceCollide().radius(d => d.collide))
-        .force('center', d3.forceCenter(this.width / 2, this.height / 2))
+      const simulation = d3.forceSimulation(nodes)
+        .force('collide', d3.forceCollide().radius(d => 0.55 * d.size))
+        .force("center", d3.forceCenter(this.width / 2, this.height / 2))
+        .force("link", d3.forceLink(links))
         .stop()
-        .tick(250)
-
-      // go through each group and use their x/y as destinations' foci
-      _.each(groups, ({dests, x, y}, i) => {
-        _.each(dests, d => Object.assign(d, {focusX: x, focusY: y}))
-      })
-
-      simulation.nodes(_.union(houses, destinations))
-        .force('link', d3.forceLink(links))
-        .force('x', d3.forceX().x(d => d.focusX || null).strength(0.5))
-        .force('y', d3.forceY().y(d => d.focusY || null).strength(0.5))
-        .alpha(1).tick(250)
+        .tick(225)
 
       // create people whose houses appear within community view
       const people = []
@@ -174,7 +146,7 @@ export default {
           if (health > 3) return
 
           const {x, y} = !goDestination || !destination ?
-            person.house : this.destinationsByIndex[destination - 1]
+            person.house : this.destinations[destination - 1]
 
           return Object.assign(person, {
             focusX: x,
