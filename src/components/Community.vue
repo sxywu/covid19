@@ -46,7 +46,6 @@ export default {
       houses: [],
       destinations: [],
       people: [],
-      center: {x: (this.width - this.rightWidth) / 2, y: this.height / 2},
       // links: null,
     }
   },
@@ -59,6 +58,9 @@ export default {
     },
     infected() {
       return this.$store.getters.infected
+    },
+    center() {
+      return {x: (this.width - this.rightWidth) / 2, y: this.height / 2}
     },
   },
   mounted() {
