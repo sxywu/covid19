@@ -5,8 +5,58 @@ import _ from 'lodash'
 
 Vue.use(Vuex)
 
-let populationsByZip
-let hospitalsByZip
+let populationsByZip = []
+let hospitalsByZip = []
+let prevInfected = []
+
+
+function seedInfections(people, houses, assignHealth) {
+  const infected = people.map(function (person, i) {
+    let curDest = d3.shuffle(houses[person.houseIndex].destinations).slice(0, 1)[0]
+
+    // infect as if 20% of people were exposed (i.e. susceptibility/5). And then assign days for those randomly between 1 and 6. We'll probably want to change this, but it gives us something to work with. 
+    let newDaysSinceInfection = Math.random() > person.susceptibility / 5 ? 0 : (1 + Math.floor(Math.random() * 6));
+
+    let curHealth = assignHealth(person, newDaysSinceInfection)
+
+    return {
+      index: i,
+      health: curHealth.health,
+      destination: curDest,
+      daysSinceInfection: newDaysSinceInfection,
+      infectious: curHealth.infectious,
+      totalContacts: 0, // this is just for QA to see R0 more quickly. 
+      haveInfectedCount: 0, // this is just for QA to see R0 more quickly. 
+
+    }
+  })
+
+  return infected
+
+}
+
+function assignHealth(person, daysSinceInfection) {
+  // health statuses: 1 = healthy, 2 = recovered, 3 = infected+asymptomatic, 4 = infected+ symptomatic, 5 = hospitalized from infection, 6 = died from infection. Option to add additional for infected+presymptomatic; and/or to include infectious here rather than as a separate variable
+  let newHealth = 1;
+  let newInfectious = 0;
+  if (daysSinceInfection >= 14) {
+    newHealth = person.dieIfInfected == 1 ? 6 : 2 // dead or recovered
+    newInfectious = 0
+  } else if (daysSinceInfection >= 7 && person.hospitalIfInfected == 1) {
+    newHealth = 5 // hospitalized 
+    newInfectious = 1
+  } else if (daysSinceInfection >= 6) {
+    newHealth = person.symptomaticIfInfected ? 4 : 3 // symptomatic or asymptomatic 
+    newInfectious = 1        							 // and infectious
+  } else if (daysSinceInfection >= 4) {
+    newHealth = 3  // asymptomatic 
+    newInfectious = 1 // and infectious
+  } else if (daysSinceInfection >= 0) {
+    newHealth = 3  // asymptomatic
+    newInfectious = 0 // and not infectious
+  }
+  return { health: newHealth, infectious: newInfectious }
+}
 
 export default new Vuex.Store({
   state: {
@@ -15,26 +65,26 @@ export default new Vuex.Store({
     dataLoaded: false,
   },
   getters: {
-    population({zipCode, dataLoaded}) {
+    population({ zipCode, dataLoaded }) {
       if (!zipCode || !dataLoaded) return
       return _.find(populationsByZip, d => d.zip === zipCode)
     },
-    zipsInCounty(state, {population}) {
+    zipsInCounty(state, { population }) {
       if (!population) return
       return _.filter(populationsByZip, d => d.county === population.county)
     },
-    hospitals(state, {zipsInCounty}) {
+    hospitals(state, { zipsInCounty }) {
       if (!zipsInCounty) return
       const zips = _.map(zipsInCounty, 'zip')
       return _.filter(hospitalsByZip, d => _.includes(zips, d.zip))
     },
-    totalBeds(state, {hospitals, population, zipsInCounty}) {
+    totalBeds(state, { hospitals, population, zipsInCounty }) {
       if (!population || !hospitals || !zipsInCounty) return
       const countyPopulation = _.sumBy(zipsInCounty, 'total')
       const bedsPerPerson = _.sumBy(hospitals, 'beds') / countyPopulation
       return Math.floor(population.total * bedsPerPerson)
     },
-    community(state, {population}) {
+    community(state, { population }) {
       if (!population) return
 
       const totalPopulation = population.total
@@ -56,7 +106,7 @@ export default new Vuex.Store({
       const houses = []
       let personIndex = 0
       let houseIndex = 0
-      while(personIndex < totalPopulation) {
+      while (personIndex < totalPopulation) {
         // randomly assign number of people to a house
         // between 1 and 6 people
         let numPeopleInHouse = _.random(1, 5)
@@ -92,7 +142,10 @@ export default new Vuex.Store({
             id: `person${personIndex + i}`,
             houseIndex, // reference house person lives in
             age, ageGroup,
-            susceptibility: 0, // TODO: UPDATE
+            susceptibility: 0.03, // TODO: UPDATE
+            symptomaticIfInfected: _.random(99) < 80 ? 1 : 0,  // TODO: updated based on age
+            hospitalIfInfected: _.random(99) < 20 ? 1 : 0, // TODO: updated based on age
+            dieIfInfected: _.random(99) < 3 ? 1 : 0, // TODO: updated based on age
           })
         })
 
@@ -117,24 +170,64 @@ export default new Vuex.Store({
         _.each(house.destinations, index => destinations[index].houses.push(houseIndex))
       })
 
-      return {people, houses, destinations}
+      return { people, houses, destinations }
     },
-    infected({day}, {community, totalBeds}) {
+    infected({ day }, { community, totalBeds }) {
       if (!community) return
-      const {people, houses, destinations} = community
+      const { people, houses, destinations } = community
 
-      const infected = _.map(people, (person, i) => {
-        const dests = [0]
-        _.each(houses[person.houseIndex].destinations, dest => dests.push(dest + 1))
+      let exposedToday = {};
+      let filteredPrevInfected = prevInfected.filter(d => d.infectious == 1)
+
+      _.each(filteredPrevInfected, (d) => {
+        _.each(prevInfected, (o, i) => {
+          let { destination: dDestination } = d
+
+
+          let { destination, index } = o
+          let { index: destinationIndex } = destination
+
+          let houseIndex = _.get(people, [index, "houseIndex"])
+          let filteredHouseIndex = _.get(people, [destinationIndex, "houseIndex"])
+
+          let incAmount =
+            houseIndex == filteredHouseIndex
+              ? 5
+              : destination != 0 && destination == dDestination
+                ? 1
+                : 0
+
+          let exposedTodayAmount = _.get(exposedToday, i, 0)
+
+          _.set(exposedToday, i, exposedTodayAmount + incAmount)
+        })
+      })
+
+      // update to tomorrow's destinations and health status 
+      const infected = people.map(function (person, i) {
+        let curDest = d3.shuffle(houses[person.houseIndex].destinations).slice(0, 1)[0]
+
+        // iterate infection days if they are already infected or they were exposed today and their susceptibility * number of exposures > random number from 0-1          
+        let daysSinceInfection = _.get(prevInfected, [i, "daysSinceInfection"], 0)
+        let exposedTodayI = _.get(exposedToday, i)
+        let personSusceptibility = _.get(person, "susceptibility")
+        let random = Math.random()
+        let newDaysSinceInfection = daysSinceInfection > 0 || exposedTodayI && (personSusceptibility * exposedTodayI) > random
+          ? daysSinceInfection + 1
+          : 0;
+
+        let curHealth = assignHealth(person, newDaysSinceInfection)
 
         return {
           index: i,
-          health: _.random(3),
-          destination: dests[_.random(dests.length - 1)],
-          daysSinceInfection: 0,
+          health: curHealth.health,
+          destination: curDest,
+          daysSinceInfection: newDaysSinceInfection,
+          infectious: curHealth.infectious,
         }
       })
-      _.times(_.random(totalBeds), i => infected[_.random(infected.length - 1)].health = 4)
+
+      prevInfected = infected
 
       return infected
     },
@@ -151,10 +244,10 @@ export default new Vuex.Store({
     },
   },
   actions: {
-    getRawData({commit, state}) {
+    getRawData({ commit, state }) {
       function formatData(obj) {
         const zip = obj.zip // make sure zip doesn't get turned into integers
-        return Object.assign(d3.autoType(obj), {zip}) // but everything else is formatted correctly
+        return Object.assign(d3.autoType(obj), { zip }) // but everything else is formatted correctly
       }
       Promise.all([
         d3.csv('./population-by-zip-code.csv', formatData),
