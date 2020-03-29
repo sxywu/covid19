@@ -2,7 +2,7 @@
   <div id="gameplay" :style='{width: `${width}px`, height: `${height}px`}'>
     <div class='container'>
       <!-- BACKGROUND -->
-      <Community v-bind='{colorsByHealth, width, height}' />
+      <Community v-bind='{colorsByHealth, width, height, rightWidth}' />
       <!-- BOTTOM PANEL -->
       <div class='panel' id='bottomPanel' :style='{width: `${width - rightWidth}px`}'>
         <BarChart v-bind='$props' />

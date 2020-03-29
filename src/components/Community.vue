@@ -36,12 +36,13 @@ const destImages = _.map(['cafe', 'restaurant', 'park'], file => require(`../ass
 
 export default {
   name: 'Community',
-  props: ['colorsByHealth', 'width', 'height'],
+  props: ['colorsByHealth', 'width', 'height', 'rightWidth'],
   data() {
     return {
       houses: [],
       destinations: [],
       people: [],
+      center: {x: (this.width - this.rightWidth) / 2, y: this.height / 2},
       // links: null,
     }
   },
@@ -106,7 +107,7 @@ export default {
               group = Object.assign({
                 size: 2.5 * destSize,
                 destinations: [],
-              }, !group ? {fx: this.width / 2, fy: this.height / 2} : {})
+              }, !group ? {fx: this.center.x, fy: this.center.y} : {})
               groups.push(group)
             }
 
@@ -124,7 +125,7 @@ export default {
       // simulation for just houses & dest positions
       const simulation = d3.forceSimulation(_.union(groups, houses))
         .force('collide', d3.forceCollide().radius(d => 0.6 * d.size))
-        .force("center", d3.forceCenter(this.width / 2, this.height / 2))
+        .force("center", d3.forceCenter(this.center.x, this.center.y))
         .force("link", d3.forceLink(links))
         .stop()
         .tick(250)
