@@ -62,8 +62,8 @@ export default new Vuex.Store({
       let houseIndex = 0
       while(personIndex < totalPopulation) {
         // randomly assign number of people to a house
-        // between 1 and 6 people
-        let numPeopleInHouse = _.random(1, 5)
+        // between 2 and 5 people
+        let numPeopleInHouse = _.random(2, 5)
         // make sure it doesn't go over total population
         if (personIndex + numPeopleInHouse > totalPopulation) {
           numPeopleInHouse = totalPopulation - personIndex
@@ -124,8 +124,7 @@ export default new Vuex.Store({
       const {people, houses, destinations} = community
 
       const infected = _.map(people, (person, i) => {
-        const dests = [0]
-        _.each(houses[person.houseIndex].destinations, dest => dests.push(dest + 1))
+        const dests = _.union(houses[person.houseIndex].destinations, [-1])
 
         return {
           index: i,
