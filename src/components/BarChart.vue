@@ -78,7 +78,9 @@ export default {
       this.bars = _.chain(stacks)
         .map(stack => {
           return _.map(stack, d => {
-            const [y1, y2] = d
+            let [y1, y2] = d
+            y1 = y1 || 0
+            y2 = y2 || 0 // in case they are NaN
             return {
               x: this.xScale(d.data.ageGroup),
               y: this.yScale(y2),

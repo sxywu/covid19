@@ -74,7 +74,9 @@ export default {
 
       this.paths = _.map(stacks, stack => {
         const points = _.map(stack, d => {
-          const [y0, y1] = d
+          let [y0, y1] = d
+          y0 = y0 || 0
+          y1 = y1 || 0 // in case they are NaN
           return {
             x: this.xScale(d.data.day),
             y1: this.yScale(y1), y0: this.yScale(y0),
