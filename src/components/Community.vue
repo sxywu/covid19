@@ -82,9 +82,12 @@ export default {
       if (!this.community) return
 
       const cutoff = 300
+      const destsPerGroup = 7
       const houses = []
       const destinations = []
       const links = []
+      const groups = []
+      let group
       _.some(this.community.houses, (house, i) => {
         if (i >= cutoff) return true // terminate loop here
 
@@ -95,26 +98,54 @@ export default {
         }
         houses.push(source)
         _.each(house.destinations, index => {
-          let target = destinations[index]
-          if (!target) {
-            target = destinations[index] = {
+          let destination = destinations[index]
+          if (!destination) {
+            // if destination doesn't exist yet
+            // first get the group it's going to belong to
+            if (!group || group.destinations.length >= destsPerGroup) {
+              group = Object.assign({
+                size: 2.5 * destSize,
+                destinations: [],
+              }, !group ? {fx: this.width / 2, fy: this.height / 2} : {})
+              groups.push(group)
+            }
+
+            destination = destinations[index] = {
               id: this.community.destinations[index].id,
               size: destSize,
-              href: destImages[index % 4 ? _.random(1) : 2],
+              group,
             }
+            group.destinations.push(destination)
           }
-          links.push({source, target})
+          links.push({source, target: destination.group})
         })
       })
 
-      const nodes = _.chain(houses).union(destinations).filter().value()
       // simulation for just houses & dest positions
-      const simulation = d3.forceSimulation(nodes)
-        .force('collide', d3.forceCollide().radius(d => 0.55 * d.size))
+      const simulation = d3.forceSimulation(_.union(groups, houses))
+        .force('collide', d3.forceCollide().radius(d => 0.6 * d.size))
         .force("center", d3.forceCenter(this.width / 2, this.height / 2))
         .force("link", d3.forceLink(links))
         .stop()
-        .tick(225)
+        .tick(250)
+
+      // calculate positions for destinations
+      const rad = Math.PI / 3
+      _.each(groups, ({destinations, x, y}) => {
+        _.each(destinations, (dest, i) => {
+           // have one park in center, rest are restaurants
+          let dx = x
+          let dy = y
+          if (i > 0) {
+            dx += 0.95 * destSize * Math.cos(i * rad)
+            dy += 0.95 * destSize * Math.sin(i * rad)
+          }
+          Object.assign(dest, {
+            href: destImages[i % destsPerGroup ? _.random(1) : 2],
+            x: dx, y: dy, fx: dx, fy: dy,
+          })
+        })
+      })
 
       // create people whose houses appear within community view
       const people = []
@@ -133,7 +164,9 @@ export default {
         })
       })
 
-      this.houses = houses
+      this.houses = _.chain(houses)
+        .map(d => Object.assign(d, {fx: d.x, fy: d.y}))
+        .sortBy(d => d.y).value()
       this.destinations = destinations
       this.people = this.allPeople = people
     },
