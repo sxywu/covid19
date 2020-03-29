@@ -2,7 +2,10 @@
   <div id="gameplay" :style='{width: `${width}px`, height: `${height}px`}'>
     <div class='container'>
       <!-- BACKGROUND -->
-      <Community v-bind='{colorsByHealth, width, height, rightWidth}' />
+      <Community v-bind='{
+        colorsByHealth, width, height, rightWidth,
+        tl, phases, playTimeline,
+      }' />
       <!-- BOTTOM PANEL -->
       <div class='panel' id='bottomPanel' :style='{width: `${width - rightWidth}px`}'>
         <BarChart v-bind='$props' />
@@ -15,7 +18,7 @@
       <!-- TOP PANEL -->
       <div class='panel' id='topPanel' :style='{height: `${topHeight}px`}'>
         <strong>Day {{ day + 1 }}</strong>
-        <button @click='$store.commit("setDay", day + 1)'>Decide</button>
+        <button @click='updateDecision'>Decide</button>
       </div>
     </div>
     <div class='zipCode'>ZIP CODE: <strong>{{ zipCode }}</strong> ({{ population.total }} residents)</div>
@@ -23,6 +26,8 @@
 </template>
 
 <script>
+import gsap from 'gsap'
+
 import Community from './Community'
 import Hospital from './Hospital'
 import BarChart from './BarChart'
@@ -42,6 +47,8 @@ export default {
       height: window.innerHeight,
       topHeight: 40,
       rightWidth: 320,
+      tl: new gsap.timeline({paused: true}),
+      phases: [0.75, 1, 1],
     }
   },
   computed: {
@@ -66,6 +73,13 @@ export default {
     calculateDimensions() {
       this.width = window.innerWidth - padding
       this.height = (1 / widthHeightRatio) * this.width
+    },
+    updateDecision() {
+      this.tl.add(`day${this.day + 1}`)
+      this.$store.commit("setDay", this.day + 1)
+    },
+    playTimeline() {
+      this.tl.play(`day${this.day}`)
     },
   },
 }

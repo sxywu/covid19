@@ -4,12 +4,12 @@
       <!-- <line v-for='d in links' :x1='d.source.x' :y1='d.source.y'
         :x2='d.target.x' :y2='d.target.y' stroke='#000' /> -->
       <g id='houses'>
-        <image v-for='d in houses' :x='d.x - d.size / 2' :y='d.y - 0.7 * d.size'
+        <image v-for='d in houses' :x='d.x - d.size / 2' :y='d.y - 0.6 * d.size'
           :width='d.size' :height='d.size' :href='d.href' />
       </g>
       <g id='destinations'>
         <image v-for='d in destinations' v-if='d'
-          :x='d.x - d.size / 2' :y='d.y - 0.7 * d.size'
+          :x='d.x - d.size / 2' :y='d.y - 0.6 * d.size'
           :width='d.size' :height='d.size' :href='d.href' />
       </g>
       <g id='people'>
@@ -36,7 +36,10 @@ const destImages = _.map(['cafe', 'restaurant', 'park'], file => require(`../ass
 
 export default {
   name: 'Community',
-  props: ['colorsByHealth', 'width', 'height', 'rightWidth'],
+  props: [
+    'colorsByHealth', 'width', 'height', 'rightWidth',
+    'tl', 'phases', 'playTimeline'
+  ],
   data() {
     return {
       houses: [],
@@ -60,22 +63,23 @@ export default {
   mounted() {
     // setup force simulation for people positions
     this.simulation = d3.forceSimulation()
-      .force('collide', d3.forceCollide().radius(d => 1.5 * d.r))
+      .force('collide', d3.forceCollide().radius(d => 1.5 * d.r || 0.5 * d.size))
       .force('x', d3.forceX().x(d => d.focusX))
       .force('y', d3.forceY().y(d => d.focusY))
-      .alphaDecay(0.002)
+      .alphaDecay(0).velocityDecay(0.5)
       .stop()
+    this.tl.eventCallback('onUpdate', () => this.simulation.tick())
 
     this.setupPositions()
-    this.updatePeople()
+    this.updateTimeline()
   },
   watch: {
     community() {
       this.setupPositions()
-      this.updatePeople()
+      this.updateTimeline()
     },
     infected() {
-      this.updatePeople(true)
+      this.updateTimeline()
     },
   },
   methods: {
@@ -179,41 +183,47 @@ export default {
       this.people = this.allPeople = people
       this.links = links
     },
-    updatePeople(goDestination) {
+    updateTimeline() {
       if (!this.community && !this.people.length) return
 
-      this.people = _.chain(this.allPeople)
-        .map((person, i) => {
-          const {health, destination} = this.infected[i]
-          if (health > 3) return
+      const [duration1, duration2, duration3] = this.phases
 
-          const {x, y} = !goDestination || !destination ?
-            person.house : this.destinations[destination - 1]
+      // phase 1: go to destinations
+      this.tl.add(() => {
+        this.people = _.chain(this.allPeople)
+          .map((person, i) => {
+            const {health, destination} = this.infected[i]
+            if (health > 3) return
+            const {x, y} = destination > 0 ? this.destinations[destination] : person.house
+            return Object.assign(person, {
+              destination,
+              focusX: x, focusY: y,
+              fill: health === 1 ? '#fff' : this.colorsByHealth[health],
+              stroke: this.colorsByHealth[health],
+            })
+          }).filter().value()
+        this.simulation.nodes(this.people)
+      }, `day${this.day + 1}`)
 
-          return Object.assign(person, {
-            focusX: x,
-            focusY: y,
-            fill: health === 1 ? '#fff' : this.colorsByHealth[health],
-            stroke: this.colorsByHealth[health],
-          })
-        }).filter().value()
+      // phase 2: update colors
+      this.tl.add(() => {
 
-      if (goDestination) {
-        this.simulation
-          .velocityDecay(0.5)
-          .alphaMin(0.89)
-          .on('tick', null)
-          .on('end', () => this.updatePeople())
-      } else {
-        // go home
-        this.simulation
-          .velocityDecay(0.65)
-          .alphaMin(0.75)
-          .on('tick', () => {
-            const progress = 1 - _.clamp((this.simulation.alpha() - 0.75) / 0.25, 0, 1)
-          }).on('end', null)
-      }
-      this.simulation.nodes(this.people).alpha(1).restart()
+      }, `day${this.day + 1}+=${duration1}`)
+
+      // phase 3: go back home
+      this.tl.add(() => {
+        _.each(this.people, person => Object.assign(person, {
+          focusX: person.house.x,
+          focusY: person.house.y,
+        }))
+        this.simulation.nodes(this.people)
+      }, `day${this.day + 1}+=${duration1 + duration2}`)
+
+      this.tl.add(() => {
+
+      }, `day${this.day + 1}+=${duration1 + duration2 + duration3}`)
+
+      this.playTimeline()
     },
   },
 }
