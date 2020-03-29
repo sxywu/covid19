@@ -14,7 +14,7 @@
       </g>
       <g id='people'>
         <circle v-for='d in people' :key='d.id' :cx='d.x' :cy='d.y' :r='d.r'
-          :fill='d.fill' :stroke='d.stroke' stroke-width='2' />
+          :fill='d.color' :stroke='d.outline' stroke-width='2' />
       </g>
     </svg>
   </div>
@@ -88,7 +88,7 @@ export default {
     setupPositions() {
       if (!this.community) return
 
-      const cutoff = 240
+      const cutoff = 210
       const destsPerGroup = 7
       const houses = []
       const destinations = []
@@ -168,13 +168,13 @@ export default {
 
         const house = houses[houseIndex]
         const color = this.colorsByHealth[0]
-
         people.push({
           id,
           house,
           x: house.x,
           y: house.y,
           r: personR,
+          color, outline: color,
         })
       })
 
@@ -200,8 +200,8 @@ export default {
             return Object.assign(person, {
               destination: id,
               focusX: x, focusY: y,
-              fill: health === 1 ? '#fff' : this.colorsByHealth[health],
-              stroke: this.colorsByHealth[health],
+              nextColor: health === 1 ? '#ffffff' : this.colorsByHealth[health],
+              nextOutline: this.colorsByHealth[health],
             })
           }).filter().value()
 
@@ -210,8 +210,11 @@ export default {
       }, `day${this.day + 1}`)
 
       // phase 2: update colors
-      this.tl.add(() => {
-
+      this.tl.to(this.people, {
+        duration: 0.75 * duration2,
+        color: (i, person) => person.nextColor,
+        outline: (i, person) => person.nextOutline,
+        stagger: 0.003,
       }, `day${this.day + 1}+=${duration1}`)
 
       // phase 3: go back home
