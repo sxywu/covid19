@@ -25,8 +25,8 @@ import * as d3 from 'd3'
 import _ from 'lodash'
 
 const personR = 4
-const houseSizes = [75, 90]
-const destSize = 140
+const houseSizes = [75, 85]
+const destSize = 120
 
 const houseImages = _.map([
   'house-sm-left', 'house-sm-right',
@@ -82,7 +82,7 @@ export default {
     setupPositions() {
       if (!this.community) return
 
-      const cutoff = 300
+      const cutoff = 240
       const destsPerGroup = 7
       const houses = []
       const destinations = []
@@ -119,6 +119,13 @@ export default {
             group.destinations.push(destination)
           }
           links.push({source, target: destination.group})
+        })
+      })
+      // and also link all groups together so they're packed closely together
+      _.each(groups, source => {
+        _.each(groups, target => {
+          if (source === target) return
+          links.push({source, target})
         })
       })
 
@@ -170,6 +177,7 @@ export default {
         .sortBy(d => d.y).value()
       this.destinations = destinations
       this.people = this.allPeople = people
+      this.links = links
     },
     updatePeople(goDestination) {
       if (!this.community && !this.people.length) return

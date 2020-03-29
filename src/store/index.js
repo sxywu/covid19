@@ -44,7 +44,7 @@ export default new Vuex.Store({
       const totalPopulation = population.total
 
       // make 100 establishments per 1000 people
-      const numDestinations = _.floor(0.1 * totalPopulation) || 1
+      const numDestinations = _.floor(0.05 * totalPopulation) || 1
       const destinations = _.times(numDestinations, i => {
         return {
           id: `dest${i}`,
@@ -105,20 +105,16 @@ export default new Vuex.Store({
       }
 
       // assign houses and destinations to each other
-      const destHouseRatio = destinations.length / houses.length
-      _.each(houses, (house, i) => {
-        const start = _.floor(i * destHouseRatio)
-        house.destinations = _.chain(_.random(5, 10))
-          // randomly assign 5 - 10 destinations to this house
-          .times(num => _.random(start, start + 20))
-          // but make sure we don't get the same destinations more than once
-          .uniq()
-          // and make sure the destination exists
-          .filter(dest => destinations[dest])
-          .value()
-
-        // and likewise register that house to its destinations
-        _.each(house.destinations, index => destinations[index].houses.push(houseIndex))
+      const destPerGroup = 7
+      const numDestGroups = Math.ceil(destinations.length / destPerGroup)
+      const housesPerGroup = Math.ceil(houses.length / numDestGroups)
+      _.times(numDestGroups, i => {
+        const destIndicesInGroup = _.range(i * destPerGroup, (i + 1) * destPerGroup)
+        const housesIndicesInGroup = _.range(i * housesPerGroup, (i + 1) * housesPerGroup)
+        _.each(housesIndicesInGroup, i => houses[i] &&
+          Object.assign(houses[i], {destinations: destIndicesInGroup}))
+        _.each(destIndicesInGroup, i => destinations[i] &&
+          Object.assign(destinations[i], {houses: housesIndicesInGroup}))
       })
 
       return {people, houses, destinations}
