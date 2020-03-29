@@ -23,6 +23,7 @@
 <script>
 import * as d3 from 'd3'
 import _ from 'lodash'
+import modifiedCollide from './ModifiedCollide'
 
 const personR = 4
 const houseSizes = [75, 85]
@@ -63,10 +64,11 @@ export default {
   mounted() {
     // setup force simulation for people positions
     this.simulation = d3.forceSimulation()
-      .force('collide', d3.forceCollide().radius(d => 1.5 * d.r || 0.5 * d.size))
+      .force('collide', modifiedCollide().radius(d => 2 * d.r || 0.5 * d.size))
       .force('x', d3.forceX().x(d => d.focusX))
       .force('y', d3.forceY().y(d => d.focusY))
-      .alphaDecay(0).velocityDecay(0.5)
+      .alphaDecay(0)
+      .velocityDecay(0.55)
       .stop()
     this.tl.eventCallback('onUpdate', () => this.simulation.tick())
 
@@ -170,8 +172,8 @@ export default {
         people.push({
           id,
           house,
-          x: house.x + [1, -1][_.random(1)] * _.random(10),
-          y: house.y + [1, -1][_.random(1)] * _.random(10),
+          x: house.x,
+          y: house.y,
           r: personR,
         })
       })
@@ -181,7 +183,7 @@ export default {
         .sortBy(d => d.y).value()
       this.destinations = destinations
       this.people = this.allPeople = people
-      this.links = links
+      this.buildings = _.chain(this.destinations).filter().union(this.houses).value()
     },
     updateTimeline() {
       if (!this.community && !this.people.length) return
@@ -194,15 +196,17 @@ export default {
           .map((person, i) => {
             const {health, destination} = this.infected[i]
             if (health > 3) return
-            const {x, y} = destination > 0 ? this.destinations[destination] : person.house
+            const {x, y, id} = destination > 0 ? this.destinations[destination] : person.house
             return Object.assign(person, {
-              destination,
+              destination: id,
               focusX: x, focusY: y,
               fill: health === 1 ? '#fff' : this.colorsByHealth[health],
               stroke: this.colorsByHealth[health],
             })
           }).filter().value()
-        this.simulation.nodes(this.people)
+
+        this.nodes = _.union(this.people, this.buildings)
+        this.simulation.nodes(this.nodes)
       }, `day${this.day + 1}`)
 
       // phase 2: update colors
@@ -213,10 +217,11 @@ export default {
       // phase 3: go back home
       this.tl.add(() => {
         _.each(this.people, person => Object.assign(person, {
+          destination: person.house.id,
           focusX: person.house.x,
           focusY: person.house.y,
         }))
-        this.simulation.nodes(this.people)
+        this.simulation.nodes(this.nodes)
       }, `day${this.day + 1}+=${duration1 + duration2}`)
 
       this.tl.add(() => {
