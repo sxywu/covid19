@@ -70,7 +70,7 @@ export default {
       .force('x', d3.forceX().x(d => d.focusX))
       .force('y', d3.forceY().y(d => d.focusY))
       .alphaDecay(0)
-      .velocityDecay(0.55)
+      .velocityDecay(0.5)
       .stop()
     this.tl.eventCallback('onUpdate', () => this.simulation.tick())
 

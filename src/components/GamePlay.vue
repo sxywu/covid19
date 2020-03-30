@@ -21,13 +21,16 @@
       <!-- TOP PANEL -->
       <div class='panel' id='topPanel' :style='{height: `${topHeight}px`}'>
         <strong>Day {{ day }}</strong>
-        <button @click='updateDecision'>Decide</button>
       </div>
       <!-- MINIMAP -->
       <Minimap v-bind='{
         ...minimapDimensions, groups, colorsByHealth,
         containerWidth: width, containerHeight: height,
       }' />
+      <!-- DECISION SCREEN -->
+      <div class='decision' v-if='showDecision'>
+        <button @click='updateDecision'>Decide</button>
+      </div>
     </div>
     <div class='zipCode'>ZIP CODE: <strong>{{ zipCode }}</strong> ({{ population.total }} residents)</div>
   </div>
@@ -60,8 +63,9 @@ export default {
       rightWidth: 320,
       bottomHeight: 150,
       tl: new gsap.timeline({paused: true}),
-      phases: [1.5, 1, 1.5],
+      phases: [1.25, 1, 1.25],
       groups: [],
+      showDecision: false,
     }
   },
   computed: {
@@ -102,6 +106,8 @@ export default {
       this.height = (1 / widthHeightRatio) * this.width
     },
     updateDecision() {
+      this.showDecision = false
+      this.$store.commit('setDecision', 7)
       this.updateDay()
     },
     updateDay() {
@@ -114,13 +120,20 @@ export default {
         this.tl.add(label, `${prevLabel}+=${d}`)
         prevLabel = label
       })
-      this.$store.commit("setDay", this.day + 1)
+      this.$store.commit('setDay', this.day + 1)
     },
     playTimeline(child) {
       this.setupDone.push(child)
       if (_.difference(needSetup, this.setupDone).length) return
 
-      // if all children have been setup, then play
+      // if all children have been setup
+      this.tl.add(() => {
+        if (this.day % 7) {
+          this.updateDay()
+        } else {
+          this.showDecision = true
+        }
+      }, `day${this.day}-3`)
       this.tl.play(`day${this.day}`)
     },
   },
@@ -171,5 +184,17 @@ export default {
   position: absolute;
   top: -20px;
   right: 0px;
+}
+
+.decision {
+  position: absolute;
+  width: 400px;
+  height: 300px;
+  top: 50%;
+  left: 50%;
+  border: 1px solid #efefef;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  text-align: center;
 }
 </style>

@@ -14,6 +14,7 @@ export default new Vuex.Store({
     zipCode: '',
     dataLoaded: false,
     bedOccupancyRate: 0.66,
+    decisions: [],
   },
   getters: {
     population({zipCode, dataLoaded}) {
@@ -147,6 +148,9 @@ export default new Vuex.Store({
     },
     setDataLoaded(state, dataLoaded) {
       state.dataLoaded = dataLoaded
+    },
+    setDecision(state, decision) {
+      state.decisions.push(decision)
     },
   },
   actions: {
