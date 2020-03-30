@@ -13,7 +13,7 @@
       </div>
       <!-- RIGHT PANEL -->
       <div class='panel' id='rightPanel' :style='{height: `${height - topHeight}px`}'>
-        <Hospital v-bind='{width: rightWidth}' />
+        <Hospital v-bind='{colorsByHealth, width: rightWidth, tl, phases, playTimeline}' />
       </div>
       <!-- TOP PANEL -->
       <div class='panel' id='topPanel' :style='{height: `${topHeight}px`}'>
@@ -35,7 +35,7 @@ import AreaChart from './AreaChart'
 
 const widthHeightRatio = 16 / 9
 const padding = 40
-const needSetup = ['community', 'area', 'bar']
+const needSetup = ['community', 'area', 'bar', 'hospital']
 
 export default {
   name: 'GamePlay',
