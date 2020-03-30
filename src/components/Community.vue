@@ -1,8 +1,8 @@
 <template>
   <div id="community">
     <svg :width='width' :height='height'>
-      <line v-for='d in links' :x1='d.source.x' :y1='d.source.y'
-        :x2='d.target.x' :y2='d.target.y' stroke='#000' />
+      <!-- <line v-for='d in links' :x1='d.source.x' :y1='d.source.y'
+        :x2='d.target.x' :y2='d.target.y' stroke='#000' /> -->
       <g id='houses'>
         <image v-for='d in houses' v-if='d.onScreen' :x='d.x - d.size / 2' :y='d.y - 0.6 * d.size'
           :width='d.size' :height='d.size' :href='d.href' />
@@ -46,7 +46,7 @@ export default {
       houses: [],
       destinations: [],
       people: [],
-      links: null,
+      // links: null,
     }
   },
   computed: {
@@ -177,11 +177,11 @@ export default {
         if (houseIndex >= cutoff) return true // terminate loop here
         const house = houses[houseIndex]
         const dests = this.community.houses[houseIndex].destinations
-        if (!house.onScreen && !_.some(dests, i => destinations[i].onScreen)) return
+        if (!house.onScreen || !_.some(dests, i => destinations[i].onScreen)) return
 
         const color = this.colorsByHealth[0]
         people.push({
-          id,
+          i, id,
           house,
           x: house.x,
           y: house.y,
@@ -195,8 +195,9 @@ export default {
         .sortBy(d => d.y).value()
       this.destinations = destinations
       this.people = this.allPeople = people
-      this.buildings = _.chain(this.destinations).filter().union(this.houses).value()
-      this.links = links
+      this.buildings = _.chain(this.destinations).union(this.houses)
+        .filter(d => d && d.onScreen).value()
+      // this.links = links
     },
     updateTimeline() {
       if (!this.community && !this.people.length) return
@@ -206,10 +207,11 @@ export default {
       // phase 1: go to destinations
       this.tl.add(() => {
         this.people = _.chain(this.allPeople)
-          .map((person, i) => {
-            const {health, destination} = this.infected[i]
+          .map((person) => {
+            const {health, destination} = this.infected[person.i]
             if (health > 3) return
             const {x, y, id} = destination > 0 ? this.destinations[destination] : person.house
+
             return Object.assign(person, {
               destination: id,
               focusX: x, focusY: y,
