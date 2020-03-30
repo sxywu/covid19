@@ -24,7 +24,10 @@
         <button @click='updateDecision'>Decide</button>
       </div>
       <!-- MINIMAP -->
-      <Minimap v-bind='{...minimapDimensions, groups, colorsByHealth}' />
+      <Minimap v-bind='{
+        ...minimapDimensions, groups, colorsByHealth,
+        containerWidth: width, containerHeight: height,
+      }' />
     </div>
     <div class='zipCode'>ZIP CODE: <strong>{{ zipCode }}</strong> ({{ population.total }} residents)</div>
   </div>
@@ -72,7 +75,7 @@ export default {
       return this.$store.getters.population || {}
     },
     minimapDimensions() {
-      const width = 100
+      const width = 120
       const height = 100
       return {
         width, x: this.width - this.rightWidth - width - 10,
