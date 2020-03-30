@@ -52,7 +52,7 @@ export default new Vuex.Store({
         }
       })
 
-      const ageGroups = _.map(['<19', '20', '40', '60', '>80'], (key, i) => {
+      const ageGroups = _.map(['0', '20', '40', '60', '80'], (key, i) => {
         return [i * 20, population[key], key]
       })
       // go through, create people, and assign each person to a house
