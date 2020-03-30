@@ -1,14 +1,14 @@
 <template>
   <div id="community">
     <svg :width='width' :height='height'>
-      <!-- <line v-for='d in links' :x1='d.source.x' :y1='d.source.y'
-        :x2='d.target.x' :y2='d.target.y' stroke='#000' /> -->
+      <line v-for='d in links' :x1='d.source.x' :y1='d.source.y'
+        :x2='d.target.x' :y2='d.target.y' stroke='#000' />
       <g id='houses'>
-        <image v-for='d in houses' :x='d.x - d.size / 2' :y='d.y - 0.6 * d.size'
+        <image v-for='d in houses' v-if='d.onScreen' :x='d.x - d.size / 2' :y='d.y - 0.6 * d.size'
           :width='d.size' :height='d.size' :href='d.href' />
       </g>
       <g id='destinations'>
-        <image v-for='d in destinations' v-if='d'
+        <image v-for='d in destinations' v-if='d.onScreen'
           :x='d.x - d.size / 2' :y='d.y - 0.6 * d.size'
           :width='d.size' :height='d.size' :href='d.href' />
       </g>
@@ -46,7 +46,7 @@ export default {
       houses: [],
       destinations: [],
       people: [],
-      // links: null,
+      links: null,
     }
   },
   computed: {
@@ -117,7 +117,6 @@ export default {
               }
 
               destination = destinations[index] = {
-                index,
                 id, group,
                 size: destSize,
               }
@@ -157,26 +156,20 @@ export default {
             dy += 0.95 * destSize * Math.sin(i * rad)
           }
           // keep group if at least one is on screen
-          onScreen = onScreen || (-destSize < dx && dx < this.width + destSize &&
-            -destSize < dy && dy < this.height + destSize)
-
           Object.assign(dest, {
             href: destImages[i % destsPerGroup ? _.random(1) : 2],
             x: dx, y: dy, fx: dx, fy: dy,
+            onScreen: -destSize / 2 < dx && dx < this.width + destSize / 2 &&
+              -destSize / 2 < dy && dy < this.height + destSize / 2
           })
         })
-        // only keep these destinations if they're on screen
-        if (onScreen) return
-        _.each(dests, ({index}) => destinations[index] = null)
       })
 
       // only keep the houses on screen
-      _.each(houses, ({x, y}, i) => {
-        if (x < -houseSizes[1] || y < -houseSizes[1] ||
-          x > this.width + houseSizes[1] || y > this.height + houseSizes[1]) {
-          houses[i] = null
-        }
-      })
+      _.each(houses, d => Object.assign(d, {
+        onScreen: -houseSizes[1] / 2 < d.x && d.x < this.width + houseSizes[1] / 2 &&
+          -houseSizes[1] < d.y && d.y < this.height + houseSizes[1] / 2
+      }))
 
       // create people whose houses appear within community view
       const people = []
@@ -184,7 +177,7 @@ export default {
         if (houseIndex >= cutoff) return true // terminate loop here
         const house = houses[houseIndex]
         const dests = this.community.houses[houseIndex].destinations
-        if (!house) return
+        if (!house.onScreen && !_.some(dests, i => destinations[i].onScreen)) return
 
         const color = this.colorsByHealth[0]
         people.push({
@@ -198,13 +191,12 @@ export default {
       })
 
       this.houses = _.chain(houses)
-        .filter()
         .map(d => Object.assign(d, {fx: d.x, fy: d.y}))
         .sortBy(d => d.y).value()
       this.destinations = destinations
       this.people = this.allPeople = people
       this.buildings = _.chain(this.destinations).filter().union(this.houses).value()
-      console.log(people.length, _.filter(houses), _.filter(destinations))
+      this.links = links
     },
     updateTimeline() {
       if (!this.community && !this.people.length) return
@@ -216,7 +208,7 @@ export default {
         this.people = _.chain(this.allPeople)
           .map((person, i) => {
             const {health, destination} = this.infected[i]
-            if (health > 3 || !this.destinations[destination]) return
+            if (health > 3) return
             const {x, y, id} = destination > 0 ? this.destinations[destination] : person.house
             return Object.assign(person, {
               destination: id,
