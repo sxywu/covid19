@@ -18,10 +18,7 @@ const healthStatus = [4, 3, 2]
 const margin = {top: 20, right: 20, bottom: 20, left: 30}
 export default {
   name: 'BarChart',
-  props: [
-    'ageGroups', 'colorsByHealth', 'tl',
-    'tl', 'phases', 'playTimeline',
-  ],
+  props: ['ageGroups', 'colorsByHealth', 'tl', 'phases', 'playTimeline'],
   data() {
     return {
       width: 300,
@@ -120,6 +117,8 @@ export default {
         height: (i, {id}) => nextBarsById[id].height,
         duration: this.phases[1] / 2,
       }, `day${this.day}-1`)
+
+      this.playTimeline('bar')
     },
   },
 }

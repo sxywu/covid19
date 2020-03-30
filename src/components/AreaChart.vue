@@ -97,6 +97,7 @@ export default {
         duration: this.phases[1] / 2,
       }, `day${this.day}-1`)
 
+      this.playTimeline('area')
     },
   },
 }

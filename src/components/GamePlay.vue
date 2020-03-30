@@ -35,7 +35,7 @@ import AreaChart from './AreaChart'
 
 const widthHeightRatio = 16 / 9
 const padding = 40
-const needSetup = ['community']
+const needSetup = ['community', 'area', 'bar']
 
 export default {
   name: 'GamePlay',
@@ -50,7 +50,7 @@ export default {
       topHeight: 40,
       rightWidth: 320,
       tl: new gsap.timeline({paused: true}),
-      phases: [1.5, 1.5, 2],
+      phases: [1.5, 1, 1.5],
     }
   },
   computed: {
