@@ -9,7 +9,7 @@
       <!-- BOTTOM PANEL -->
       <div class='panel' id='bottomPanel' :style='{width: `${width - rightWidth}px`}'>
         <BarChart v-bind='{ageGroups, colorsByHealth, tl, phases, playTimeline}' />
-        <AreaChart v-bind='$props' />
+        <AreaChart v-bind='{ageGroups, colorsByHealth, tl, phases, playTimeline}' />
       </div>
       <!-- RIGHT PANEL -->
       <div class='panel' id='rightPanel' :style='{height: `${height - topHeight}px`}'>
