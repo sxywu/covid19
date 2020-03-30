@@ -1,7 +1,7 @@
 <template>
   <div id="areaChart">
-    <strong>Infected cases by day</strong><br />
     <svg :width='width' :height='height'>
+      <text :x='margin.right' dy='1em'>Infected cases by day</text>
       <path v-for='d in paths' :key='d.id' :d='d.path' :fill='d.color' />
       <g ref='xAxis' :transform='`translate(0, ${height - margin.bottom})`' />
       <g ref='yAxis' :transform='`translate(${margin.left}, 0)`' />
@@ -17,11 +17,10 @@ const healthStatus = [4, 3, 2]
 const margin = {top: 20, right: 20, bottom: 20, left: 30}
 export default {
   name: 'AreaChart',
-  props: ['ageGroups', 'colorsByHealth', 'tl', 'phases', 'playTimeline'],
+  props: ['height', 'ageGroups', 'colorsByHealth', 'tl', 'phases', 'playTimeline'],
   data() {
     return {
       width: 500,
-      height: 150,
       margin,
       paths: [],
     }
