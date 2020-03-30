@@ -39,7 +39,7 @@ export default {
   name: 'Community',
   props: [
     'colorsByHealth', 'width', 'height', 'rightWidth',
-    'tl', 'phases', 'playTimeline'
+    'tl', 'phases', 'playTimeline', 'setGroups',
   ],
   data() {
     return {
@@ -197,6 +197,8 @@ export default {
       this.people = this.allPeople = people
       this.buildings = _.chain(this.destinations).union(this.houses)
         .filter(d => d && d.onScreen).value()
+
+      this.setGroups(groups)
       // this.links = links
     },
     updateTimeline() {

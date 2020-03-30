@@ -4,12 +4,15 @@
       <!-- BACKGROUND -->
       <Community v-bind='{
         colorsByHealth, width, height, rightWidth,
-        tl, phases, playTimeline,
+        tl, phases, playTimeline, setGroups,
       }' />
       <!-- BOTTOM PANEL -->
-      <div class='panel' id='bottomPanel' :style='{width: `${width - rightWidth}px`}'>
-        <BarChart v-bind='{ageGroups, colorsByHealth, tl, phases, playTimeline}' />
-        <AreaChart v-bind='{ageGroups, colorsByHealth, tl, phases, playTimeline}' />
+      <div class='panel' id='bottomPanel' :style='{
+        width: `${width - rightWidth}px`,
+        height: `${bottomHeight}px`,
+      }'>
+        <BarChart v-bind='{height: bottomHeight, ageGroups, colorsByHealth, tl, phases, playTimeline}' />
+        <AreaChart v-bind='{height: bottomHeight, ageGroups, colorsByHealth, tl, phases, playTimeline}' />
       </div>
       <!-- RIGHT PANEL -->
       <div class='panel' id='rightPanel' :style='{height: `${height - topHeight}px`}'>
@@ -20,6 +23,8 @@
         <strong>Day {{ day }}</strong>
         <button @click='updateDecision'>Decide</button>
       </div>
+      <!-- MINIMAP -->
+      <Minimap v-bind='{...minimapDimensions, groups, colorsByHealth}' />
     </div>
     <div class='zipCode'>ZIP CODE: <strong>{{ zipCode }}</strong> ({{ population.total }} residents)</div>
   </div>
@@ -29,6 +34,7 @@
 import gsap from 'gsap'
 
 import Community from './Community'
+import Minimap from './Minimap'
 import Hospital from './Hospital'
 import BarChart from './BarChart'
 import AreaChart from './AreaChart'
@@ -40,7 +46,7 @@ const needSetup = ['community', 'area', 'bar', 'hospital']
 export default {
   name: 'GamePlay',
   components: {
-    Community, Hospital, BarChart, AreaChart,
+    Community, Minimap, Hospital, BarChart, AreaChart,
   },
   props: ['ageGroups', 'healthStatus', 'colorsByHealth'],
   data() {
@@ -49,8 +55,10 @@ export default {
       height: window.innerHeight,
       topHeight: 40,
       rightWidth: 320,
+      bottomHeight: 150,
       tl: new gsap.timeline({paused: true}),
       phases: [1.5, 1, 1.5],
+      groups: [],
     }
   },
   computed: {
@@ -62,6 +70,14 @@ export default {
     },
     population() {
       return this.$store.getters.population || {}
+    },
+    minimapDimensions() {
+      const width = 100
+      const height = 100
+      return {
+        width, x: this.width - this.rightWidth - width - 10,
+        height, y: this.height - this.bottomHeight - height - 10,
+      }
     },
   },
   created() {
@@ -75,6 +91,9 @@ export default {
     window.removeEventListener('resize', this.calculateDimensions)
   },
   methods: {
+    setGroups(groups) {
+      this.groups = groups
+    },
     calculateDimensions() {
       this.width = window.innerWidth - padding
       this.height = (1 / widthHeightRatio) * this.width
