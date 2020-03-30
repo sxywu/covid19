@@ -1,8 +1,8 @@
 <template>
   <div id="barChart">
-    <strong>Total severe, mild, and asymptomatic cases by age group</strong><br />
     <svg :width='width' :height='height'>
-      <rect v-for='d in bars' :x='d.x' :y='d.y'
+      <text :x='margin.right' dy='1em'>Infected cases by age group</text>
+      <rect v-for='d in bars' :key='d.id' :x='d.x' :y='d.y'
         :width='barWidth' :height='d.height' :fill='d.color' />
       <g ref='xAxis' :transform='`translate(0, ${height - margin.bottom})`' />
       <g ref='yAxis' :transform='`translate(${margin.left}, 0)`' />
@@ -14,14 +14,14 @@
 import * as d3 from 'd3'
 import _ from 'lodash'
 
-const margin = {top: 20, right: 20, bottom: 40, left: 30}
+const healthStatus = [4, 3, 2]
+const margin = {top: 20, right: 20, bottom: 20, left: 30}
 export default {
   name: 'BarChart',
-  props: ['ageGroups', 'healthStatus', 'colorsByHealth'],
+  props: ['height', 'ageGroups', 'colorsByHealth', 'tl', 'phases', 'playTimeline'],
   data() {
     return {
       width: 300,
-      height: 200,
       margin,
       bars: [],
       barWidth: 0,
@@ -29,7 +29,7 @@ export default {
   },
   created() {
     this.stackGenerator = d3.stack()
-      .keys([4, 3, 2])
+      .keys(healthStatus)
       .order(d3.stackOrderNone)
       .offset(d3.stackOffsetNone)
 
@@ -44,7 +44,26 @@ export default {
       .ticks(5)
       .tickFormat(d => d >= 1000 ? `${_.round(d / 1000)}k` : d)
   },
+  mounted() {
+    // create bars so that can animate later
+    // outer array is health status, inner is age groups
+    this.bars = _.chain(healthStatus)
+      .map(health => {
+        return _.map(_.values(this.ageGroups), ageGroup => {
+          return {
+            id: `${health}-${ageGroup}`,
+            x: this.xScale(ageGroup),
+            y: this.yScale(0),
+            height: 0,
+            color: this.colorsByHealth[health],
+          }
+        })
+      }).flatten().value()
+  },
   computed: {
+    day() {
+      return this.$store.state.day
+    },
     population() {
       return this.$store.getters.population
     },
@@ -75,18 +94,30 @@ export default {
 
       const stacks = this.stackGenerator(healthByAge)
       this.yScale.domain([0, d3.max(_.flatten(stacks), d => d[1])])
-      this.bars = _.chain(stacks)
+      const nextBarsById = _.chain(stacks)
         .map(stack => {
           return _.map(stack, d => {
-            const [y1, y2] = d
+            let [y1, y2] = d
+            y1 = y1 || 0
+            y2 = y2 || 0 // in case they are NaN
             return {
+              id: `${stack.key}-${d.data.ageGroup}`,
               x: this.xScale(d.data.ageGroup),
               y: this.yScale(y2),
               height: this.yScale(y1) - this.yScale(y2),
-              color: this.colorsByHealth[stack.key]
             }
           })
-        }).flatten().value()
+        }).flatten().keyBy('id').value()
+
+      // set up gsap animation
+      this.tl.to(this.bars, {
+        x: (i, {id}) => nextBarsById[id].x,
+        y: (i, {id}) => nextBarsById[id].y,
+        height: (i, {id}) => nextBarsById[id].height,
+        duration: this.phases[1] / 2,
+      }, `day${this.day}-1`)
+
+      this.playTimeline('bar')
     },
   },
 }
@@ -94,7 +125,6 @@ export default {
 
 <style scoped>
 #barChart {
-  width: 300px;
   display: inline-block;
 }
 </style>

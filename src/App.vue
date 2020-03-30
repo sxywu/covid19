@@ -15,11 +15,11 @@ export default {
   data() {
     return {
       ageGroups: {
-        '<19': 'Under 19',
+        '0': 'Under 19',
         '20': '20 to 39',
         '40': '40 to 59',
         '60': '60 to 79',
-        '>80': 'Over 80',
+        '80': 'Over 80',
       },
       healthStatus: [
         'Healthy', 'Recovered', 'Infected, asymptomatic',

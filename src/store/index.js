@@ -14,7 +14,7 @@ function seedInfections(people, houses, assignHealth) {
   const infected = people.map(function (person, i) {
     let curDest = d3.shuffle(houses[person.houseIndex].destinations).slice(0, 1)[0]
 
-    // infect as if 20% of people were exposed (i.e. susceptibility/5). And then assign days for those randomly between 1 and 6. We'll probably want to change this, but it gives us something to work with. 
+    // infect as if 20% of people were exposed (i.e. susceptibility/5). And then assign days for those randomly between 1 and 6. We'll probably want to change this, but it gives us something to work with.
     let newDaysSinceInfection = Math.random() > person.susceptibility / 5 ? 0 : (1 + Math.floor(Math.random() * 6));
 
     let curHealth = assignHealth(person, newDaysSinceInfection)
@@ -25,8 +25,8 @@ function seedInfections(people, houses, assignHealth) {
       destination: curDest,
       daysSinceInfection: newDaysSinceInfection,
       infectious: curHealth.infectious,
-      totalContacts: 0, // this is just for QA to see R0 more quickly. 
-      haveInfectedCount: 0, // this is just for QA to see R0 more quickly. 
+      totalContacts: 0, // this is just for QA to see R0 more quickly.
+      haveInfectedCount: 0, // this is just for QA to see R0 more quickly.
 
     }
   })
@@ -43,13 +43,13 @@ function assignHealth(person, daysSinceInfection) {
     newHealth = person.dieIfInfected == 1 ? 6 : 2 // dead or recovered
     newInfectious = 0
   } else if (daysSinceInfection >= 7 && person.hospitalIfInfected == 1) {
-    newHealth = 5 // hospitalized 
+    newHealth = 5 // hospitalized
     newInfectious = 1
   } else if (daysSinceInfection >= 6) {
-    newHealth = person.symptomaticIfInfected ? 4 : 3 // symptomatic or asymptomatic 
+    newHealth = person.symptomaticIfInfected ? 4 : 3 // symptomatic or asymptomatic
     newInfectious = 1        							 // and infectious
   } else if (daysSinceInfection >= 4) {
-    newHealth = 3  // asymptomatic 
+    newHealth = 3  // asymptomatic
     newInfectious = 1 // and infectious
   } else if (daysSinceInfection >= 0) {
     newHealth = 3  // asymptomatic
@@ -63,6 +63,8 @@ export default new Vuex.Store({
     day: 0,
     zipCode: '',
     dataLoaded: false,
+    bedOccupancyRate: 0.66,
+    decisions: [],
   },
   getters: {
     population({ zipCode, dataLoaded }) {
@@ -84,13 +86,16 @@ export default new Vuex.Store({
       const bedsPerPerson = _.sumBy(hospitals, 'beds') / countyPopulation
       return Math.floor(population.total * bedsPerPerson)
     },
-    community(state, { population }) {
+    totalAvailableBeds({bedOccupancyRate}, {totalBeds}) {
+      return Math.floor((1 - bedOccupancyRate) * totalBeds)
+    },
+    community(state, {population}) {
       if (!population) return
 
       const totalPopulation = population.total
 
       // make 100 establishments per 1000 people
-      const numDestinations = _.floor(0.1 * totalPopulation) || 1
+      const numDestinations = _.floor(0.05 * totalPopulation) || 1
       const destinations = _.times(numDestinations, i => {
         return {
           id: `dest${i}`,
@@ -98,7 +103,7 @@ export default new Vuex.Store({
         }
       })
 
-      const ageGroups = _.map(['<19', '20', '40', '60', '>80'], (key, i) => {
+      const ageGroups = _.map(['0', '20', '40', '60', '80'], (key, i) => {
         return [i * 20, population[key], key]
       })
       // go through, create people, and assign each person to a house
@@ -108,8 +113,8 @@ export default new Vuex.Store({
       let houseIndex = 0
       while (personIndex < totalPopulation) {
         // randomly assign number of people to a house
-        // between 1 and 6 people
-        let numPeopleInHouse = _.random(1, 5)
+        // between 2 and 5 people
+        let numPeopleInHouse = _.random(2, 5)
         // make sure it doesn't go over total population
         if (personIndex + numPeopleInHouse > totalPopulation) {
           numPeopleInHouse = totalPopulation - personIndex
@@ -154,25 +159,21 @@ export default new Vuex.Store({
       }
 
       // assign houses and destinations to each other
-      const destHouseRatio = destinations.length / houses.length
-      _.each(houses, (house, i) => {
-        const start = _.floor(i * destHouseRatio)
-        house.destinations = _.chain(_.random(5, 10))
-          // randomly assign 5 - 10 destinations to this house
-          .times(num => _.random(start, start + 20))
-          // but make sure we don't get the same destinations more than once
-          .uniq()
-          // and make sure the destination exists
-          .filter(dest => destinations[dest])
-          .value()
-
-        // and likewise register that house to its destinations
-        _.each(house.destinations, index => destinations[index].houses.push(houseIndex))
+      const destPerGroup = 7
+      const numDestGroups = Math.ceil(destinations.length / destPerGroup)
+      const housesPerGroup = Math.ceil(houses.length / numDestGroups)
+      _.times(numDestGroups, groupIndex => {
+        const destIndicesInGroup = _.range(groupIndex * destPerGroup, (groupIndex + 1) * destPerGroup)
+        const housesIndicesInGroup = _.range(groupIndex * housesPerGroup, (groupIndex + 1) * housesPerGroup)
+        _.each(housesIndicesInGroup, i => houses[i] &&
+          Object.assign(houses[i], {groupIndex, destinations: destIndicesInGroup}))
+        _.each(destIndicesInGroup, i => destinations[i] &&
+          Object.assign(destinations[i], {groupIndex, houses: housesIndicesInGroup}))
       })
 
-      return { people, houses, destinations }
+      return {people, houses, destinations, numGroups: numDestGroups}
     },
-    infected({ day }, { community, totalBeds }) {
+    infected({day}, {community, totalBeds}) {
       if (!community) return
       const { people, houses, destinations } = community
 
@@ -203,11 +204,11 @@ export default new Vuex.Store({
         })
       })
 
-      // update to tomorrow's destinations and health status 
+      // update to tomorrow's destinations and health status
       const infected = people.map(function (person, i) {
         let curDest = d3.shuffle(houses[person.houseIndex].destinations).slice(0, 1)[0]
 
-        // iterate infection days if they are already infected or they were exposed today and their susceptibility * number of exposures > random number from 0-1          
+        // iterate infection days if they are already infected or they were exposed today and their susceptibility * number of exposures > random number from 0-1
         let daysSinceInfection = _.get(prevInfected, [i, "daysSinceInfection"], 0)
         let exposedTodayI = _.get(exposedToday, i)
         let personSusceptibility = _.get(person, "susceptibility")
@@ -241,6 +242,9 @@ export default new Vuex.Store({
     },
     setDataLoaded(state, dataLoaded) {
       state.dataLoaded = dataLoaded
+    },
+    setDecision(state, decision) {
+      state.decisions.push(decision)
     },
   },
   actions: {
