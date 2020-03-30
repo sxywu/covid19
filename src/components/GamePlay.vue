@@ -8,7 +8,7 @@
       }' />
       <!-- BOTTOM PANEL -->
       <div class='panel' id='bottomPanel' :style='{width: `${width - rightWidth}px`}'>
-        <BarChart v-bind='$props' />
+        <BarChart v-bind='{ageGroups, colorsByHealth, tl, phases, playTimeline}' />
         <AreaChart v-bind='$props' />
       </div>
       <!-- RIGHT PANEL -->
