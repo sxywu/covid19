@@ -108,16 +108,18 @@ export default new Vuex.Store({
       const destPerGroup = 7
       const numDestGroups = Math.ceil(destinations.length / destPerGroup)
       const housesPerGroup = Math.ceil(houses.length / numDestGroups)
-      _.times(numDestGroups, i => {
+      const groups = _.times(numDestGroups, i => {
         const destIndicesInGroup = _.range(i * destPerGroup, (i + 1) * destPerGroup)
         const housesIndicesInGroup = _.range(i * housesPerGroup, (i + 1) * housesPerGroup)
-        _.each(housesIndicesInGroup, i => houses[i] &&
-          Object.assign(houses[i], {destinations: destIndicesInGroup}))
-        _.each(destIndicesInGroup, i => destinations[i] &&
-          Object.assign(destinations[i], {houses: housesIndicesInGroup}))
+        _.each(housesIndicesInGroup, j => houses[j] &&
+          Object.assign(houses[j], {groupIndex: i, destinations: destIndicesInGroup}))
+        _.each(destIndicesInGroup, j => destinations[j] &&
+          Object.assign(destinations[j], {groupIndex: i, houses: housesIndicesInGroup}))
+
+        return {index: i}
       })
 
-      return {people, houses, destinations}
+      return {people, houses, destinations, groups}
     },
     infected({day}, {community, totalAvailableBeds}) {
       if (!community) return
