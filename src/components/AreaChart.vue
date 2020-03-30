@@ -1,7 +1,8 @@
 <template>
   <div id="areaChart">
     <svg :width='width' :height='height'>
-      <path v-for='d in paths' :d='d.path' :fill='d.color' />
+      <text :x='margin.right' dy='1em'>Infected cases by day</text>
+      <path v-for='d in paths' :key='d.id' :d='d.path' :fill='d.color' />
       <g ref='xAxis' :transform='`translate(0, ${height - margin.bottom})`' />
       <g ref='yAxis' :transform='`translate(${margin.left}, 0)`' />
     </svg>
@@ -12,14 +13,14 @@
 import * as d3 from 'd3'
 import _ from 'lodash'
 
-const margin = {top: 20, right: 20, bottom: 40, left: 40}
+const healthStatus = [4, 3, 2]
+const margin = {top: 20, right: 20, bottom: 20, left: 30}
 export default {
   name: 'AreaChart',
-  props: ['ageGroups', 'healthStatus', 'colorsByHealth'],
+  props: ['height', 'ageGroups', 'colorsByHealth', 'tl', 'phases', 'playTimeline'],
   data() {
     return {
       width: 500,
-      height: 200,
       margin,
       paths: [],
     }
@@ -28,7 +29,7 @@ export default {
     this.healthByDay = [{day: 0, 4: 0, 3: 0, 2: 0}]
 
     this.stackGenerator = d3.stack()
-      .keys([4, 3, 2])
+      .keys(healthStatus)
       .order(d3.stackOrderNone)
       .offset(d3.stackOffsetNone)
 
@@ -36,16 +37,22 @@ export default {
     this.yScale = d3.scaleLinear().range([this.height - margin.bottom, margin.top])
 
     this.areaGenerator = d3.area()
-      .x(d => _.round(d.x, 2)).y1(d => _.round(d.y1, 2)).y0(d => _.round(d.y0, 2))
+      .y0(this.yScale(0))
+      .curve(d3.curveCatmullRom)
 
     this.xAxis = d3.axisBottom().scale(this.xScale)
     this.yAxis = d3.axisLeft().scale(this.yScale)
       .ticks(5)
       .tickFormat(d => d >= 1000 ? `${_.round(d / 1000)}k` : d)
   },
+  mounted() {
+    this.paths = _.map(healthStatus.reverse(), health => {
+      return {id: health, path: '', color: this.colorsByHealth[health]}
+    })
+  },
   computed: {
     day() {
-      return this.$store.state.day + 1
+      return this.$store.state.day
     },
     infected() {
       return this.$store.getters.infected
@@ -60,29 +67,36 @@ export default {
   },
   methods: {
     updateAreaChart() {
-      this.xScale.domain([0, Math.max(this.day, 12)])
+      this.xScale.domain([0, Math.max(this.day + 1, 12)])
 
       this.healthByDay.push(Object.assign(
         _.countBy(this.infected, 'health'),
-        {day: this.day}
+        {day: this.day + 1}
       ))
 
       const stacks = this.stackGenerator(this.healthByDay)
       this.yScale.domain([0, d3.max(_.flatten(stacks), d => d[1])])
 
-      this.paths = _.map(stacks, stack => {
-        const points = _.map(stack, d => {
-          const [y0, y1] = d
+      const nextPathsById = _.chain(stacks)
+        .map(stack => {
+          const points = _.map(stack, d => {
+            let [y0, y1] = d
+            y1 = y1 || 0 // in case they are NaN
+            return [this.xScale(d.data.day), this.yScale(y1)]
+          })
           return {
-            x: this.xScale(d.data.day),
-            y1: this.yScale(y1), y0: this.yScale(y0),
+            id: stack.key,
+            path: this.areaGenerator(points),
           }
-        })
-        return {
-          path: this.areaGenerator(points),
-          color: this.colorsByHealth[stack.key]
-        }
-      })
+        }).keyBy('id').value()
+
+      // set up gsap animation
+      this.tl.to(this.paths, {
+        path: (i, {id}) => nextPathsById[id].path,
+        duration: this.phases[1] / 2,
+      }, `day${this.day}-1`)
+
+      this.playTimeline('area')
     },
   },
 }
@@ -91,5 +105,6 @@ export default {
 <style scoped>
 #areaChart {
   display: inline-block;
+  border-left: #efefef;
 }
 </style>

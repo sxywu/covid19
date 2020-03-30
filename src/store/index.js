@@ -13,19 +13,31 @@ export default new Vuex.Store({
     day: 0,
     zipCode: '',
     dataLoaded: false,
+    bedOccupancyRate: 0.66,
+    decisions: [],
   },
   getters: {
     population({zipCode, dataLoaded}) {
       if (!zipCode || !dataLoaded) return
       return _.find(populationsByZip, d => d.zip === zipCode)
     },
-    hospitals({zipCode, dataLoaded}) {
-      if (!zipCode || !dataLoaded) return
-      return _.filter(hospitalsByZip, d => d.zip === zipCode)
+    zipsInCounty(state, {population}) {
+      if (!population) return
+      return _.filter(populationsByZip, d => d.county === population.county)
     },
-    totalBeds(state, {hospitals}) {
-      if (!hospitals) return
-      return _.sumBy(hospitals, 'beds')
+    hospitals(state, {zipsInCounty}) {
+      if (!zipsInCounty) return
+      const zips = _.map(zipsInCounty, 'zip')
+      return _.filter(hospitalsByZip, d => _.includes(zips, d.zip))
+    },
+    totalBeds(state, {hospitals, population, zipsInCounty}) {
+      if (!population || !hospitals || !zipsInCounty) return
+      const countyPopulation = _.sumBy(zipsInCounty, 'total')
+      const bedsPerPerson = _.sumBy(hospitals, 'beds') / countyPopulation
+      return Math.floor(population.total * bedsPerPerson)
+    },
+    totalAvailableBeds({bedOccupancyRate}, {totalBeds}) {
+      return Math.floor((1 - bedOccupancyRate) * totalBeds)
     },
     community(state, {population}) {
       if (!population) return
@@ -33,7 +45,7 @@ export default new Vuex.Store({
       const totalPopulation = population.total
 
       // make 100 establishments per 1000 people
-      const numDestinations = _.floor(0.1 * totalPopulation) || 1
+      const numDestinations = _.floor(0.05 * totalPopulation) || 1
       const destinations = _.times(numDestinations, i => {
         return {
           id: `dest${i}`,
@@ -41,7 +53,7 @@ export default new Vuex.Store({
         }
       })
 
-      const ageGroups = _.map(['<19', '20', '40', '60', '>80'], (key, i) => {
+      const ageGroups = _.map(['0', '20', '40', '60', '80'], (key, i) => {
         return [i * 20, population[key], key]
       })
       // go through, create people, and assign each person to a house
@@ -51,8 +63,8 @@ export default new Vuex.Store({
       let houseIndex = 0
       while(personIndex < totalPopulation) {
         // randomly assign number of people to a house
-        // between 1 and 6 people
-        let numPeopleInHouse = _.random(1, 5)
+        // between 2 and 5 people
+        let numPeopleInHouse = _.random(2, 5)
         // make sure it doesn't go over total population
         if (personIndex + numPeopleInHouse > totalPopulation) {
           numPeopleInHouse = totalPopulation - personIndex
@@ -60,6 +72,7 @@ export default new Vuex.Store({
 
         const house = {
           id: `house${houseIndex}`,
+          numPeople: numPeopleInHouse,
         }
         houses.push(house)
 
@@ -93,31 +106,26 @@ export default new Vuex.Store({
       }
 
       // assign houses and destinations to each other
-      const destHouseRatio = destinations.length / houses.length
-      _.each(houses, (house, i) => {
-        const start = _.floor(i * destHouseRatio)
-        house.destinations = _.chain(_.random(5, 10))
-          // randomly assign 5 - 10 destinations to this house
-          .times(num => _.random(start, start + 20))
-          // but make sure we don't get the same destinations more than once
-          .uniq()
-          // and make sure the destination exists
-          .filter(dest => destinations[dest])
-          .value()
-
-        // and likewise register that house to its destinations
-        _.each(house.destinations, index => destinations[index].houses.push(houseIndex))
+      const destPerGroup = 7
+      const numDestGroups = Math.ceil(destinations.length / destPerGroup)
+      const housesPerGroup = Math.ceil(houses.length / numDestGroups)
+      _.times(numDestGroups, groupIndex => {
+        const destIndicesInGroup = _.range(groupIndex * destPerGroup, (groupIndex + 1) * destPerGroup)
+        const housesIndicesInGroup = _.range(groupIndex * housesPerGroup, (groupIndex + 1) * housesPerGroup)
+        _.each(housesIndicesInGroup, i => houses[i] &&
+          Object.assign(houses[i], {groupIndex, destinations: destIndicesInGroup}))
+        _.each(destIndicesInGroup, i => destinations[i] &&
+          Object.assign(destinations[i], {groupIndex, houses: housesIndicesInGroup}))
       })
 
-      return {people, houses, destinations}
+      return {people, houses, destinations, numGroups: numDestGroups}
     },
-    infected({day}, {community, totalBeds}) {
+    infected({day}, {community, totalAvailableBeds}) {
       if (!community) return
       const {people, houses, destinations} = community
 
       const infected = _.map(people, (person, i) => {
-        const dests = [0]
-        _.each(houses[person.houseIndex].destinations, dest => dests.push(dest + 1))
+        const dests = _.union(houses[person.houseIndex].destinations, [-1])
 
         return {
           index: i,
@@ -126,7 +134,7 @@ export default new Vuex.Store({
           daysSinceInfection: 0,
         }
       })
-      _.times(_.random(totalBeds), i => infected[_.random(infected.length - 1)].health = 4)
+      _.times(_.random(totalAvailableBeds), i => infected[_.random(infected.length - 1)].health = 4)
 
       return infected
     },
@@ -140,6 +148,9 @@ export default new Vuex.Store({
     },
     setDataLoaded(state, dataLoaded) {
       state.dataLoaded = dataLoaded
+    },
+    setDecision(state, decision) {
+      state.decisions.push(decision)
     },
   },
   actions: {
