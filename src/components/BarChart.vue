@@ -77,8 +77,6 @@ export default {
   watch: {
     infected() {
       this.updateBarChart()
-      d3.select(this.$refs.xAxis).call(this.xAxis)
-      d3.select(this.$refs.yAxis).call(this.yAxis)
     },
   },
   methods: {
@@ -116,6 +114,11 @@ export default {
         height: (i, {id}) => nextBarsById[id].height,
         duration: this.phases[1] / 2,
       }, `day${this.day}-1`)
+      // and at same time update scales
+      this.tl.add(() => {
+        d3.select(this.$refs.xAxis).transition().call(this.xAxis)
+        d3.select(this.$refs.yAxis).transition().call(this.yAxis)
+      },`day${this.day}-1`)
 
       this.playTimeline('bar')
     },

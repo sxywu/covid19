@@ -61,17 +61,15 @@ export default {
   watch: {
     infected() {
       this.updateAreaChart()
-      d3.select(this.$refs.xAxis).call(this.xAxis)
-      d3.select(this.$refs.yAxis).call(this.yAxis)
     },
   },
   methods: {
     updateAreaChart() {
-      this.xScale.domain([0, Math.max(this.day + 1, 12)])
+      this.xScale.domain([0, Math.max(this.day, 12)])
 
       this.healthByDay.push(Object.assign(
         _.countBy(this.infected, 'health'),
-        {day: this.day + 1}
+        {day: this.day}
       ))
 
       const stacks = this.stackGenerator(this.healthByDay)
@@ -95,6 +93,11 @@ export default {
         path: (i, {id}) => nextPathsById[id].path,
         duration: this.phases[1] / 2,
       }, `day${this.day}-1`)
+      // and at same time update scales
+      this.tl.add(() => {
+        d3.select(this.$refs.xAxis).transition().call(this.xAxis)
+        d3.select(this.$refs.yAxis).transition().call(this.yAxis)
+      },`day${this.day}-1`)
 
       this.playTimeline('area')
     },
