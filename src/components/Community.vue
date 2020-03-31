@@ -4,17 +4,19 @@
       <!-- <line v-for='d in links' :x1='d.source.x' :y1='d.source.y'
         :x2='d.target.x' :y2='d.target.y' stroke='#000' /> -->
       <g id='houses'>
-        <image v-for='d in houses' v-if='d.onScreen' :x='d.x - d.size / 2' :y='d.y - 0.6 * d.size'
+        <image v-for='d in houses' v-if='d && d.onScreen' :x='d.x - d.size / 2' :y='d.y - 0.6 * d.size'
           :width='d.size' :height='d.size' :href='d.href' />
       </g>
       <g id='destinations'>
-        <image v-for='d in destinations' v-if='d.onScreen'
+        <image v-for='d in destinations' v-if='d && d.onScreen'
           :x='d.x - d.size / 2' :y='d.y - 0.6 * d.size'
           :width='d.size' :height='d.size' :href='d.href' />
       </g>
       <g id='people'>
         <circle v-for='d in people' :key='d.id' :cx='d.x' :cy='d.y' :r='d.r'
           :fill='d.color' :stroke='d.outline' stroke-width='2' />
+        <!-- <circle :cx='people[0].x' :cy='people[0].y' :r='people[0].r + 4'
+          fill='none' :stroke='people[0].color' stroke-width='2' stroke-dasharray='2' /> -->
       </g>
     </svg>
   </div>
@@ -70,7 +72,7 @@ export default {
       .force('x', d3.forceX().x(d => d.focusX))
       .force('y', d3.forceY().y(d => d.focusY))
       .alphaDecay(0)
-      .velocityDecay(0.5)
+      // .velocityDecay(0.5)
       .stop()
     this.tl.eventCallback('onUpdate', () => this.simulation.tick())
 
@@ -92,42 +94,42 @@ export default {
       const cutoff = 210
       const destsPerGroup = 7
 
-      const groups = []
-      const destinations = []
       const links = []
-      const houses = _.chain(this.community.houses)
-        .take(cutoff)
-        .map((house, i) => {
-          const source = {
-            id: house.id,
-            size: houseSizes[house.numPeople < 3 ? 0 : 1],
-            href: houseImages[house.numPeople < 3 ? _.random(1) : _.random(2, 3)],
+      let groups = []
+      let houses = _.take(this.community.houses, cutoff)
+      const destinations = []
+      _.chain(houses).map(d => d.destinations)
+        .flatten().uniqBy().sortBy()
+        .each(i => {
+          const {id, groupIndex} = this.community.destinations[i]
+          let group = groups[groupIndex]
+          if (!group) {
+            group = groups[groupIndex] = Object.assign({
+              size: 2.5 * destSize,
+              dests: [],
+            }, i === 0 ? {fx: this.center.x, fy: this.center.y} : {})
           }
-          _.each(house.destinations, index => {
-            let destination = destinations[index]
-            if (!destination) {
-              // if destination doesn't exist yet
-              const {id, groupIndex} = this.community.destinations[index]
-              let group = groups[groupIndex]
-              if (!group) {
-                group = groups[groupIndex] = Object.assign({
-                  size: 2.5 * destSize,
-                  dests: [],
-                }, index === 0 ? {fx: this.center.x, fy: this.center.y} : {})
-              }
-
-              destination = destinations[index] = {
-                id, group,
-                size: destSize,
-              }
-              group.dests.push(destination)
-            }
-            links.push({source, target: destination.group})
-          })
-
-          return source
+          const destination = destinations[i] = {
+            id, group,
+            size: destSize,
+          }
+          group.dests.push(destination)
+          return destination
         }).value()
+      houses = _.map(houses, (house, i) => {
+        const source = {
+          id: house.id,
+          size: houseSizes[house.numPeople < 3 ? 0 : 1],
+          href: houseImages[house.numPeople < 3 ? _.random(1) : _.random(2, 3)],
+        }
+        _.each(house.destinations, index => {
+          links.push({source, target: destinations[index].group})
+        })
+
+        return source
+      })
       // and also link all groups together so they're packed closely together
+      groups = _.filter(groups)
       _.each(groups, source => {
         _.each(groups, target => {
           if (source === target) return

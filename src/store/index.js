@@ -7,6 +7,7 @@ Vue.use(Vuex)
 
 let populationsByZip = []
 let hospitalsByZip = []
+let prevPlayers = []
 let prevInfected = []
 
 function assignHealth(person, daysSinceInfection) {
@@ -45,6 +46,7 @@ export default new Vuex.Store({
     dataLoaded: false,
     bedOccupancyRate: 0.66,
     decisions: [],
+    totalDays: 8 * 7,
   },
   getters: {
     population({ zipCode, dataLoaded }) {
@@ -75,11 +77,14 @@ export default new Vuex.Store({
       const totalPopulation = population.total
 
       // make 100 establishments per 1000 people
+      // and 7 destinations per group
+      const destPerGroup = 7
       const numDestinations = _.floor(0.05 * totalPopulation) || 1
+      const numDestGroups = Math.ceil(numDestinations / destPerGroup)
       const destinations = _.times(numDestinations, i => {
         return {
           id: `dest${i}`,
-          houses: [], // houses whose people visit that establishment
+          groupIndex: Math.floor(i / destPerGroup),
         }
       })
 
@@ -139,16 +144,15 @@ export default new Vuex.Store({
       }
 
       // assign houses and destinations to each other
-      const destPerGroup = 7
-      const numDestGroups = Math.ceil(destinations.length / destPerGroup)
       const housesPerGroup = Math.ceil(houses.length / numDestGroups)
       _.times(numDestGroups, groupIndex => {
-        const destIndicesInGroup = _.range(groupIndex * destPerGroup, (groupIndex + 1) * destPerGroup)
         const housesIndicesInGroup = _.range(groupIndex * housesPerGroup, (groupIndex + 1) * housesPerGroup)
+          const destIndicesInGroup = _.union(
+            _.range(groupIndex * destPerGroup, (groupIndex + 1) * destPerGroup),
+            _.times(3, i => _.random((groupIndex + 2) * destPerGroup, (groupIndex + 4) * destPerGroup))
+          )
         _.each(housesIndicesInGroup, i => houses[i] &&
           Object.assign(houses[i], {groupIndex, destinations: destIndicesInGroup}))
-        _.each(destIndicesInGroup, i => destinations[i] &&
-          Object.assign(destinations[i], {groupIndex, houses: housesIndicesInGroup}))
       })
 
       return {people, houses, destinations, numGroups: numDestGroups}
@@ -262,6 +266,12 @@ export default new Vuex.Store({
       ]).then(([populations, hospitals]) => {
         populationsByZip = populations
         hospitalsByZip = hospitals
+        prevPlayers = _.times(30000, i => {
+          return {
+            infectedDate: _.random(state.totalDays),
+            decisions: _.times(state.totalDays, i => _.random(1)),
+          }
+        })
 
         commit('setDataLoaded', true)
       })
