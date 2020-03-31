@@ -170,14 +170,16 @@ export default new Vuex.Store({
             index: i,
             daysSinceInfection,
             health, infectious,
-            // totalContacts: 0, // this is just for QA to see R0 more quickly.
-            // haveInfectedCount: 0, // this is just for QA to see R0 more quickly.
           }
         })
       }
 
+      const infectedHouses = []
+      const infectedDestinations = []
       const infected = _.map(people, (person, i) => {
-        let {daysSinceInfection} = prevInfected[i]
+        let {health: prevHealth, infectious: prevInfectious,
+          daysSinceInfection} = prevInfected[i]
+
         // calculate everyone's new health/infectiousness for current day
         daysSinceInfection += !!daysSinceInfection // if days = 0, don't add any, if >0 then add 1
         const {health, infectious} = assignHealth(person, daysSinceInfection)
@@ -187,36 +189,46 @@ export default new Vuex.Store({
           // if they're healthy, recovered, or asymptomatic
           // have them go to an establishment
           destination = _.sample(houses[person.houseIndex].destinations)
+
+          if (health === 2) {
+            // but if they're asymptomatic, add that as infected destination
+            infectedDestinations[destination] = (infectedDestinations[destination] || 0) + 1
+          }
+        }
+
+        const house = person.houseIndex
+        // and if they were infectious the previous day
+        // (want previous day bc they'd have spent a night in same house)
+        // add their house as infectious also
+        if (1 < prevHealth && prevHealth < 5) {
+          infectedHouses[house] = (infectedHouses[house] || 0) + 5
         }
 
         return {
           index: i,
-          house: person.houseIndex,
-          destination,
+          house, destination,
           health, infectious, daysSinceInfection
         }
       })
 
-      // get infectious & healthy people
-      const {infectious, healthy} = _.groupBy(infected, ({health, infectious}) =>
-        infectious ? 'infectious' : (!health ? 'healthy' : 'infected'))
-      _.each(healthy, hea => {
-        const timesExposed = _.sumBy(infectious, inf => {
-          if (inf.house === hea.house) return 5 // if in same house as infected person
-          if (inf.destination === hea.destination) return 1 // if went to same place
-          return 0 // if neither
-        })
-        // if didn't get exposed, don't need to update
-        if (!timesExposed) return
-        // susceptibility * number of exposures > random number from 0-1
-        const infected = people[hea.index].susceptibility * timesExposed > Math.random()
-        if (!infected) return
+      // for each healthy person
+      _.chain(infected)
+        .filter(({health}) => health === 0)
+        .each((healthy) => {
+          const {house, destination, index} = healthy
+          const timesExposed = (infectedDestinations[destination] || 0) + (infectedHouses[house] || 0)
+          // if didn't get exposed, don't need to update
+          if (!timesExposed) return
+          // susceptibility * number of exposures > random number from 0-1
 
-        Object.assign(hea, {
-          daysSinceInfection: 1,
-          health: 2, infectious: 0, // newly infected, so asymptomatic & not infectious
-        })
-      })
+          const infected = people[index].susceptibility * timesExposed > Math.random()
+          if (!infected) return
+
+          Object.assign(healthy, {
+            daysSinceInfection: 1,
+            health: 2, infectious: 0, // newly infected, so asymptomatic & not infectious
+          })
+        }).value()
 
       prevInfected = infected
 
