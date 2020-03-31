@@ -9,53 +9,33 @@ let populationsByZip = []
 let hospitalsByZip = []
 let prevInfected = []
 
-
-function seedInfections(people, houses, assignHealth) {
-  const infected = people.map(function (person, i) {
-    let curDest = d3.shuffle(houses[person.houseIndex].destinations).slice(0, 1)[0]
-
-    // infect as if 20% of people were exposed (i.e. susceptibility/5). And then assign days for those randomly between 1 and 6. We'll probably want to change this, but it gives us something to work with.
-    let newDaysSinceInfection = Math.random() > person.susceptibility / 5 ? 0 : (1 + Math.floor(Math.random() * 6));
-
-    let curHealth = assignHealth(person, newDaysSinceInfection)
-
-    return {
-      index: i,
-      health: curHealth.health,
-      destination: curDest,
-      daysSinceInfection: newDaysSinceInfection,
-      infectious: curHealth.infectious,
-      totalContacts: 0, // this is just for QA to see R0 more quickly.
-      haveInfectedCount: 0, // this is just for QA to see R0 more quickly.
-
-    }
-  })
-
-  return infected
-
-}
-
 function assignHealth(person, daysSinceInfection) {
-  // health statuses: 1 = healthy, 2 = recovered, 3 = infected+asymptomatic, 4 = infected+ symptomatic, 5 = hospitalized from infection, 6 = died from infection. Option to add additional for infected+presymptomatic; and/or to include infectious here rather than as a separate variable
-  let newHealth = 1;
+  // health statuses: 0 = healthy, 1 = recovered, 2 = infected+asymptomatic,
+  // 3 = infected+ symptomatic, 4 = hospitalized from infection, 5 = died from infection
+  // Option to add additional for infected+presymptomatic; and/or to include infectious here rather than as a separate variable
+  let newHealth = 0;
   let newInfectious = 0;
   if (daysSinceInfection >= 14) {
-    newHealth = person.dieIfInfected == 1 ? 6 : 2 // dead or recovered
+    newHealth = person.dieIfInfected ? 5 : 1 // dead or recovered
     newInfectious = 0
-  } else if (daysSinceInfection >= 7 && person.hospitalIfInfected == 1) {
-    newHealth = 5 // hospitalized
+  } else if (daysSinceInfection >= 7 && person.hospitalIfInfected) {
+    newHealth = 4 // hospitalized
     newInfectious = 1
   } else if (daysSinceInfection >= 6) {
-    newHealth = person.symptomaticIfInfected ? 4 : 3 // symptomatic or asymptomatic
+    newHealth = person.symptomaticIfInfected ? 3 : 2 // symptomatic or asymptomatic
     newInfectious = 1        							 // and infectious
   } else if (daysSinceInfection >= 4) {
-    newHealth = 3  // asymptomatic
+    newHealth = 2  // asymptomatic
     newInfectious = 1 // and infectious
-  } else if (daysSinceInfection >= 0) {
-    newHealth = 3  // asymptomatic
+  } else if (daysSinceInfection > 0) {
+    newHealth = 2  // asymptomatic
     newInfectious = 0 // and not infectious
   }
   return { health: newHealth, infectious: newInfectious }
+}
+
+function assignDestination(person, houses) {
+
 }
 
 export default new Vuex.Store({
@@ -177,55 +157,65 @@ export default new Vuex.Store({
       if (!community) return
       const { people, houses, destinations } = community
 
-      let exposedToday = {};
-      let filteredPrevInfected = prevInfected.filter(d => d.infectious == 1)
+      if (!prevInfected.length) {
+        // if this is the first day, seed infections
+        prevInfected = _.map(people, (person, i) => {
+          // TODO: infect as if 20% of people were exposed (i.e. susceptibility/5).
+          // And then assign days for those randomly between 1 and 6.
+          // We'll probably want to change this, but it gives us something to work with.
+          let daysSinceInfection = Math.random() > 0.2 * person.susceptibility ? 0 : _.random(1, 6);
+          let {health, infectious} = assignHealth(person, daysSinceInfection)
 
-      _.each(filteredPrevInfected, (d) => {
-        _.each(prevInfected, (o, i) => {
-          let { destination: dDestination } = d
-
-
-          let { destination, index } = o
-          let { index: destinationIndex } = destination
-
-          let houseIndex = _.get(people, [index, "houseIndex"])
-          let filteredHouseIndex = _.get(people, [destinationIndex, "houseIndex"])
-
-          let incAmount =
-            houseIndex == filteredHouseIndex
-              ? 5
-              : destination != 0 && destination == dDestination
-                ? 1
-                : 0
-
-          let exposedTodayAmount = _.get(exposedToday, i, 0)
-
-          _.set(exposedToday, i, exposedTodayAmount + incAmount)
+          return {
+            index: i,
+            daysSinceInfection,
+            health, infectious,
+            // totalContacts: 0, // this is just for QA to see R0 more quickly.
+            // haveInfectedCount: 0, // this is just for QA to see R0 more quickly.
+          }
         })
-      })
+      }
 
-      // update to tomorrow's destinations and health status
-      const infected = people.map(function (person, i) {
-        let curDest = d3.shuffle(houses[person.houseIndex].destinations).slice(0, 1)[0]
+      const infected = _.map(people, (person, i) => {
+        let {daysSinceInfection} = prevInfected[i]
+        // calculate everyone's new health/infectiousness for current day
+        daysSinceInfection += !!daysSinceInfection // if days = 0, don't add any, if >0 then add 1
+        const {health, infectious} = assignHealth(person, daysSinceInfection)
 
-        // iterate infection days if they are already infected or they were exposed today and their susceptibility * number of exposures > random number from 0-1
-        let daysSinceInfection = _.get(prevInfected, [i, "daysSinceInfection"], 0)
-        let exposedTodayI = _.get(exposedToday, i)
-        let personSusceptibility = _.get(person, "susceptibility")
-        let random = Math.random()
-        let newDaysSinceInfection = daysSinceInfection > 0 || exposedTodayI && (personSusceptibility * exposedTodayI) > random
-          ? daysSinceInfection + 1
-          : 0;
-
-        let curHealth = assignHealth(person, newDaysSinceInfection)
+        let destination = -1 // default to home
+        if (health < 3) {
+          // if they're healthy, recovered, or asymptomatic
+          // have them go to an establishment
+          destination = _.sample(houses[person.houseIndex].destinations)
+        }
 
         return {
           index: i,
-          health: curHealth.health,
-          destination: curDest,
-          daysSinceInfection: newDaysSinceInfection,
-          infectious: curHealth.infectious,
+          house: person.houseIndex,
+          destination,
+          health, infectious, daysSinceInfection
         }
+      })
+
+      // get infectious & healthy people
+      const {infectious, healthy} = _.groupBy(infected, ({health, infectious}) =>
+        infectious ? 'infectious' : (!health ? 'healthy' : 'infected'))
+      _.each(healthy, hea => {
+        const timesExposed = _.sumBy(infectious, inf => {
+          if (inf.house === hea.house) return 5 // if in same house as infected person
+          if (inf.destination === hea.destination) return 1 // if went to same place
+          return 0 // if neither
+        })
+        // if didn't get exposed, don't need to update
+        if (!timesExposed) return
+        // susceptibility * number of exposures > random number from 0-1
+        const infected = people[hea.index].susceptibility * timesExposed > Math.random()
+        if (!infected) return
+
+        Object.assign(hea, {
+          daysSinceInfection: 1,
+          health: 2, infectious: 0, // newly infected, so asymptomatic & not infectious
+        })
       })
 
       prevInfected = infected
