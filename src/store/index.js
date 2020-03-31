@@ -163,7 +163,7 @@ export default new Vuex.Store({
           // TODO: infect as if 20% of people were exposed (i.e. susceptibility/5).
           // And then assign days for those randomly between 1 and 6.
           // We'll probably want to change this, but it gives us something to work with.
-          let daysSinceInfection = Math.random() > 0.2 * person.susceptibility ? 0 : _.random(1, 6);
+          let daysSinceInfection = i % 1000 ? 0 : _.random(1, 6);
           let {health, infectious} = assignHealth(person, daysSinceInfection)
 
           return {
@@ -173,6 +173,7 @@ export default new Vuex.Store({
           }
         })
       }
+
 
       const infectedHouses = []
       const infectedDestinations = []
