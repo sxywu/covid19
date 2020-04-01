@@ -2,6 +2,8 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import * as d3 from 'd3'
 import _ from 'lodash'
+import * as firebase from 'firebase'
+import uuid from 'uuid/v4'
 
 Vue.use(Vuex)
 
@@ -15,6 +17,7 @@ export default new Vuex.Store({
     dataLoaded: false,
     bedOccupancyRate: 0.66,
     decisions: [],
+    gameId: '',
   },
   getters: {
     population({zipCode, dataLoaded}) {
@@ -61,7 +64,7 @@ export default new Vuex.Store({
       const houses = []
       let personIndex = 0
       let houseIndex = 0
-      while(personIndex < totalPopulation) {
+      while (personIndex < totalPopulation) {
         // randomly assign number of people to a house
         // between 2 and 5 people
         let numPeopleInHouse = _.random(2, 5)
@@ -96,7 +99,8 @@ export default new Vuex.Store({
             index: personIndex + i,
             id: `person${personIndex + i}`,
             houseIndex, // reference house person lives in
-            age, ageGroup,
+            age,
+            ageGroup,
             susceptibility: 0, // TODO: UPDATE
           })
         })
@@ -110,12 +114,32 @@ export default new Vuex.Store({
       const numDestGroups = Math.ceil(destinations.length / destPerGroup)
       const housesPerGroup = Math.ceil(houses.length / numDestGroups)
       _.times(numDestGroups, groupIndex => {
-        const destIndicesInGroup = _.range(groupIndex * destPerGroup, (groupIndex + 1) * destPerGroup)
-        const housesIndicesInGroup = _.range(groupIndex * housesPerGroup, (groupIndex + 1) * housesPerGroup)
-        _.each(housesIndicesInGroup, i => houses[i] &&
-          Object.assign(houses[i], {groupIndex, destinations: destIndicesInGroup}))
-        _.each(destIndicesInGroup, i => destinations[i] &&
-          Object.assign(destinations[i], {groupIndex, houses: housesIndicesInGroup}))
+        const destIndicesInGroup = _.range(
+          groupIndex * destPerGroup,
+          (groupIndex + 1) * destPerGroup,
+        )
+        const housesIndicesInGroup = _.range(
+          groupIndex * housesPerGroup,
+          (groupIndex + 1) * housesPerGroup,
+        )
+        _.each(
+          housesIndicesInGroup,
+          i =>
+            houses[i] &&
+            Object.assign(houses[i], {
+              groupIndex,
+              destinations: destIndicesInGroup,
+            }),
+        )
+        _.each(
+          destIndicesInGroup,
+          i =>
+            destinations[i] &&
+            Object.assign(destinations[i], {
+              groupIndex,
+              houses: housesIndicesInGroup,
+            }),
+        )
       })
 
       return {people, houses, destinations, numGroups: numDestGroups}
@@ -134,7 +158,10 @@ export default new Vuex.Store({
           daysSinceInfection: 0,
         }
       })
-      _.times(_.random(totalAvailableBeds), i => infected[_.random(infected.length - 1)].health = 4)
+      _.times(
+        _.random(totalAvailableBeds),
+        i => (infected[_.random(infected.length - 1)].health = 4),
+      )
 
       return infected
     },
@@ -151,6 +178,9 @@ export default new Vuex.Store({
     },
     setDecision(state, decision) {
       state.decisions.push(decision)
+    },
+    setGameId(state, id) {
+      state.gameId = id
     },
   },
   actions: {
@@ -169,5 +199,9 @@ export default new Vuex.Store({
         commit('setDataLoaded', true)
       })
     },
-  }
+    checkUser({commit, ...rest}) {
+      const cachedGame = localStorage.getItem('covid19-store')
+      commit('setGameId', uuid())
+    },
+  },
 })

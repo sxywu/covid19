@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <GamePlay v-bind='$data' />
+    <GamePlay v-bind="$data" />
   </div>
 </template>
 
@@ -22,19 +22,28 @@ export default {
         '80': 'Over 80',
       },
       healthStatus: [
-        'Healthy', 'Recovered', 'Infected, asymptomatic',
-        'Mild symptoms', 'Severe symptoms', 'Deceased',
+        'Healthy',
+        'Recovered',
+        'Infected, asymptomatic',
+        'Mild symptoms',
+        'Severe symptoms',
+        'Deceased',
       ],
       colorsByHealth: [
-        '#e1e0ed', '#8058b6', '#8f6dbd',
-        '#fe8f55', '#fe476f', '#4b3b59'
-      ]
+        '#e1e0ed',
+        '#8058b6',
+        '#8f6dbd',
+        '#fe8f55',
+        '#fe476f',
+        '#4b3b59',
+      ],
     }
   },
   created() {
     this.$store.dispatch('getRawData')
     this.$store.commit('setZipCode', '94110')
-  }
+    this.$store.dispatch('checkUser')
+  },
 }
 </script>
 
