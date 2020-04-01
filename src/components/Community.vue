@@ -14,7 +14,7 @@
       </g>
       <g id='people'>
         <circle v-for='d in people' :key='d.id' :cx='d.x' :cy='d.y' :r='d.r'
-          :fill='d.color' :stroke='d.outline' stroke-width='2' />
+          :fill='d.color' />
         <!-- <circle :cx='people[0].x' :cy='people[0].y' :r='people[0].r + 4'
           fill='none' :stroke='people[0].color' stroke-width='2' stroke-dasharray='2' /> -->
       </g>
@@ -189,7 +189,7 @@ export default {
           x: house.x,
           y: house.y,
           r: personR,
-          color, outline: color,
+          color,
         })
       })
 
@@ -220,8 +220,7 @@ export default {
             return Object.assign(person, {
               destination: id,
               focusX: x, focusY: y,
-              nextColor: health === 1 ? '#ffffff' : this.colorsByHealth[health],
-              nextOutline: this.colorsByHealth[health],
+              nextColor: this.colorsByHealth[health],
             })
           }).filter().value()
 
@@ -233,7 +232,6 @@ export default {
       this.tl.to(this.people, {
         duration: 0.75 * duration2,
         color: (i, person) => person.nextColor,
-        outline: (i, person) => person.nextOutline,
         stagger: 0.003,
       }, `day${this.day}-1`)
 

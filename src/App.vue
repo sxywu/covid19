@@ -26,7 +26,7 @@ export default {
         'Mild symptoms', 'Severe symptoms', 'Deceased',
       ],
       colorsByHealth: [
-        '#e1e0ed', '#8058b6', '#8f6dbd',
+        '#e1e0ed', '#63cbe2', '#8f6dbd',
         '#fe8f55', '#fe476f', '#4b3b59'
       ]
     }
