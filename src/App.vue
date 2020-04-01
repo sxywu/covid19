@@ -6,6 +6,7 @@
 
 <script>
 import GamePlay from './components/GamePlay'
+import {v4 as uuidv4} from 'uuid'
 
 export default {
   name: 'App',
@@ -42,7 +43,8 @@ export default {
   created() {
     this.$store.dispatch('getRawData')
     this.$store.commit('setZipCode', '94110')
-    this.$store.dispatch('checkUser')
+    const gameId = uuidv4()
+    this.$store.commit('setGameId', gameId)
   },
 }
 </script>

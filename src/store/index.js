@@ -2,8 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import * as d3 from 'd3'
 import _ from 'lodash'
-import * as firebase from 'firebase'
-import uuid from 'uuid/v4'
+import {gamesCollection} from '../db'
 
 Vue.use(Vuex)
 
@@ -199,9 +198,18 @@ export default new Vuex.Store({
         commit('setDataLoaded', true)
       })
     },
-    checkUser({commit, ...rest}) {
-      const cachedGame = localStorage.getItem('covid19-store')
-      commit('setGameId', uuid())
+    getGameState({state}) {
+      gamesCollection.get().then(collectionSnapshot => {
+        const games = collectionSnapshot.docs.map(docSnapShot =>
+          docSnapShot.data(),
+        )
+        console.log({games})
+      })
+    },
+    storeGame({state}) {
+      gamesCollection.doc(state.gameId).set({
+        ...state,
+      })
     },
   },
 })

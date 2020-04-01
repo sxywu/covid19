@@ -1,38 +1,82 @@
 <template>
-  <div id="gameplay" :style='{width: `${width}px`, height: `${height}px`}'>
-    <div class='container'>
+  <div id="gameplay" :style="{width: `${width}px`, height: `${height}px`}">
+    <div class="container">
       <!-- BACKGROUND -->
-      <Community v-bind='{
-        colorsByHealth, width, height, rightWidth,
-        tl, phases, playTimeline, setGroups,
-      }' />
+      <Community
+        v-bind="{
+          colorsByHealth,
+          width,
+          height,
+          rightWidth,
+          tl,
+          phases,
+          playTimeline,
+          setGroups,
+        }"
+      />
       <!-- BOTTOM PANEL -->
-      <div class='panel' id='bottomPanel' :style='{
-        width: `${width - rightWidth}px`,
-        height: `${bottomHeight}px`,
-      }'>
-        <BarChart v-bind='{height: bottomHeight, ageGroups, colorsByHealth, tl, phases, playTimeline}' />
-        <AreaChart v-bind='{height: bottomHeight, ageGroups, colorsByHealth, tl, phases, playTimeline}' />
+      <div
+        class="panel"
+        id="bottomPanel"
+        :style="{
+          width: `${width - rightWidth}px`,
+          height: `${bottomHeight}px`,
+        }"
+      >
+        <BarChart
+          v-bind="{
+            height: bottomHeight,
+            ageGroups,
+            colorsByHealth,
+            tl,
+            phases,
+            playTimeline,
+          }"
+        />
+        <AreaChart
+          v-bind="{
+            height: bottomHeight,
+            ageGroups,
+            colorsByHealth,
+            tl,
+            phases,
+            playTimeline,
+          }"
+        />
       </div>
       <!-- RIGHT PANEL -->
-      <div class='panel' id='rightPanel' :style='{height: `${height - topHeight}px`}'>
-        <Hospital v-bind='{colorsByHealth, width: rightWidth, tl, phases, playTimeline}' />
+      <div
+        class="panel"
+        id="rightPanel"
+        :style="{height: `${height - topHeight}px`}"
+      >
+        <Hospital
+          v-bind="{colorsByHealth, width: rightWidth, tl, phases, playTimeline}"
+        />
       </div>
       <!-- TOP PANEL -->
-      <div class='panel' id='topPanel' :style='{height: `${topHeight}px`}'>
+      <div class="panel" id="topPanel" :style="{height: `${topHeight}px`}">
         <strong>Day {{ day }}</strong>
       </div>
       <!-- MINIMAP -->
-      <Minimap v-bind='{
-        ...minimapDimensions, groups, colorsByHealth,
-        containerWidth: width, containerHeight: height,
-      }' />
+      <Minimap
+        v-bind="{
+          ...minimapDimensions,
+          groups,
+          colorsByHealth,
+          containerWidth: width,
+          containerHeight: height,
+        }"
+      />
       <!-- DECISION SCREEN -->
-      <div class='decision' v-if='showDecision'>
-        <button @click='updateDecision'>Decide</button>
+      <div class="decision" v-if="showDecision">
+        <button @click="updateDecision">Decide</button>
       </div>
     </div>
-    <div class='zipCode'>ZIP CODE: <strong>{{ zipCode }}</strong> ({{ population.total }} residents)</div>
+    <div class="zipCode">
+      ZIP CODE: <strong>{{ zipCode }}</strong> ({{ population.total }}
+      residents)
+    </div>
   </div>
 </template>
 
@@ -52,7 +96,11 @@ const needSetup = ['community', 'area', 'bar', 'hospital']
 export default {
   name: 'GamePlay',
   components: {
-    Community, Minimap, Hospital, BarChart, AreaChart,
+    Community,
+    Minimap,
+    Hospital,
+    BarChart,
+    AreaChart,
   },
   props: ['ageGroups', 'healthStatus', 'colorsByHealth'],
   data() {
@@ -82,8 +130,10 @@ export default {
       const width = 120
       const height = 100
       return {
-        width, x: this.width - this.rightWidth - width - 10,
-        height, y: this.height - this.bottomHeight - height - 10,
+        width,
+        x: this.width - this.rightWidth - width - 10,
+        height,
+        y: this.height - this.bottomHeight - height - 10,
       }
     },
   },
@@ -109,6 +159,8 @@ export default {
       this.showDecision = false
       this.$store.commit('setDecision', 7)
       this.updateDay()
+      this.$store.dispatch('storeGame')
+      this.$store.dispatch('getGameState')
     },
     updateDay() {
       this.setupDone = []
