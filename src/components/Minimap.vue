@@ -58,8 +58,8 @@ export default {
         _.map(this.groups, d => Object.assign(d, {fx: d.x, fy: d.y})),
         _.times(this.community.numGroups - this.groups.length, i => {
           return {
-            x: p5.prototype.randomGaussian(x, this.width * 20),
-            y: p5.prototype.randomGaussian(y, this.height * 20),
+            x: p5.prototype.randomGaussian(x, this.width * 30),
+            y: p5.prototype.randomGaussian(y, this.height * 30),
           }
         })
       )

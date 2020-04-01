@@ -14,7 +14,7 @@
 import * as d3 from 'd3'
 import _ from 'lodash'
 
-const healthStatus = [4, 3, 2]
+const healthStatus = [4, 3, 2, 5]
 const margin = {top: 20, right: 20, bottom: 20, left: 30}
 export default {
   name: 'BarChart',
@@ -97,7 +97,7 @@ export default {
           return _.map(stack, d => {
             let [y1, y2] = d
             y1 = y1 || 0
-            y2 = y2 || 0 // in case they are NaN
+            y2 = y2 || y1 // in case they are NaN
             return {
               id: `${stack.key}-${d.data.ageGroup}`,
               x: this.xScale(d.data.ageGroup),
