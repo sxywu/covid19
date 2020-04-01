@@ -155,6 +155,12 @@ export default new Vuex.Store({
           Object.assign(houses[i], {groupIndex, destinations: destIndicesInGroup}))
       })
 
+      // add previous players' info to people
+      const peopleRatio = Math.floor(totalPopulation / prevPlayers.length)
+      _.each(prevPlayers, ({decisions}, i) => {
+        Object.assign(people[i * peopleRatio], {decisions})
+      })
+
       return {people, houses, destinations, numGroups: numDestGroups}
     },
     infected({day}, {community, totalBeds}) {
@@ -195,7 +201,7 @@ export default new Vuex.Store({
           // have them go to an establishment
           destination = _.sample(houses[person.houseIndex].destinations)
 
-          if (health === 2) {
+          if (infectious) {
             // but if they're asymptomatic, add that as infected destination
             infectedDestinations[destination] = (infectedDestinations[destination] || 0) + 1
           }
@@ -205,7 +211,7 @@ export default new Vuex.Store({
         // and if they were infectious the previous day
         // (want previous day bc they'd have spent a night in same house)
         // add their house as infectious also
-        if (1 < prevHealth && prevHealth < 5) {
+        if (prevInfectious) {
           infectedHouses[house] = (infectedHouses[house] || 0) + 5
         }
 
