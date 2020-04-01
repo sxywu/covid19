@@ -227,7 +227,7 @@ export default new Vuex.Store({
       const alternateDestinations = []
       const infected = _.map(people, (person, i) => {
         let {health: prevHealth, infectious: prevInfectious,
-          daysSinceInfection, alternate} = prevInfected[i]
+          daysSinceInfection, alternate: prevAlternate} = prevInfected[i]
 
         // calculate everyone's new health/infectiousness for current day
         daysSinceInfection += !!daysSinceInfection // if days = 0, don't add any, if >0 then add 1
@@ -236,9 +236,12 @@ export default new Vuex.Store({
           !person.decisions || person.decisions[day], infectedDestinations, infectedHouses
         )
         // now calculate for an alternate scenario
-        alternate.daysSinceInfection += !!alternate.daysSinceInfection
-        alternate = healthAndDestination(person, houses, alternate.daysSinceInfection,
-          alternate.infectious, true, alternateHouses, alternateDestinations)
+        prevAlternate.daysSinceInfection += !!prevAlternate.daysSinceInfection
+        const alternate = Object.assign(
+          healthAndDestination(person, houses, prevAlternate.daysSinceInfection,
+            prevAlternate.infectious, true, alternateDestinations, alternateHouses),
+          {daysSinceInfection: prevAlternate.daysSinceInfection},
+        )
 
         return {
           index: i,
@@ -297,7 +300,7 @@ export default new Vuex.Store({
         hospitalsByZip = hospitals
         prevPlayers = _.times(35000, i => {
           return {
-            decisions: _.times(state.totalDays, i => 0),
+            decisions: _.times(state.totalDays, i => _.random(1)),
           }
         })
 
