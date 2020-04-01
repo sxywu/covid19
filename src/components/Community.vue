@@ -95,29 +95,28 @@ export default {
       const destsPerGroup = 7
 
       const links = []
-      let groups = []
       let houses = _.take(this.community.houses, cutoff)
-      let destinations = _.chain(houses)
+      let groups = []
+      let maxDest = _.chain(houses)
         .map(d => d.destinations)
-        .flatten().uniqBy().sortBy()
-        .map(i => {
-          const {id, groupIndex} = this.community.destinations[i]
-          let group = groups[groupIndex]
-          if (!group) {
-            group = groups[groupIndex] = Object.assign({
-              size: 2.5 * destSize,
-              dests: [],
-            }, i === 0 ? {fx: this.center.x, fy: this.center.y} : {})
-          }
-          const destination = {
-            id, group,
-            size: destSize,
-          }
-          group.dests.push(destination)
-          return destination
-        }).value()
-      groups = _.filter(groups, d => d && d.dests.length === 7)
-      destinations = _.filter(destinations, ({group}) => group.dests.length === 7)
+        .flatten().max().value()
+      maxDest = Math.ceil(maxDest / destsPerGroup) * destsPerGroup
+      const destinations = _.map(_.range(maxDest), i => {
+        const {id, groupIndex} = this.community.destinations[i]
+        let group = groups[groupIndex]
+        if (!group) {
+          group = groups[groupIndex] = Object.assign({
+            size: 2.5 * destSize,
+            dests: [],
+          }, i === 0 ? {fx: this.center.x, fy: this.center.y} : {})
+        }
+        const destination = {
+          id, group,
+          size: destSize,
+        }
+        group.dests.push(destination)
+        return destination
+      })
 
       houses = _.map(houses, (house, i) => {
         const source = {
@@ -126,7 +125,6 @@ export default {
           href: houseImages[house.numPeople < 3 ? _.random(1) : _.random(2, 3)],
         }
         _.each(house.destinations, index => {
-          if (!destinations[index]) return
           links.push({source, target: destinations[index].group})
         })
 
@@ -182,8 +180,7 @@ export default {
         if (houseIndex >= cutoff) return true // terminate loop here
         const house = houses[houseIndex]
         const dests = this.community.houses[houseIndex].destinations
-        if (!house.onScreen || !_.some(dests, i =>
-          destinations[i] && destinations[i].onScreen)) return
+        if (!house.onScreen || !_.some(dests, i => destinations[i].onScreen)) return
 
         const color = this.colorsByHealth[0]
         people.push({
@@ -217,9 +214,9 @@ export default {
         this.people = _.chain(this.allPeople)
           .map((person) => {
             const {health, destination} = this.infected[person.i]
-            if (health > 3 || !this.destinations[destination]) return
+            if (health > 3) return
             const {x, y, id} = destination > 0 ? this.destinations[destination] : person.house
-            
+
             return Object.assign(person, {
               destination: id,
               focusX: x, focusY: y,
