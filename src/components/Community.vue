@@ -27,7 +27,7 @@ import * as d3 from 'd3'
 import _ from 'lodash'
 import modifiedCollide from './ModifiedCollide'
 
-const personR = 4
+const personR = 5
 const houseSizes = [75, 85]
 const destSize = 120
 
@@ -100,7 +100,7 @@ export default {
       let maxDest = _.chain(houses)
         .map(d => d.destinations)
         .flatten().max().value()
-      maxDest = Math.ceil(maxDest / destsPerGroup) * destsPerGroup
+      maxDest = Math.ceil((maxDest + 1) / destsPerGroup) * destsPerGroup // +1 to account for 0-based index
       const destinations = _.map(_.range(maxDest), i => {
         const {id, groupIndex} = this.community.destinations[i]
         let group = groups[groupIndex]
