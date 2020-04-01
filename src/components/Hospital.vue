@@ -97,6 +97,7 @@ export default {
 <style scoped>
 #hospital {
   display: inline-block;
+  border-top: 1px solid #efefef;
 }
 
 svg {
