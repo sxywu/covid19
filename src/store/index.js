@@ -35,8 +35,45 @@ function assignHealth(person, daysSinceInfection) {
   return { health: newHealth, infectious: newInfectious }
 }
 
-function assignDestination(person, houses) {
+function healthAndDestination(person, houses, daysSinceInfection, prevInfectious,
+  playerGoesOut, infectedDestinations, infectedHouses) {
+  const {health, infectious} = assignHealth(person, daysSinceInfection)
 
+  let destination = -1 // default to home
+  if (health < 3 && playerGoesOut) {
+    // if they're healthy, recovered, or asymptomatic
+    // if this isn't based on player decisions or
+    // the player decided to go out that day have them go to an establishment
+    destination = _.sample(houses[person.houseIndex].destinations)
+
+    if (infectious) {
+      // but if they're asymptomatic, add that as infected destination
+      infectedDestinations[destination] = (infectedDestinations[destination] || 0) + 1
+    }
+  }
+
+  // and if they were infectious the previous day
+  // (want previous day bc they'd have spent a night in same house)
+  // add their house as infectious also
+  if (prevInfectious) {
+    infectedHouses[person.houseIndex] = (infectedHouses[person.houseIndex] || 0) + 5
+  }
+
+  return {health, infectious, destination}
+}
+
+function infectPerson(obj, house, destination, susceptibility, infectedDestinations, infectedHouses) {
+  const timesExposed = (infectedDestinations[destination] || 0) + (infectedHouses[house] || 0)
+  // if didn't get exposed, don't need to update
+  if (!timesExposed) return
+  // susceptibility * number of exposures > random number from 0-1
+  const infected = susceptibility * timesExposed > Math.random()
+  if (!infected) return
+
+  Object.assign(obj, {
+    daysSinceInfection: 1,
+    health: 2, infectious: 0, // newly infected, so asymptomatic & not infectious
+  })
 }
 
 export default new Vuex.Store({
@@ -170,76 +207,62 @@ export default new Vuex.Store({
       if (!prevInfected.length) {
         // if this is the first day, seed infections
         prevInfected = _.map(people, (person, i) => {
-          // TODO: infect as if 20% of people were exposed (i.e. susceptibility/5).
           // And then assign days for those randomly between 1 and 6.
           // We'll probably want to change this, but it gives us something to work with.
-          let daysSinceInfection = i % 1000 ? 0 : _.random(1, 6);
+          let daysSinceInfection = (i - 1) % 1000 ? 0 : _.random(1, 6);
           let {health, infectious} = assignHealth(person, daysSinceInfection)
 
           return {
             index: i,
             daysSinceInfection,
             health, infectious,
+            alternate: {health, infectious, daysSinceInfection},
           }
         })
       }
 
-
       const infectedHouses = []
       const infectedDestinations = []
+      const alternateHouses = [] // same as infectedHouses, but for alternate scenario
+      const alternateDestinations = []
       const infected = _.map(people, (person, i) => {
         let {health: prevHealth, infectious: prevInfectious,
-          daysSinceInfection} = prevInfected[i]
+          daysSinceInfection, alternate} = prevInfected[i]
 
         // calculate everyone's new health/infectiousness for current day
         daysSinceInfection += !!daysSinceInfection // if days = 0, don't add any, if >0 then add 1
-        const {health, infectious} = assignHealth(person, daysSinceInfection)
-
-        let destination = -1 // default to home
-        if (health < 3) {
-          // if they're healthy, recovered, or asymptomatic
-          // have them go to an establishment
-          destination = _.sample(houses[person.houseIndex].destinations)
-
-          if (infectious) {
-            // but if they're asymptomatic, add that as infected destination
-            infectedDestinations[destination] = (infectedDestinations[destination] || 0) + 1
-          }
-        }
-
-        const house = person.houseIndex
-        // and if they were infectious the previous day
-        // (want previous day bc they'd have spent a night in same house)
-        // add their house as infectious also
-        if (prevInfectious) {
-          infectedHouses[house] = (infectedHouses[house] || 0) + 5
-        }
+        const {health, infectious, destination} = healthAndDestination(
+          person, houses, daysSinceInfection, prevInfectious,
+          !person.decisions || person.decisions[day], infectedDestinations, infectedHouses
+        )
+        // now calculate for an alternate scenario
+        alternate.daysSinceInfection += !!alternate.daysSinceInfection
+        alternate = healthAndDestination(person, houses, alternate.daysSinceInfection,
+          alternate.infectious, true, alternateHouses, alternateDestinations)
 
         return {
           index: i,
-          house, destination,
-          health, infectious, daysSinceInfection
+          house: person.houseIndex, daysSinceInfection,
+          health, infectious, destination,
+          alternate,
         }
       })
 
       // for each healthy person
-      _.chain(infected)
-        .filter(({health}) => health === 0)
-        .each((healthy) => {
-          const {house, destination, index} = healthy
-          const timesExposed = (infectedDestinations[destination] || 0) + (infectedHouses[house] || 0)
-          // if didn't get exposed, don't need to update
-          if (!timesExposed) return
-          // susceptibility * number of exposures > random number from 0-1
-
-          const infected = people[index].susceptibility * timesExposed > Math.random()
-          if (!infected) return
-
-          Object.assign(healthy, {
-            daysSinceInfection: 1,
-            health: 2, infectious: 0, // newly infected, so asymptomatic & not infectious
-          })
-        }).value()
+      _.each(infected, person => {
+        const {house, destination, index} = person
+        if (person.health === 0) {
+          // if they're healthy in current game, calculate whether they get infected
+          infectPerson(person, house, destination,
+            people[index].susceptibility, infectedDestinations, infectedHouses)
+        }
+        if (person.alternate.health === 0) {
+          // if in alternate simulation they're healthy
+          // calculate whether they get infected there
+          infectPerson(person.alternate, house, person.alternate.destination,
+            people[index].susceptibility, alternateDestinations, alternateHouses)
+        }
+      })
 
       prevInfected = infected
 
@@ -272,10 +295,9 @@ export default new Vuex.Store({
       ]).then(([populations, hospitals]) => {
         populationsByZip = populations
         hospitalsByZip = hospitals
-        prevPlayers = _.times(30000, i => {
+        prevPlayers = _.times(35000, i => {
           return {
-            infectedDate: _.random(state.totalDays),
-            decisions: _.times(state.totalDays, i => _.random(1)),
+            decisions: _.times(state.totalDays, i => 0),
           }
         })
 
