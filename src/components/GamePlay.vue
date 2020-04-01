@@ -16,6 +16,7 @@
       </div>
       <!-- RIGHT PANEL -->
       <div class='panel' id='rightPanel' :style='{height: `${height - topHeight}px`}'>
+        <Stats v-bind='{healthStatus}' />
         <Hospital v-bind='{colorsByHealth, width: rightWidth, tl, phases, playTimeline}' />
       </div>
       <!-- TOP PANEL -->
@@ -41,6 +42,7 @@ import gsap from 'gsap'
 
 import Community from './Community'
 import Minimap from './Minimap'
+import Stats from './Stats'
 import Hospital from './Hospital'
 import BarChart from './BarChart'
 import AreaChart from './AreaChart'
@@ -52,7 +54,7 @@ const needSetup = ['community', 'area', 'bar', 'hospital']
 export default {
   name: 'GamePlay',
   components: {
-    Community, Minimap, Hospital, BarChart, AreaChart,
+    Community, Minimap, Stats, Hospital, BarChart, AreaChart,
   },
   props: ['ageGroups', 'healthStatus', 'colorsByHealth'],
   data() {
