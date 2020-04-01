@@ -66,8 +66,8 @@ function infectPerson(obj, house, destination, susceptibility, infectedDestinati
   const timesExposed = (infectedDestinations[destination] || 0) + (infectedHouses[house] || 0)
   // if didn't get exposed, don't need to update
   if (!timesExposed) return
-  // susceptibility * number of exposures > random number from 0-1
-  const infected = susceptibility * timesExposed > Math.random()
+  // ( 1 - ( ( 1 - susceptibility ) ^ number of exposures ) ) > random number from 0-1
+  const infected = 1 - Math.pow( 1 - susceptibility, timesExposed ) > Math.random() 
   if (!infected) return
 
   Object.assign(obj, {
