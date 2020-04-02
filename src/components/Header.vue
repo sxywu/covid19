@@ -1,0 +1,93 @@
+<template>
+  <div id="header">
+    <div id="date">
+      <h3 class="label">day</h3>
+      <h4>{{ day }}</h4>
+    </div>
+    <div id="date">
+      <h3 class="label">week</h3>
+      <h4>3</h4>
+    </div>
+    <div class="item">
+      <h3 class="label">label</h3>
+      <ProgressBar value="64" />
+    </div>
+    <div class="item">
+      <h3 class="label">label</h3>
+      <ProgressBar value="80" />
+    </div>
+    <div class="item">
+      <h3 class="label">label</h3>
+      <ProgressBar value="65" />
+    </div>
+    <div class="item">
+      <h3 class="label">label</h3>
+      <ProgressBar value="25" />
+    </div>
+    <div class="item">
+      <h3 class="label">label</h3>
+      <ProgressBar value="5" />
+    </div>
+  </div>
+</template>
+
+<script>
+import ProgressBar from './ProgressBar'
+
+export default {
+  name: 'Header',
+  components: {
+    ProgressBar,
+  },
+  props: ['day'],
+}
+</script>
+
+<style lang="scss" scoped>
+#header {
+  display: grid;
+  grid-template-columns: 80px 80px 1fr 1fr 1fr 1fr 1fr;
+  height: 100%;
+
+  h3,
+  h4 {
+    margin: 0;
+  }
+}
+#date {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+  h3 {
+    margin-top: 5px;
+  }
+  h4 {
+    font-size: 2rem;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -2px;
+    padding-right: 2px;
+  }
+
+  &:not(:first-of-type) {
+    border-left: 1px solid $gray;
+  }
+}
+.item {
+  padding: 1rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  flex-direction: column;
+  &:not(:first-of-type) {
+    border-left: 1px solid $gray;
+  }
+  h3 {
+    padding-bottom: 3px;
+  }
+  progress {
+    margin-top: 4px;
+  }
+}
+</style>

@@ -1,38 +1,62 @@
 <template>
-  <div id="gameplay" :style='{width: `${width}px`, height: `${height}px`}'>
-    <div class='container'>
-      <!-- BACKGROUND -->
-      <Community v-bind='{
-        colorsByHealth, width, height, rightWidth,
-        tl, phases, playTimeline, setGroups,
-      }' />
-      <!-- BOTTOM PANEL -->
-      <div class='panel' id='bottomPanel' :style='{
-        width: `${width - rightWidth}px`,
-        height: `${bottomHeight}px`,
-      }'>
-        <BarChart v-bind='{height: bottomHeight, ageGroups, colorsByHealth, tl, phases, playTimeline}' />
-        <AreaChart v-bind='{height: bottomHeight, ageGroups, colorsByHealth, tl, phases, playTimeline}' />
-      </div>
-      <!-- RIGHT PANEL -->
-      <div class='panel' id='rightPanel' :style='{height: `${height - topHeight}px`}'>
-        <Hospital v-bind='{colorsByHealth, width: rightWidth, tl, phases, playTimeline}' />
-      </div>
+  <div id="gameplay" :style="{width: `${width}px`, height: `${height}px`}">
+    <div class="container">
       <!-- TOP PANEL -->
-      <div class='panel' id='topPanel' :style='{height: `${topHeight}px`}'>
-        <strong>Day {{ day }}</strong>
+      <div id="topPanel">
+        <Header v-bind="{day}" />
       </div>
-      <!-- MINIMAP -->
-      <Minimap v-bind='{
+      <!-- COMMUNITY -->
+      <div id="communityPanel">
+        <Community
+          v-bind="{
+          colorsByHealth,
+          width,
+          height,
+          rightWidth,
+          tl,
+          phases,
+          playTimeline,
+          setGroups,
+        }"
+        />
+        <div id="actions">
+          <!-- DECISION SCREEN -->
+          <div class="decision" v-if="showDecision">
+            <button @click="updateDecision">Decide</button>
+          </div>
+          <!-- MINIMAP -->
+          <div id="minimapContainer">
+            <Minimap
+              v-bind="{
         ...minimapDimensions, groups, colorsByHealth,
         containerWidth: width, containerHeight: height,
-      }' />
-      <!-- DECISION SCREEN -->
-      <div class='decision' v-if='showDecision'>
-        <button @click='updateDecision'>Decide</button>
+      }"
+            />
+          </div>
+        </div>
+      </div>
+      <!-- RIGHT PANEL -->
+      <div id="rightPanel">
+        <CommunityStats />
+        <Hospital v-bind="{colorsByHealth, width: rightWidth, tl, phases, playTimeline}" />
+      </div>
+      <!-- BOTTOM PANEL -->
+      <div id="bottomPanel">
+        <Legend />
+        <BarChart
+          v-bind="{height: bottomHeight, ageGroups, colorsByHealth, tl, phases, playTimeline}"
+        />
+        <AreaChart
+          v-bind="{height: bottomHeight, ageGroups, colorsByHealth, tl, phases, playTimeline}"
+        />
       </div>
     </div>
-    <div class='zipCode'>ZIP CODE: <strong>{{ zipCode }}</strong> ({{ population.total }} residents)</div>
+    <div class="zipCode">
+      ZIP CODE:
+      <strong>{{ zipCode }}</strong>
+      ({{ population.total }}
+      residents)
+    </div>
   </div>
 </template>
 
@@ -40,10 +64,13 @@
 import gsap from 'gsap'
 
 import Community from './Community'
+import CommunityStats from './CommunityStats'
 import Minimap from './Minimap'
 import Hospital from './Hospital'
 import BarChart from './BarChart'
 import AreaChart from './AreaChart'
+import Header from './Header'
+import Legend from './Legend'
 
 const widthHeightRatio = 16 / 9
 const padding = 40
@@ -52,17 +79,26 @@ const needSetup = ['community', 'area', 'bar', 'hospital']
 export default {
   name: 'GamePlay',
   components: {
-    Community, Minimap, Hospital, BarChart, AreaChart,
+    Community,
+    CommunityStats,
+    Minimap,
+    Hospital,
+    BarChart,
+    AreaChart,
+    Header,
+    Legend,
   },
   props: ['ageGroups', 'healthStatus', 'colorsByHealth'],
   data() {
     return {
+      // width: 1320,
+      // height: 568,
       width: window.innerWidth,
       height: window.innerHeight,
       topHeight: 40,
-      rightWidth: 320,
+      rightWidth: 360,
       bottomHeight: 150,
-      tl: new gsap.timeline({paused: true}),
+      tl: new gsap.timeline({ paused: true }),
       phases: [1.25, 1, 1.25],
       groups: [],
       showDecision: false,
@@ -79,11 +115,13 @@ export default {
       return this.$store.getters.population || {}
     },
     minimapDimensions() {
-      const width = 120
-      const height = 100
+      const width = 140
+      const height = 90
       return {
-        width, x: this.width - this.rightWidth - width - 10,
-        height, y: this.height - this.bottomHeight - height - 10,
+        width,
+        x: this.width - this.rightWidth - width - 10,
+        height,
+        y: this.height - this.bottomHeight - height - 10,
       }
     },
   },
@@ -140,21 +178,66 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 #gameplay {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
+  max-width: 1320px;
+  max-height: 840px;
+  background: white;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 2.8px 2.2px rgba(0, 0, 0, 0.008),
+    0 6.7px 5.3px rgba(0, 0, 0, 0.012), 0 12.5px 10px rgba(0, 0, 0, 0.015),
+    0 22.3px 17.9px rgba(0, 0, 0, 0.018), 0 41.8px 33.4px rgba(0, 0, 0, 0.022),
+    0 100px 80px rgba(0, 0, 0, 0.03);
 }
 
 .container {
+  display: grid;
+  height: 100%;
+  grid-template-rows: 1fr 7fr 2fr;
+}
+
+#topPanel {
+  grid-column: 1 / 3;
+}
+
+#communityPanel {
+  overflow: hidden;
+  display: grid;
+  grid-row-start: 2;
+  grid-row-end: 3;
+  position: relative;
+}
+
+#rightPanel {
+  display: flex;
+  flex-direction: column;
+  grid-column: 2;
+  grid-row-start: 2;
+  grid-row-end: 4;
+}
+
+#bottomPanel {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-row: 3;
+  padding: 1rem;
+}
+
+#actions {
   position: absolute;
   width: 100%;
   height: 100%;
-  overflow: hidden;
-  border-radius: 5px;
-  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#minimapContainer {
+  position: relative;
+  align-self: flex-end;
+  margin-left: auto;
+  padding: 1rem;
 }
 
 .panel {
@@ -165,19 +248,19 @@ export default {
 #topPanel {
   width: 100%;
   top: 0;
-  border-bottom: 1px solid #efefef;
+  border-bottom: 1px solid $gray;
 }
 
 #rightPanel {
   right: 0px;
   bottom: 0px;
-  border-left: 1px solid #efefef;
+  border-left: 1px solid $gray;
 }
 
 #bottomPanel {
   left: 0px;
   bottom: 0px;
-  border-top: 1px solid #efefef;
+  border-top: 1px solid $gray;
 }
 
 .zipCode {
@@ -192,7 +275,7 @@ export default {
   height: 300px;
   top: 50%;
   left: 50%;
-  border: 1px solid #efefef;
+  border: 1px solid $gray;
   transform: translate(-50%, -50%);
   background: #fff;
   text-align: center;
