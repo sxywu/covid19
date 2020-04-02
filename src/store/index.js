@@ -298,11 +298,11 @@ export default new Vuex.Store({
       ]).then(([populations, hospitals]) => {
         populationsByZip = populations
         hospitalsByZip = hospitals
-        prevPlayers = _.times(35000, i => {
-          return {
-            decisions: _.times(state.totalDays, i => _.random(1)),
-          }
-        })
+        // prevPlayers = _.times(35000, i => {
+        //   return {
+        //     decisions: _.times(state.totalDays, i => _.random(1)),
+        //   }
+        // })
 
         commit('setDataLoaded', true)
       })

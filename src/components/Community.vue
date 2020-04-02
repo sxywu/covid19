@@ -1,8 +1,6 @@
 <template>
   <div id="community">
     <svg :width='width' :height='height'>
-      <!-- <line v-for='d in links' :x1='d.source.x' :y1='d.source.y'
-        :x2='d.target.x' :y2='d.target.y' stroke='#000' /> -->
       <g id='houses'>
         <image v-for='d in houses' v-if='d && d.onScreen' :x='d.x - d.size / 2' :y='d.y - 0.6 * d.size'
           :width='d.size' :height='d.size' :href='d.href' />
@@ -12,13 +10,9 @@
           :x='d.x - d.size / 2' :y='d.y - 0.6 * d.size'
           :width='d.size' :height='d.size' :href='d.href' />
       </g>
-      <g id='people'>
-        <circle v-for='d in people' :key='d.id' :cx='d.x' :cy='d.y' :r='d.r'
-          :fill='d.color' />
-        <!-- <circle :cx='people[0].x' :cy='people[0].y' :r='people[0].r + 4'
-          fill='none' :stroke='people[0].color' stroke-width='2' stroke-dasharray='2' /> -->
-      </g>
     </svg>
+    <canvas ref='canvas' :width='width' :height='height'
+      :style='{width: `${width}px`, height: `${height}px`}' />
   </div>
 </template>
 
@@ -66,6 +60,9 @@ export default {
     },
   },
   mounted() {
+    this.ctx = this.$refs.canvas.getContext('2d')
+    // this.ctx.scale(2, 2)
+
     // setup force simulation for people positions
     this.simulation = d3.forceSimulation()
       .force('collide', modifiedCollide().radius(d => 2 * d.r || 0.5 * d.size))
@@ -74,7 +71,7 @@ export default {
       .alphaDecay(0)
       // .velocityDecay(0.5)
       .stop()
-    this.tl.eventCallback('onUpdate', () => this.simulation.tick())
+    this.tl.eventCallback('onUpdate', this.movePeople)
 
     this.setupPositions()
     this.updateTimeline()
@@ -247,6 +244,17 @@ export default {
 
       this.playTimeline('community')
     },
+    movePeople() {
+      this.simulation.tick()
+
+      this.ctx.clearRect(0, 0, this.width, this.height)
+      _.each(this.people, ({color, x, y}) => {
+        this.ctx.fillStyle = color
+        this.ctx.beginPath()
+        this.ctx.arc(x, y, personR, 0, 2 * Math.PI)
+        this.ctx.fill()
+      })
+    },
   },
 }
 </script>
@@ -258,11 +266,9 @@ export default {
   left: 0;
 }
 
-svg {
-  isolation: isolate;
-}
-
-#people {
-  mix-blend-mode: multiply;
+canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 </style>
