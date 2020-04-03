@@ -9,28 +9,35 @@
       <div id="communityPanel">
         <Community
           v-bind="{
-          colorsByHealth,
-          width,
-          height,
-          rightWidth,
-          tl,
-          phases,
-          playTimeline,
-          setGroups,
-        }"
+            colorsByHealth,
+            width,
+            height,
+            rightWidth,
+            tl,
+            phases,
+            playTimeline,
+            setGroups,
+          }"
         />
         <div id="actions">
           <!-- DECISION SCREEN -->
           <div class="decision" v-if="showDecision">
-            <button @click="updateDecision">Decide</button>
+            <Decide
+              v-bind="{
+                onUpdate: updateDecision,
+              }"
+            />
           </div>
           <!-- MINIMAP -->
           <div id="minimapContainer">
             <Minimap
               v-bind="{
-        ...minimapDimensions, groups, colorsByHealth,
-        containerWidth: width, containerHeight: height,
-      }"
+                ...minimapDimensions,
+                groups,
+                colorsByHealth,
+                containerWidth: width,
+                containerHeight: height,
+              }"
             />
           </div>
         </div>
@@ -38,16 +45,32 @@
       <!-- RIGHT PANEL -->
       <div id="rightPanel">
         <CommunityStats />
-        <Hospital v-bind="{colorsByHealth, width: rightWidth, tl, phases, playTimeline}" />
+        <Hospital
+          v-bind="{colorsByHealth, width: rightWidth, tl, phases, playTimeline}"
+        />
       </div>
       <!-- BOTTOM PANEL -->
       <div id="bottomPanel">
         <Legend />
         <BarChart
-          v-bind="{height: bottomHeight, ageGroups, colorsByHealth, tl, phases, playTimeline}"
+          v-bind="{
+            height: bottomHeight,
+            ageGroups,
+            colorsByHealth,
+            tl,
+            phases,
+            playTimeline,
+          }"
         />
         <AreaChart
-          v-bind="{height: bottomHeight, ageGroups, colorsByHealth, tl, phases, playTimeline}"
+          v-bind="{
+            height: bottomHeight,
+            ageGroups,
+            colorsByHealth,
+            tl,
+            phases,
+            playTimeline,
+          }"
         />
       </div>
     </div>
@@ -64,6 +87,7 @@
 import gsap from 'gsap'
 
 import Community from './Community'
+import Decide from './Decide'
 import CommunityStats from './CommunityStats'
 import Minimap from './Minimap'
 import Hospital from './Hospital'
@@ -81,6 +105,7 @@ export default {
   components: {
     Community,
     CommunityStats,
+    Decide,
     Minimap,
     Hospital,
     BarChart,
@@ -98,7 +123,7 @@ export default {
       topHeight: 40,
       rightWidth: 360,
       bottomHeight: 150,
-      tl: new gsap.timeline({ paused: true }),
+      tl: new gsap.timeline({paused: true}),
       phases: [1.25, 1, 1.25],
       groups: [],
       showDecision: false,
@@ -271,8 +296,8 @@ export default {
 
 .decision {
   position: absolute;
-  width: 400px;
-  height: 300px;
+  width: 100%;
+  height: 100%;
   top: 50%;
   left: 50%;
   border: 1px solid $gray;
