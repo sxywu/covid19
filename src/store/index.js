@@ -67,7 +67,7 @@ function infectPerson(obj, house, destination, susceptibility, infectedDestinati
   // if didn't get exposed, don't need to update
   if (!timesExposed) return
   // ( 1 - ( ( 1 - susceptibility ) ^ number of exposures ) ) > random number from 0-1
-  const infected = 1 - Math.pow( 1 - susceptibility, timesExposed ) > Math.random() 
+  const infected = 1 - Math.pow( 1 - susceptibility, timesExposed ) > Math.random()
   if (!infected) return
 
   Object.assign(obj, {
@@ -209,7 +209,7 @@ export default new Vuex.Store({
         prevInfected = _.map(people, (person, i) => {
           // And then assign days for those randomly between 1 and 6.
           // We'll probably want to change this, but it gives us something to work with.
-          let daysSinceInfection = (i - 1) % 1000 ? 0 : _.random(1, 6);
+          let daysSinceInfection = i % 1000 ? 0 : _.random(1, 3);
           let {health, infectious} = assignHealth(person, daysSinceInfection)
 
           return {
