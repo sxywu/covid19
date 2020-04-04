@@ -66,6 +66,7 @@ import gsap from 'gsap'
 import Community from './Community'
 import CommunityStats from './CommunityStats'
 import Minimap from './Minimap'
+import Stats from './Stats'
 import Hospital from './Hospital'
 import BarChart from './BarChart'
 import AreaChart from './AreaChart'
@@ -98,8 +99,8 @@ export default {
       topHeight: 40,
       rightWidth: 360,
       bottomHeight: 150,
-      tl: new gsap.timeline({ paused: true }),
-      phases: [1.25, 1, 1.25],
+      tl: new gsap.timeline({paused: true}),
+      phases: [0.5, 1, 1],
       groups: [],
       showDecision: false,
     }
