@@ -13,10 +13,6 @@
     </svg>
     <canvas ref='canvas' :width='width' :height='height'
       :style='{width: `${width}px`, height: `${height}px`}' />
-    <svg :width='width' :height='height'>
-      <circle v-for='d in colorChanges' :cx='d.person.x' :cy='d.person.y' :r='d.r'
-        :fill='d.color' :stroke='d.color' :opacity='d.opacity' fill-opacity='0.75' stroke-width='2' />
-    </svg>
   </div>
 </template>
 
@@ -46,7 +42,6 @@ export default {
     return {
       houses: [],
       destinations: [],
-      colorChanges: [],
       // links: null,
     }
   },
@@ -226,15 +221,7 @@ export default {
             colorInterpolate: colorChange && chroma.scale([person.color, nextColor]),
           })
         }).filter().value()
-      this.colorChanges = _.chain(this.people)
-        .filter('colorChange')
-        .map(person => {
-          const {x, y, color, nextColor} = person
-          return {
-            color, nextColor,
-            person, opacity: 1, r: 0,
-          }
-        }).value()
+      this.colorChanges = _.filter(this.people, 'colorChange')
 
       // phase 1: go to destinations
       this.tl.add(() => {
@@ -245,27 +232,23 @@ export default {
       // phase 2: update colors
       const duration = 500 * duration2 // turn into milliseconds
       const stagger = Math.min(0.5 * duration / this.colorChanges.length, 100)
-      console.log(stagger)
       this.tl.add(() => {
         const t = d3.timer(elapsed => {
           this.ctx.clearRect(0, 0, this.width, this.height)
           _.each(this.people, (d, i) => {
             if (d.colorChange) return // only draw the non color changing ones here
-            this.drawPerson(d.color, d.x, d.y)
+            this.drawCircle(d.color, d.x, d.y)
           })
-          _.each(this.colorChanges, ({person}, i) => {
+          _.each(this.colorChanges, (d, i) => {
             const progress = _.clamp((elapsed - i * stagger) / duration, 0, 1)
-            person.color = person.colorInterpolate(progress)
-            this.drawPerson(person.color, person.x, person.y)
+            d.color = d.colorInterpolate(progress)
+            const {color, x, y} = d
+            this.drawCircle(color, x, y)
+            // also draw indicator circle
+            this.drawCircle(color.alpha(1 - progress), x, y, progress * 10 * personR)
           })
-          if (elapsed > duration) t.stop()
+          if (elapsed > (duration + stagger * this.colorChanges.length)) t.stop()
         })
-      }, `day${this.day}-1`)
-      this.tl.to(this.colorChanges, {
-        duration: duration / 1000,
-        stagger: stagger / 1000,
-        color: (i, person) => person.nextColor,
-        opacity: 0, r: 10 * personR,
       }, `day${this.day}-1`)
 
       // phase 3: go back home
@@ -286,13 +269,13 @@ export default {
 
       this.ctx.clearRect(0, 0, this.width, this.height)
       _.each(this.people, ({color, x, y}) => {
-        this.drawPerson(color, x, y)
+        this.drawCircle(color, x, y)
       })
     },
-    drawPerson(color, x, y) {
+    drawCircle(color, x, y, r) {
       this.ctx.fillStyle = color
       this.ctx.beginPath()
-      this.ctx.arc(x, y, personR, 0, 2 * Math.PI)
+      this.ctx.arc(x, y, r || personR, 0, 2 * Math.PI)
       this.ctx.fill()
     },
   },
