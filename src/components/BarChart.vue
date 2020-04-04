@@ -14,7 +14,7 @@
 import * as d3 from 'd3'
 import _ from 'lodash'
 
-const healthStatus = [4, 3, 2]
+const healthStatus = [4, 3, 2, 5]
 const margin = {top: 20, right: 20, bottom: 20, left: 30}
 export default {
   name: 'BarChart',
@@ -77,8 +77,6 @@ export default {
   watch: {
     infected() {
       this.updateBarChart()
-      d3.select(this.$refs.xAxis).call(this.xAxis)
-      d3.select(this.$refs.yAxis).call(this.yAxis)
     },
   },
   methods: {
@@ -99,7 +97,7 @@ export default {
           return _.map(stack, d => {
             let [y1, y2] = d
             y1 = y1 || 0
-            y2 = y2 || 0 // in case they are NaN
+            y2 = y2 || y1 // in case they are NaN
             return {
               id: `${stack.key}-${d.data.ageGroup}`,
               x: this.xScale(d.data.ageGroup),
@@ -116,6 +114,11 @@ export default {
         height: (i, {id}) => nextBarsById[id].height,
         duration: this.phases[1] / 2,
       }, `day${this.day}-1`)
+      // and at same time update scales
+      this.tl.add(() => {
+        d3.select(this.$refs.xAxis).transition().call(this.xAxis)
+        d3.select(this.$refs.yAxis).transition().call(this.yAxis)
+      },`day${this.day}-1`)
 
       this.playTimeline('bar')
     },

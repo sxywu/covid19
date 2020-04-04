@@ -8,6 +8,7 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "chroma-js": "^2.1.0",
     "core-js": "^3.6.4",
     "csvtojson": "^2.0.10",
     "d3": "^5.15.0",
