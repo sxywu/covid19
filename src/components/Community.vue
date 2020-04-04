@@ -13,11 +13,16 @@
     </svg>
     <canvas ref='canvas' :width='width' :height='height'
       :style='{width: `${width}px`, height: `${height}px`}' />
+    <svg :width='width' :height='height'>
+      <circle v-for='d in colorChanges' :cx='d.person.x' :cy='d.person.y' :r='d.r'
+        :fill='d.color' :stroke='d.color' :opacity='d.opacity' fill-opacity='0.75' stroke-width='2' />
+    </svg>
   </div>
 </template>
 
 <script>
 import * as d3 from 'd3'
+import chroma from 'chroma-js'
 import _ from 'lodash'
 import modifiedCollide from './ModifiedCollide'
 
@@ -41,7 +46,7 @@ export default {
     return {
       houses: [],
       destinations: [],
-      people: [],
+      colorChanges: [],
       // links: null,
     }
   },
@@ -202,39 +207,71 @@ export default {
       // this.links = links
     },
     updateTimeline() {
-      if (!this.community && !this.people.length) return
+      if (!this.community && !this.people) return
 
       const [duration1, duration2, duration3] = this.phases
 
+      // calculate next state
+      this.people = _.chain(this.allPeople)
+        .map((person) => {
+          const {health, destination} = this.infected[person.i]
+          if (health > 3) return
+          const {x, y, id} = destination > 0 ? this.destinations[destination] : person.house
+          const nextColor = this.colorsByHealth[health]
+          const colorChange = 1 < health && person.color !== nextColor
+          return Object.assign(person, {
+            destination: id,
+            focusX: x, focusY: y,
+            colorChange, nextColor,
+            colorInterpolate: colorChange && chroma.scale([person.color, nextColor]),
+          })
+        }).filter().value()
+      this.colorChanges = _.chain(this.people)
+        .filter('colorChange')
+        .map(person => {
+          const {x, y, color, nextColor} = person
+          return {
+            color, nextColor,
+            person, opacity: 1, r: 0,
+          }
+        }).value()
+
       // phase 1: go to destinations
       this.tl.add(() => {
-        this.people = _.chain(this.allPeople)
-          .map((person) => {
-            const {health, destination} = this.infected[person.i]
-            if (health > 3) return
-            const {x, y, id} = destination > 0 ? this.destinations[destination] : person.house
-
-            return Object.assign(person, {
-              destination: id,
-              focusX: x, focusY: y,
-              nextColor: this.colorsByHealth[health],
-            })
-          }).filter().value()
-
         this.nodes = _.union(this.people, this.buildings)
         this.simulation.nodes(this.nodes)
       }, `day${this.day}`)
 
       // phase 2: update colors
-      this.tl.to(this.people, {
-        duration: 0.75 * duration2,
+      const duration = 500 * duration2 // turn into milliseconds
+      const stagger = Math.min(0.5 * duration / this.colorChanges.length, 100)
+      console.log(stagger)
+      this.tl.add(() => {
+        const t = d3.timer(elapsed => {
+          this.ctx.clearRect(0, 0, this.width, this.height)
+          _.each(this.people, (d, i) => {
+            if (d.colorChange) return // only draw the non color changing ones here
+            this.drawPerson(d.color, d.x, d.y)
+          })
+          _.each(this.colorChanges, ({person}, i) => {
+            const progress = _.clamp((elapsed - i * stagger) / duration, 0, 1)
+            person.color = person.colorInterpolate(progress)
+            this.drawPerson(person.color, person.x, person.y)
+          })
+          if (elapsed > duration) t.stop()
+        })
+      }, `day${this.day}-1`)
+      this.tl.to(this.colorChanges, {
+        duration: duration / 1000,
+        stagger: stagger / 1000,
         color: (i, person) => person.nextColor,
-        stagger: 0.003,
+        opacity: 0, r: 10 * personR,
       }, `day${this.day}-1`)
 
       // phase 3: go back home
       this.tl.add(() => {
         _.each(this.people, person => Object.assign(person, {
+          color: person.nextColor,
           destination: person.house.id,
           focusX: person.house.x,
           focusY: person.house.y,
@@ -249,11 +286,14 @@ export default {
 
       this.ctx.clearRect(0, 0, this.width, this.height)
       _.each(this.people, ({color, x, y}) => {
-        this.ctx.fillStyle = color
-        this.ctx.beginPath()
-        this.ctx.arc(x, y, personR, 0, 2 * Math.PI)
-        this.ctx.fill()
+        this.drawPerson(color, x, y)
       })
+    },
+    drawPerson(color, x, y) {
+      this.ctx.fillStyle = color
+      this.ctx.beginPath()
+      this.ctx.arc(x, y, personR, 0, 2 * Math.PI)
+      this.ctx.fill()
     },
   },
 }
@@ -266,7 +306,7 @@ export default {
   left: 0;
 }
 
-canvas {
+svg, canvas {
   position: absolute;
   top: 0;
   left: 0;
