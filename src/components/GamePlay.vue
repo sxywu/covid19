@@ -27,6 +27,7 @@
       <Minimap v-bind='{
         ...minimapDimensions, groups, colorsByHealth,
         containerWidth: width, containerHeight: height,
+        tl, phases, playTimeline,
       }' />
       <!-- DECISION SCREEN -->
       <div class='decision' v-if='showDecision'>

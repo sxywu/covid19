@@ -16,6 +16,7 @@
 import * as d3 from 'd3'
 import _ from 'lodash'
 import p5 from 'p5'
+import chroma from 'chroma-js'
 
 const destSize = 120
 export default {
@@ -23,6 +24,7 @@ export default {
   props: [
     'x', 'y', 'width', 'height', 'colorsByHealth',
     'groups', 'containerWidth', 'containerHeight',
+    'tl', 'phases', 'playTimeline',
   ],
   data() {
     return {
@@ -78,7 +80,7 @@ export default {
           // then scale it
           x = (x - minX) * scale
           y = (y - minY) * scale
-          return {x, y, i}
+          return {x, y, i, color: this.colorsByHealth[0]}
         }).filter().value()
 
       this.box = {
@@ -87,18 +89,39 @@ export default {
       }
     },
     colorMap() {
-      this.ctx.clearRect(0, 0, this.width, this.height)
-      // go through and color
-      _.chain(this.people)
+      const changeColors = _.chain(this.people)
         .sortBy(({i}) => this.infected[i].health)
-        .each(({x, y, i}) => {
+        .map((d, i) => {
           const {health} = this.infected[i]
           if (health > 3) return
-          this.ctx.fillStyle = this.colorsByHealth[health]
-          this.ctx.beginPath()
-          this.ctx.arc(x, y, 1, 0, 2 * Math.PI)
-          this.ctx.fill()
-        }).value()
+          this.drawCircle(d.color, d.x, d.y)
+
+          const nextColor = this.colorsByHealth[health]
+          if (d.color === nextColor) return
+
+          return Object.assign(d, {
+            colorInterpolate: chroma.scale([d.color, nextColor]),
+          })
+        }).filter().value()
+
+      // go through and color
+      const duration = 500 * this.phases[1] // turn into milliseconds
+      this.tl.add(() => {
+        const t = d3.timer(elapsed => {
+          const progress = _.clamp(elapsed / duration, 0, 1)
+          _.each(changeColors, d => {
+            d.color = d.colorInterpolate(progress)
+            this.drawCircle(d.color, d.x, d.y)
+          })
+          if (elapsed > duration) t.stop()
+        })
+      }, `day${this.day}-1`)
+    },
+    drawCircle(color, x, y) {
+      this.ctx.fillStyle = color
+      this.ctx.beginPath()
+      this.ctx.arc(x, y, 1, 0, 2 * Math.PI)
+      this.ctx.fill()
     },
   },
 }
