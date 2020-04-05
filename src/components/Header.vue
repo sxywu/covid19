@@ -40,7 +40,7 @@ export default {
       return this.$store.state.day
     },
     week() {
-      return Math.ceil(this.day / 7)
+      return this.$store.getters.week
     },
     foodStatus() {
       return this.$store.state.foodStatus

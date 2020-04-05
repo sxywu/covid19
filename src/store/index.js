@@ -106,6 +106,9 @@ export default new Vuex.Store({
     exerciseStatus: {value: 7, maxValue: 7},
   },
   getters: {
+    week({day}) {
+      return Math.ceil(day / 7)
+    },
     population({zipCode, dataLoaded}) {
       if (!zipCode || !dataLoaded) return
       return _.find(populationsByZip, d => d.zip === zipCode)
