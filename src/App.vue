@@ -2,17 +2,19 @@
   <div id="app">
     <GamePlay v-bind="$data" />
     <LandingPage v-if='currentPage === "landing"' />
+    <EndPage v-if='currentPage === "end"' />
   </div>
 </template>
 
 <script>
 import GamePlay from './components/GamePlay'
 import LandingPage from './components/LandingPage'
+import EndPage from './components/EndPage'
 
 export default {
   name: 'App',
   components: {
-    GamePlay, LandingPage,
+    GamePlay, LandingPage, EndPage,
   },
   data() {
     return {

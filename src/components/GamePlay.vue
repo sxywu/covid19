@@ -136,6 +136,9 @@ export default {
     day() {
       return this.$store.state.day
     },
+    totalDays() {
+      return this.$store.state.totalDays
+    },
     zipCode() {
       return this.$store.state.zipCode
     },
@@ -200,8 +203,10 @@ export default {
       this.tl.add(() => {
         if (this.day % 7) {
           this.updateDay()
-        } else {
+        } else if (this.day < this.totalDays) {
           this.showDecision = true
+        } else {
+          this.$store.commit('setCurrentPage', 'end') // if we've gone through all the days, end
         }
       }, `day${this.day}-3`)
       this.tl.play(`day${this.day}`)

@@ -9,6 +9,8 @@ let populationsByZip = []
 let hospitalsByZip = []
 let prevInfected = []
 const totalPlayers = 20
+const foodStatus = {value: 18, maxValue: 18}
+const exerciseStatus = {value: 7, maxValue: 7}
 
 function assignHealth(person, daysSinceInfection, prevInHospital) {
   // health statuses: 0 = healthy, 1 = recovered, 2 = infected+asymptomatic,
@@ -105,8 +107,8 @@ export default new Vuex.Store({
     bedOccupancyRate: 0.66,
     allDecisions: [],
     totalDays: 8 * 7,
-    foodStatus: {value: 18, maxValue: 18},
-    exerciseStatus: {value: 7, maxValue: 7},
+    foodStatus,
+    exerciseStatus,
   },
   getters: {
     week({day}) {
@@ -405,6 +407,12 @@ export default new Vuex.Store({
       }
       state.allDecisions[0].push(decision) // update decision for current player
     },
+    setFoodStatus(state, foodStatus) {
+      state.foodStatus = foodStatus
+    },
+    setExerciseStatus(state, exerciseStatus) {
+      state.exerciseStatus = exerciseStatus
+    },
   },
   actions: {
     getRawData({commit, state}) {
@@ -425,6 +433,15 @@ export default new Vuex.Store({
         commit('setDataLoaded', true)
         commit('setAllDecisions', allDecisions)
       })
+    },
+    resetGame({commit, state}) {
+      const allDecisions = _.clone(state.allDecisions) // to avoid mutating?
+      allDecisions[0] = [7]
+      commit('setAllDecisions', allDecisions)
+      commit('setDay', 0)
+      commit('setFoodStatus', foodStatus)
+      commit('setExerciseStatus', exerciseStatus)
+      commit('currentPage', 'game')
     },
   },
 })
