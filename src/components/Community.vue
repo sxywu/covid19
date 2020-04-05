@@ -266,8 +266,8 @@ export default {
       // calculate next state
       this.people = _.chain(this.allPeople)
         .map((person) => {
-          const {health, destination} = this.infected[person.i]
-          if (health > 3) return
+          const {health, destination, inHospital} = this.infected[person.i]
+          if (health > 4 || inHospital) return
           const {x, y, id} = destination > 0 ? this.destinations[destination] : person.house
           const nextColor = this.colorsByHealth[health]
           const colorChange = 1 < health && person.color !== nextColor

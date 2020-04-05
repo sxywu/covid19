@@ -112,8 +112,8 @@ export default {
       _.chain(this.people)
         .sortBy(({ i }) => this.infected[i].health)
         .each(({ x, y, i }) => {
-          const { health } = this.infected[i]
-          if (health > 3) return
+          const { health, inHospital } = this.infected[i]
+          if (health > 4 || inHospital) return
           this.ctx.fillStyle = this.colorsByHealth[health]
           this.ctx.beginPath()
           this.ctx.arc(x, y, 1, 0, 2 * Math.PI)
