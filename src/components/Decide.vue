@@ -1,44 +1,37 @@
 <template>
   <div id="decideArea" class="mt85">
-    <h1 class="header">You've been fighting the virus for 6 weeks.</h1>
+    <h1 class="header">You've been fighting the virus for {{ week }} week{{ week > 1 ? 's' : ''}}.</h1>
     <div class="flex info mx justify-between">
       <div class="flex w100 mr1 virus-info">
         <img :src="virusImage" class="virus mr1" />
         <div class="flex w100 flex-column align-justify">
-          <div class="flex justify-between w100">
-            <div>15,321 cases</div>
-            <div>500 deaths</div>
+          <ProgressBar v-bind="{value: current[5], maxValue: current.total}" />
+          <div class="mt2">
+            <strong>{{ formatNumber(current[5] || 0) }}</strong> out of
+            <strong>{{ formatNumber(current.total) }}</strong> infected people have passed away
           </div>
-          <ProgressBar value="80" />
-          <div class="mt2"><strong>15,321</strong> people are infected</div>
-          <div><strong>500</strong> people have passed away</div>
         </div>
       </div>
       <div class="flex w100 bed-info">
         <img :src="bedImage" class="virus" />
         <div class="flex w100 flex-column align-justify">
-          <div class="flex justify-between w100">
-            <div>3,212 beds filled</div>
-          </div>
-          <ProgressBar value="25" />
+          <ProgressBar v-bind="{value: filledBeds, maxValue: totalAvailableBeds}" />
           <div class="mt2">
-            <strong>3,212</strong> beds are filled out of <strong>6,212</strong>
+            <strong>{{ formatNumber(filledBeds) }}</strong> beds are filled
+            out of <strong>{{ formatNumber(totalAvailableBeds) }}</strong> available
           </div>
         </div>
       </div>
     </div>
     <div class="mt3">
       <h2>How many times will you go out this week?</h2>
-      <div class="flex justify-between mx mw500">
-        <button @click="onUpdate" class="decideBtn">Decide</button>
-        <button @click="onUpdate" class="decideBtn">Decide</button>
-        <button @click="onUpdate" class="decideBtn">Decide</button>
-      </div>
+
     </div>
   </div>
 </template>
 
 <script>
+import * as d3 from 'd3'
 import _ from 'lodash'
 import ProgressBar from './ProgressBar'
 const virusImage = require('../assets/virus.png')
@@ -55,6 +48,32 @@ export default {
       virusImage,
       bedImage,
     }
+  },
+  computed: {
+    week() {
+      return this.$store.getters.week
+    },
+    totalAvailableBeds() {
+      return this.$store.getters.totalAvailableBeds
+    },
+    filledBeds() {
+      return this.$store.getters.filledBeds
+    },
+    infected() {
+      return this.$store.getters.infected
+    },
+    current() {
+      const current = _.countBy(this.infected, 'health')
+      return {
+        total: _.sumBy([1, 2, 3, 4, 5], d => current[d] || 0),
+        ...current,
+      }
+    },
+  },
+  methods: {
+    formatNumber(number) {
+      return d3.format(',')(number)
+    },
   },
 }
 </script>
