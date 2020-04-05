@@ -51,7 +51,7 @@ export default {
     return {
       virusImage,
       bedImage,
-      numTimes: 2,
+      numTimes: 0,
     }
   },
   computed: {
