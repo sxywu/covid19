@@ -11,7 +11,7 @@
       </div>
     </header>
     <div class="item" v-for="num in [4, 5, 1]">
-      <h4>{{ formatNumber(current[num]) }}</h4>
+      <h4>{{ formatNumber(current[num] || 0) }}</h4>
       <div>
         <h3 class="label">{{ healthStatus[num] }}</h3>
         <ProgressBar v-bind="{value: current[num], maxValue: current.total}" />
