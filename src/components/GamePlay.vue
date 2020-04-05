@@ -65,7 +65,7 @@ export default {
       rightWidth: 320,
       bottomHeight: 150,
       tl: new gsap.timeline({paused: true}),
-      phases: [0.5, 1, 1],
+      phases: [0.5, 0.75, 0.75],
       groups: [],
       showDecision: false,
     }
