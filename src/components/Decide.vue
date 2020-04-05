@@ -29,6 +29,9 @@
         <input type="range" min="0" max="7" v-model="numTimes" />
         {{ numTimes }}
       </div>
+      <div>
+        (1) go for a walk AND (2) buy groceries AND (3) go for a run AND (4) lunch with a friend AND (5) dinner with family AND (6) go to a house party AND (7) go to a concert
+      </div>
       <button @click="onUpdate(numTimes)" class="decideBtn">Start Next Week →</button>
     </div>
   </div>
