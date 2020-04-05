@@ -25,23 +25,21 @@
           :href="d.href"
         />
       </g>
-      <g id="people">
-        <circle v-for="d in people" :key="d.id" :cx="d.x" :cy="d.y" :r="d.r" :fill="d.color" />
-        <!-- <circle :cx='people[0].x' :cy='people[0].y' :r='people[0].r + 4'
-        fill='none' :stroke='people[0].color' stroke-width='2' stroke-dasharray='2' />-->
-      </g>
     </svg>
+    <canvas ref='canvas' :width='width' :height='height'
+      :style='{width: `${width}px`, height: `${height}px`}' />
   </div>
 </template>
 
 <script>
 import * as d3 from 'd3'
+import chroma from 'chroma-js'
 import _ from 'lodash'
 import modifiedCollide from './ModifiedCollide'
 
-const personR = 4
-const houseSizes = [65, 75]
-const destSize = 110
+const personR = 5
+const houseSizes = [75, 85]
+const destSize = 120
 
 const houseImages = _.map(
   ['house-sm-left', 'house-sm-right', 'house-lg-left', 'house-lg-right'],
@@ -67,7 +65,6 @@ export default {
     return {
       houses: [],
       destinations: [],
-      people: []
       // links: null,
     }
   },
@@ -86,6 +83,9 @@ export default {
     }
   },
   mounted() {
+    this.ctx = this.$refs.canvas.getContext('2d')
+    // this.ctx.scale(2, 2)
+
     // setup force simulation for people positions
     this.simulation = d3
       .forceSimulation()
@@ -104,7 +104,7 @@ export default {
       .alphaDecay(0)
       // .velocityDecay(0.5)
       .stop()
-    this.tl.eventCallback('onUpdate', () => this.simulation.tick())
+    this.tl.eventCallback('onUpdate', this.movePeople)
 
     this.setupPositions()
     this.updateTimeline()
@@ -129,10 +129,8 @@ export default {
       let groups = []
       let maxDest = _.chain(houses)
         .map(d => d.destinations)
-        .flatten()
-        .max()
-        .value()
-      maxDest = Math.ceil(maxDest / destsPerGroup) * destsPerGroup
+        .flatten().max().value()
+      maxDest = Math.ceil((maxDest + 1) / destsPerGroup) * destsPerGroup // +1 to account for 0-based index
       const destinations = _.map(_.range(maxDest), i => {
         const { id, groupIndex } = this.community.destinations[i]
         let group = groups[groupIndex]
@@ -261,59 +259,83 @@ export default {
       // this.links = links
     },
     updateTimeline() {
-      if (!this.community && !this.people.length) return
+      if (!this.community && !this.people) return
 
       const [duration1, duration2, duration3] = this.phases
 
+      // calculate next state
+      this.people = _.chain(this.allPeople)
+        .map((person) => {
+          const {health, destination} = this.infected[person.i]
+          if (health > 3) return
+          const {x, y, id} = destination > 0 ? this.destinations[destination] : person.house
+          const nextColor = this.colorsByHealth[health]
+          const colorChange = 1 < health && person.color !== nextColor
+          return Object.assign(person, {
+            destination: id,
+            focusX: x, focusY: y,
+            colorChange, nextColor,
+            colorInterpolate: colorChange && chroma.scale([person.color, nextColor]),
+          })
+        }).filter().value()
+      this.colorChanges = _.filter(this.people, 'colorChange')
+
       // phase 1: go to destinations
       this.tl.add(() => {
-        this.people = _.chain(this.allPeople)
-          .map(person => {
-            const { health, destination } = this.infected[person.i]
-            if (health > 3) return
-            const { x, y, id } =
-              destination > 0 ? this.destinations[destination] : person.house
-
-            return Object.assign(person, {
-              destination: id,
-              focusX: x,
-              focusY: y,
-              nextColor: this.colorsByHealth[health]
-            })
-          })
-          .filter()
-          .value()
-
         this.nodes = _.union(this.people, this.buildings)
         this.simulation.nodes(this.nodes)
       }, `day${this.day}`)
 
       // phase 2: update colors
-      this.tl.to(
-        this.people,
-        {
-          duration: 0.75 * duration2,
-          color: (i, person) => person.nextColor,
-          stagger: 0.003
-        },
-        `day${this.day}-1`
-      )
+      const duration = 500 * duration2 // turn into milliseconds
+      const stagger = Math.min(0.5 * duration / this.colorChanges.length, 100)
+      this.tl.add(() => {
+        const t = d3.timer(elapsed => {
+          this.ctx.clearRect(0, 0, this.width, this.height)
+          _.each(this.people, (d, i) => {
+            if (d.colorChange) return // only draw the non color changing ones here
+            this.drawCircle(d.color, d.x, d.y)
+          })
+          _.each(this.colorChanges, (d, i) => {
+            const progress = _.clamp((elapsed - i * stagger) / duration, 0, 1)
+            d.color = d.colorInterpolate(progress)
+            const {color, x, y} = d
+            this.drawCircle(color, x, y)
+            // also draw indicator circle
+            this.drawCircle(color.alpha(1 - progress), x, y, progress * 10 * personR)
+          })
+          if (elapsed > (duration + stagger * this.colorChanges.length)) t.stop()
+        })
+      }, `day${this.day}-1`)
 
       // phase 3: go back home
       this.tl.add(() => {
-        _.each(this.people, person =>
-          Object.assign(person, {
-            destination: person.house.id,
-            focusX: person.house.x,
-            focusY: person.house.y
-          })
-        )
+        _.each(this.people, person => Object.assign(person, {
+          color: person.nextColor,
+          destination: person.house.id,
+          focusX: person.house.x,
+          focusY: person.house.y,
+        }))
         this.simulation.nodes(this.nodes)
       }, `day${this.day}-2`)
 
       this.playTimeline('community')
-    }
-  }
+    },
+    movePeople() {
+      this.simulation.tick()
+
+      this.ctx.clearRect(0, 0, this.width, this.height)
+      _.each(this.people, ({color, x, y}) => {
+        this.drawCircle(color, x, y)
+      })
+    },
+    drawCircle(color, x, y, r) {
+      this.ctx.fillStyle = color
+      this.ctx.beginPath()
+      this.ctx.arc(x, y, r || personR, 0, 2 * Math.PI)
+      this.ctx.fill()
+    },
+  },
 }
 </script>
 
@@ -322,11 +344,9 @@ export default {
   overflow: hidden;
 }
 
-svg {
-  isolation: isolate;
-}
-
-#people {
-  mix-blend-mode: multiply;
+svg, canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 </style>

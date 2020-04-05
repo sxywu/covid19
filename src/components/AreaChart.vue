@@ -13,8 +13,8 @@
 import * as d3 from 'd3'
 import _ from 'lodash'
 
-const healthStatus = [4, 3, 2]
-const margin = { top: 20, right: 20, bottom: 20, left: 30 }
+const healthStatus = [4, 3, 2, 5]
+const margin = {top: 20, right: 20, bottom: 20, left: 30}
 export default {
   name: 'AreaChart',
   props: [
@@ -53,10 +53,8 @@ export default {
       .y0(this.yScale(0))
       .curve(d3.curveCatmullRom)
 
-    this.xAxis = d3.axisBottom().scale(this.xScale)
-    this.yAxis = d3
-      .axisLeft()
-      .scale(this.yScale)
+    this.xAxis = d3.axisBottom().scale(this.xScale).ticks(7)
+    this.yAxis = d3.axisLeft().scale(this.yScale)
       .ticks(5)
       .tickFormat(d => (d >= 1000 ? `${_.round(d / 1000)}k` : d))
   },
@@ -80,7 +78,7 @@ export default {
   },
   methods: {
     updateAreaChart() {
-      this.xScale.domain([0, Math.max(this.day, 12)])
+      this.xScale.domain([0, Math.max(this.day, 7)])
 
       this.healthByDay.push(
         Object.assign(_.countBy(this.infected, 'health'), { day: this.day })
