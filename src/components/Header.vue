@@ -1,12 +1,12 @@
 <template>
   <div id="header">
     <div id="date">
-      <h3 class="label">day</h3>
-      <h4>{{ day }}</h4>
+      <h3 class="label">week</h3>
+      <h4>{{ week }}</h4>
     </div>
     <div id="date">
-      <h3 class="label">week</h3>
-      <h4>3</h4>
+      <h3 class="label">day</h3>
+      <h4>{{ day }}</h4>
     </div>
     <div class="item">
       <h3 class="label">label</h3>
@@ -17,16 +17,12 @@
       <ProgressBar value="80" />
     </div>
     <div class="item">
-      <h3 class="label">label</h3>
-      <ProgressBar value="65" />
+      <h3 class="label">Stayed Home</h3>
+      <ProgressBar v-bind="{value: stayedHome.length, maxValue: infected.length}" />
     </div>
     <div class="item">
-      <h3 class="label">label</h3>
-      <ProgressBar value="25" />
-    </div>
-    <div class="item">
-      <h3 class="label">label</h3>
-      <ProgressBar value="5" />
+      <h3 class="label">Hospital Capacity</h3>
+      <ProgressBar v-bind="{value: filledBeds, maxValue: totalAvailableBeds}" />
     </div>
   </div>
 </template>
@@ -39,14 +35,33 @@ export default {
   components: {
     ProgressBar,
   },
-  props: ['day'],
+  computed: {
+    day() {
+      return this.$store.state.day
+    },
+    week() {
+      return Math.ceil(this.day / 7)
+    },
+    infected() {
+      return this.$store.getters.infected || []
+    },
+    stayedHome() {
+      return _.filter(this.infected, ({ destination }) => destination === -1)
+    },
+    totalAvailableBeds() {
+      return this.$store.getters.totalAvailableBeds
+    },
+    filledBeds() {
+      return this.$store.getters.filledBeds
+    },
+  },
 }
 </script>
 
 <style lang="scss" scoped>
 #header {
   display: grid;
-  grid-template-columns: 80px 80px 1fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: 80px 80px 1fr 1fr 1fr 1fr;
   height: 100%;
 
   h3,

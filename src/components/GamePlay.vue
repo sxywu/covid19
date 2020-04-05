@@ -3,7 +3,7 @@
     <div class="container">
       <!-- TOP PANEL -->
       <div id="topPanel">
-        <Header v-bind="{day}" />
+        <Header />
       </div>
       <!-- COMMUNITY -->
       <div id="communityPanel">
@@ -90,7 +90,6 @@ import Community from './Community'
 import Decide from './Decide'
 import CommunityStats from './CommunityStats'
 import Minimap from './Minimap'
-import Stats from './Stats'
 import Hospital from './Hospital'
 import BarChart from './BarChart'
 import AreaChart from './AreaChart'

@@ -126,6 +126,12 @@ export default new Vuex.Store({
     totalAvailableBeds({bedOccupancyRate}, {totalBeds}) {
       return Math.floor((1 - bedOccupancyRate) * totalBeds)
     },
+    filledBeds(state, {infected, totalAvailableBeds}) {
+      return Math.min(
+        _.sumBy(infected, ({ health }) => health === 4), // hospitalized
+        totalAvailableBeds
+      )
+    },
     community(state, {population}) {
       if (!population) return
 

@@ -59,7 +59,7 @@ export default {
       return this.$store.getters.totalAvailableBeds
     },
     filledBeds() {
-      return _.sumBy(this.infected, ({ health }) => health === 4) // hospitalized
+      return this.$store.getters.filledBeds
     },
   },
   mounted() {
