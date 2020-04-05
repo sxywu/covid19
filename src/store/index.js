@@ -7,8 +7,8 @@ Vue.use(Vuex)
 
 let populationsByZip = []
 let hospitalsByZip = []
-let prevPlayers = []
 let prevInfected = []
+const totalPlayers = 20
 
 function assignHealth(person, daysSinceInfection, prevInHospital) {
   // health statuses: 0 = healthy, 1 = recovered, 2 = infected+asymptomatic,
@@ -102,7 +102,7 @@ export default new Vuex.Store({
     zipCode: '',
     dataLoaded: false,
     bedOccupancyRate: 0.66,
-    decisions: [],
+    allDecisions: [],
     totalDays: 8 * 7,
     foodStatus: {value: 18, maxValue: 18},
     exerciseStatus: {value: 7, maxValue: 7},
@@ -240,15 +240,18 @@ export default new Vuex.Store({
         )
       })
 
-      // add previous players' info to people
-      const peopleRatio = Math.floor(totalPopulation / prevPlayers.length)
-      _.each(prevPlayers, ({decisions}, i) => {
-        Object.assign(people[i * peopleRatio], {decisions})
-      })
-
       return {people, houses, destinations, numGroups: numDestGroups}
     },
-    infected({day}, {community, totalAvailableBeds}) {
+    weeklyDecisions({allDecisions}, {week}) {
+      return _.map(allDecisions, decisions => {
+        const numTimes = decisions[week - 1]
+        return _.chain(7)
+          .times(i => +(i <numTimes))
+          .shuffle()
+          .value()
+      })
+    },
+    infected({day}, {community, weeklyDecisions, totalAvailableBeds}) {
       if (!community) return
       const {people, houses, destinations} = community
 
@@ -293,7 +296,7 @@ export default new Vuex.Store({
           daysSinceInfection,
           prevInfectious,
           prevInHospital,
-          !person.decisions || person.decisions[day],
+          weeklyDecisions[i % totalPlayers][(day - 1) % 7],
           infectedDestinations,
           infectedHouses
         )
@@ -384,6 +387,9 @@ export default new Vuex.Store({
     setDataLoaded(state, dataLoaded) {
       state.dataLoaded = dataLoaded
     },
+    setAllDecisions(state, allDecisions) {
+      state.allDecisions = allDecisions
+    },
     setDecision(state, decision) {
       if (decision > 0) {
         // if go out more than once, then they did exercise
@@ -393,7 +399,7 @@ export default new Vuex.Store({
         // if they go out twice, 2 weeks of groceries are taken care of
         state.foodStatus.value += 14
       }
-      state.decisions.push(decision)
+      state.allDecisions[0].push(decision) // update decision for current player
     },
   },
   actions: {
@@ -408,13 +414,12 @@ export default new Vuex.Store({
       ]).then(([populations, hospitals]) => {
         populationsByZip = populations
         hospitalsByZip = hospitals
-        // prevPlayers = _.times(35000, i => {
-        //   return {
-        //     decisions: _.times(state.totalDays, i => _.random(1)),
-        //   }
-        // })
+        const allDecisions = _.times(totalPlayers - 1, i =>
+          _.times(state.totalDays / 7, i => i ? _.random(7) : 7))
+        allDecisions.unshift([7]) // add this player's decision at beginning, assume they go out every day
 
         commit('setDataLoaded', true)
+        commit('setAllDecisions', allDecisions)
       })
     },
   },
