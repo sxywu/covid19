@@ -10,14 +10,15 @@ let hospitalsByZip = []
 let prevPlayers = []
 let prevInfected = []
 
-function assignHealth(person, daysSinceInfection) {
+function assignHealth(person, daysSinceInfection, prevInHospital) {
   // health statuses: 0 = healthy, 1 = recovered, 2 = infected+asymptomatic,
   // 3 = infected+ symptomatic, 4 = hospitalized from infection, 5 = died from infection
   // Option to add additional for infected+presymptomatic; and/or to include infectious here rather than as a separate variable
   let newHealth = 0;
   let newInfectious = 0;
   if (daysSinceInfection >= 14) {
-    newHealth = person.dieIfInfected ? 5 : 1 // dead or recovered
+    const dies = prevInHospital ? person.dieIfInfected : person.dieIfNotHospitalized
+    newHealth = dies ? 5 : 1 // dead or recovered
     newInfectious = 0
   } else if (daysSinceInfection >= 7 && person.hospitalIfInfected) {
     newHealth = 4 // hospitalized
@@ -35,9 +36,17 @@ function assignHealth(person, daysSinceInfection) {
   return { health: newHealth, infectious: newInfectious }
 }
 
-function healthAndDestination(person, houses, daysSinceInfection, prevInfectious,
-  playerGoesOut, infectedDestinations, infectedHouses) {
-  const {health, infectious} = assignHealth(person, daysSinceInfection)
+function healthAndDestination(
+  person,
+  houses,
+  daysSinceInfection,
+  prevInfectious,
+  prevInHospital,
+  playerGoesOut,
+  infectedDestinations,
+  infectedHouses
+) {
+  const {health, infectious} = assignHealth(person, daysSinceInfection, prevInHospital)
 
   let destination = -1 // default to home
   if (health < 3 && playerGoesOut) {
@@ -170,9 +179,10 @@ export default new Vuex.Store({
             houseIndex, // reference house person lives in
             age, ageGroup,
             susceptibility: 0.03, // TODO: UPDATE
-            symptomaticIfInfected: _.random(99) < 80 ? 1 : 0,  // TODO: updated based on age
-            hospitalIfInfected: _.random(99) < 20 ? 1 : 0, // TODO: updated based on age
-            dieIfInfected: _.random(99) < 3 ? 1 : 0, // TODO: updated based on age
+            symptomaticIfInfected: +(Math.random() < 0.8), // TODO: updated based on age
+            hospitalIfInfected: +(Math.random() < 0.2), // TODO: updated based on age
+            dieIfInfected: +(Math.random() < 0.03), // TODO: updated based on age
+            dieIfNotHospitalized: +(Math.random() < 0.1), // TODO: update based on age
           })
         })
 
@@ -200,7 +210,7 @@ export default new Vuex.Store({
 
       return {people, houses, destinations, numGroups: numDestGroups}
     },
-    infected({day}, {community, totalBeds}) {
+    infected({day}, {community, totalAvailableBeds}) {
       if (!community) return
       const { people, houses, destinations } = community
 
@@ -225,28 +235,60 @@ export default new Vuex.Store({
       const infectedDestinations = []
       const alternateHouses = [] // same as infectedHouses, but for alternate scenario
       const alternateDestinations = []
+      let numSevere = 0
       const infected = _.map(people, (person, i) => {
-        let {health: prevHealth, infectious: prevInfectious,
-          daysSinceInfection, alternate: prevAlternate} = prevInfected[i]
+        let {
+          health: prevHealth,
+          infectious: prevInfectious,
+          inHospital: prevInHospital,
+          daysSinceInfection,
+          alternate: prevAlternate,
+        } = prevInfected[i]
 
         // calculate everyone's new health/infectiousness for current day
         daysSinceInfection += !!daysSinceInfection // if days = 0, don't add any, if >0 then add 1
         const {health, infectious, destination} = healthAndDestination(
-          person, houses, daysSinceInfection, prevInfectious,
-          !person.decisions || person.decisions[day], infectedDestinations, infectedHouses
+          person,
+          houses,
+          daysSinceInfection,
+          prevInfectious,
+          prevInHospital,
+          !person.decisions || person.decisions[day],
+          infectedDestinations,
+          infectedHouses
         )
+        let inHospital = false
+        if (health === 4) {
+          // if the person is in severe condition
+          numSevere += 1
+          inHospital = numSevere <= totalAvailableBeds
+        }
+
+
         // now calculate for an alternate scenario
         prevAlternate.daysSinceInfection += !!prevAlternate.daysSinceInfection
         const alternate = Object.assign(
-          healthAndDestination(person, houses, prevAlternate.daysSinceInfection,
-            prevAlternate.infectious, true, alternateDestinations, alternateHouses),
-          {daysSinceInfection: prevAlternate.daysSinceInfection},
+          healthAndDestination(
+            person,
+            houses,
+            prevAlternate.daysSinceInfection,
+            prevAlternate.infectious,
+            prevAlternate.inHospital,
+            true,
+            alternateDestinations,
+            alternateHouses
+          ),
+          {daysSinceInfection: prevAlternate.daysSinceInfection}
         )
 
         return {
           index: i,
-          house: person.houseIndex, daysSinceInfection,
-          health, infectious, destination,
+          house: person.houseIndex,
+          daysSinceInfection,
+          health,
+          infectious,
+          destination,
+          inHospital,
           alternate,
         }
       })
