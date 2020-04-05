@@ -44,7 +44,7 @@
       </div>
       <!-- RIGHT PANEL -->
       <div id="rightPanel">
-        <CommunityStats />
+        <CommunityStats v-bind='{healthStatus}' />
         <Hospital
           v-bind="{colorsByHealth, width: rightWidth, tl, phases, playTimeline}"
         />
