@@ -3,6 +3,7 @@
     <GamePlay v-bind="$data" />
     <LandingPage v-if='currentPage === "landing"' />
     <EndPage v-if='currentPage === "end"' />
+    <FailedPage v-if='currentPage === "failed"' />
   </div>
 </template>
 
@@ -10,11 +11,12 @@
 import GamePlay from './components/GamePlay'
 import LandingPage from './components/LandingPage'
 import EndPage from './components/EndPage'
+import FailedPage from './components/FailedPage'
 
 export default {
   name: 'App',
   components: {
-    GamePlay, LandingPage, EndPage,
+    GamePlay, LandingPage, EndPage, FailedPage,
   },
   data() {
     return {

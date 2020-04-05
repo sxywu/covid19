@@ -386,6 +386,10 @@ export default new Vuex.Store({
       if (day % 3 === 0) {
         state.exerciseStatus.value -= 1 // for every 3 days they don't go out
       }
+
+      if (!state.foodStatus.value || !state.exerciseStatus) {
+        state.currentPage = 'failed'
+      }
     },
     setZipCode(state, zipCode) {
       state.zipCode = zipCode
