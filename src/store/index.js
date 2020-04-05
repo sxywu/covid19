@@ -385,6 +385,14 @@ export default new Vuex.Store({
       state.dataLoaded = dataLoaded
     },
     setDecision(state, decision) {
+      if (decision > 0) {
+        // if go out more than once, then they did exercise
+        state.exerciseStatus.value += 1
+      }
+      if (decision > 1) {
+        // if they go out twice, 2 weeks of groceries are taken care of
+        state.foodStatus.value += 14
+      }
       state.decisions.push(decision)
     },
   },
