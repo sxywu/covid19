@@ -260,7 +260,7 @@ export default new Vuex.Store({
         prevInfected = _.map(people, (person, i) => {
           // And then assign days for those randomly between 1 and 6.
           // We'll probably want to change this, but it gives us something to work with.
-          let daysSinceInfection = i % 500 ? 0 : _.random(1, 4);
+          let daysSinceInfection = i % 1000 ? 0 : _.random(1, 4);
           let {health, infectious} = assignHealth(person, daysSinceInfection)
 
           return {
