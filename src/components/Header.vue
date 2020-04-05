@@ -9,12 +9,12 @@
       <h4>{{ day }}</h4>
     </div>
     <div class="item">
-      <h3 class="label">label</h3>
-      <ProgressBar value="64" />
+      <h3 class="label">Food</h3>
+      <ProgressBar v-bind="foodStatus" />
     </div>
     <div class="item">
-      <h3 class="label">label</h3>
-      <ProgressBar value="80" />
+      <h3 class="label">Exercise</h3>
+      <ProgressBar v-bind="exerciseStatus" />
     </div>
     <div class="item">
       <h3 class="label">Stayed Home</h3>
@@ -41,6 +41,12 @@ export default {
     },
     week() {
       return Math.ceil(this.day / 7)
+    },
+    foodStatus() {
+      return this.$store.state.foodStatus
+    },
+    exerciseStatus() {
+      return this.$store.state.exerciseStatus
     },
     infected() {
       return this.$store.getters.infected || []

@@ -102,6 +102,8 @@ export default new Vuex.Store({
     bedOccupancyRate: 0.66,
     decisions: [],
     totalDays: 8 * 7,
+    foodStatus: {value: 18, maxValue: 18},
+    exerciseStatus: {value: 7, maxValue: 7},
   },
   getters: {
     population({zipCode, dataLoaded}) {
@@ -347,6 +349,10 @@ export default new Vuex.Store({
   mutations: {
     setDay(state, day) {
       state.day = day
+      state.foodStatus.value -= 1 // for every day they don't get groceries
+      if (day % 3 === 0) {
+        state.exerciseStatus.value -= 1 // for every 3 days they don't go out
+      }
     },
     setZipCode(state, zipCode) {
       state.zipCode = zipCode
