@@ -15,9 +15,9 @@
     <div
       class="box"
       :style="{
-      // left: `${box.x - box.width / 2}px`, top: `${box.y - box.height / 2}px`,
-      width: `${box.width}px`, height: `${box.height}px`,
-    }"
+        left: `${box.x - box.width / 2}px`, top: `${box.y - box.height / 2}px`,
+        width: `${box.width}px`, height: `${box.height}px`,
+      }"
     />
   </div>
 </template>
