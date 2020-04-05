@@ -1,14 +1,29 @@
 <template>
   <div id="community">
-    <svg :width='width' :height='height'>
-      <g id='houses'>
-        <image v-for='d in houses' v-if='d && d.onScreen' :x='d.x - d.size / 2' :y='d.y - 0.6 * d.size'
-          :width='d.size' :height='d.size' :href='d.href' />
+    <svg :width="width" :height="height">
+      <!-- <line v-for='d in links' :x1='d.source.x' :y1='d.source.y'
+      :x2='d.target.x' :y2='d.target.y' stroke='#000' />-->
+      <g id="houses">
+        <image
+          v-for="d in houses"
+          v-if="d && d.onScreen"
+          :x="d.x - d.size / 2"
+          :y="d.y - 0.6 * d.size"
+          :width="d.size"
+          :height="d.size"
+          :href="d.href"
+        />
       </g>
-      <g id='destinations'>
-        <image v-for='d in destinations' v-if='d && d.onScreen'
-          :x='d.x - d.size / 2' :y='d.y - 0.6 * d.size'
-          :width='d.size' :height='d.size' :href='d.href' />
+      <g id="destinations">
+        <image
+          v-for="d in destinations"
+          v-if="d && d.onScreen"
+          :x="d.x - d.size / 2"
+          :y="d.y - 0.6 * d.size"
+          :width="d.size"
+          :height="d.size"
+          :href="d.href"
+        />
       </g>
     </svg>
     <canvas ref='canvas' :width='width' :height='height'
@@ -26,17 +41,25 @@ const personR = 5
 const houseSizes = [75, 85]
 const destSize = 120
 
-const houseImages = _.map([
-  'house-sm-left', 'house-sm-right',
-  'house-lg-left', 'house-lg-right'
-  ], file => require(`../assets/${file}.png`))
-const destImages = _.map(['cafe', 'restaurant', 'park'], file => require(`../assets/${file}.png`))
+const houseImages = _.map(
+  ['house-sm-left', 'house-sm-right', 'house-lg-left', 'house-lg-right'],
+  file => require(`../assets/${file}.png`)
+)
+const destImages = _.map(['cafe', 'restaurant', 'park'], file =>
+  require(`../assets/${file}.png`)
+)
 
 export default {
   name: 'Community',
   props: [
-    'colorsByHealth', 'width', 'height', 'rightWidth',
-    'tl', 'phases', 'playTimeline', 'setGroups',
+    'colorsByHealth',
+    'width',
+    'height',
+    'rightWidth',
+    'tl',
+    'phases',
+    'playTimeline',
+    'setGroups'
   ],
   data() {
     return {
@@ -56,18 +79,28 @@ export default {
       return this.$store.getters.infected
     },
     center() {
-      return {x: (this.width - this.rightWidth) / 2, y: this.height / 2}
-    },
+      return { x: (this.width - this.rightWidth) / 2, y: this.height / 2 }
+    }
   },
   mounted() {
     this.ctx = this.$refs.canvas.getContext('2d')
     // this.ctx.scale(2, 2)
 
     // setup force simulation for people positions
-    this.simulation = d3.forceSimulation()
-      .force('collide', modifiedCollide().radius(d => 2 * d.r || 0.5 * d.size))
-      .force('x', d3.forceX().x(d => d.focusX))
-      .force('y', d3.forceY().y(d => d.focusY))
+    this.simulation = d3
+      .forceSimulation()
+      .force(
+        'collide',
+        modifiedCollide().radius(d => 2 * d.r || 0.5 * d.size)
+      )
+      .force(
+        'x',
+        d3.forceX().x(d => d.focusX)
+      )
+      .force(
+        'y',
+        d3.forceY().y(d => d.focusY)
+      )
       .alphaDecay(0)
       // .velocityDecay(0.5)
       .stop()
@@ -82,7 +115,7 @@ export default {
     },
     infected() {
       this.updateTimeline()
-    },
+    }
   },
   methods: {
     setupPositions() {
@@ -99,17 +132,21 @@ export default {
         .flatten().max().value()
       maxDest = Math.ceil((maxDest + 1) / destsPerGroup) * destsPerGroup // +1 to account for 0-based index
       const destinations = _.map(_.range(maxDest), i => {
-        const {id, groupIndex} = this.community.destinations[i]
+        const { id, groupIndex } = this.community.destinations[i]
         let group = groups[groupIndex]
         if (!group) {
-          group = groups[groupIndex] = Object.assign({
-            size: 2.5 * destSize,
-            dests: [],
-          }, i === 0 ? {fx: this.center.x, fy: this.center.y} : {})
+          group = groups[groupIndex] = Object.assign(
+            {
+              size: 2.5 * destSize,
+              dests: []
+            },
+            i === 0 ? { fx: this.center.x, fy: this.center.y } : {}
+          )
         }
         const destination = {
-          id, group,
-          size: destSize,
+          id,
+          group,
+          size: destSize
         }
         group.dests.push(destination)
         return destination
@@ -119,10 +156,10 @@ export default {
         const source = {
           id: house.id,
           size: houseSizes[house.numPeople < 3 ? 0 : 1],
-          href: houseImages[house.numPeople < 3 ? _.random(1) : _.random(2, 3)],
+          href: houseImages[house.numPeople < 3 ? _.random(1) : _.random(2, 3)]
         }
         _.each(house.destinations, index => {
-          links.push({source, target: destinations[index].group})
+          links.push({ source, target: destinations[index].group })
         })
 
         return source
@@ -131,24 +168,28 @@ export default {
       _.each(groups, source => {
         _.each(groups, target => {
           if (source === target) return
-          links.push({source, target})
+          links.push({ source, target })
         })
       })
 
       // simulation for just houses & dest positions
-      const simulation = d3.forceSimulation(_.union(groups, houses))
-        .force('collide', d3.forceCollide().radius(d => 0.6 * d.size))
-        .force("center", d3.forceCenter(this.center.x, this.center.y))
-        .force("link", d3.forceLink(links))
+      const simulation = d3
+        .forceSimulation(_.union(groups, houses))
+        .force(
+          'collide',
+          d3.forceCollide().radius(d => 0.6 * d.size)
+        )
+        .force('center', d3.forceCenter(this.center.x, this.center.y))
+        .force('link', d3.forceLink(links))
         .stop()
         .tick(250)
 
       // calculate positions for destinations
       const rad = Math.PI / 3
-      _.each(groups, ({dests, x, y}) => {
+      _.each(groups, ({ dests, x, y }) => {
         let onScreen = false
         _.each(dests, (dest, i) => {
-           // have one park in center, rest are restaurants
+          // have one park in center, rest are restaurants
           let dx = x
           let dy = y
           if (i > 0) {
@@ -158,45 +199,61 @@ export default {
           // keep group if at least one is on screen
           Object.assign(dest, {
             href: destImages[i % destsPerGroup ? _.random(1) : 2],
-            x: dx, y: dy, fx: dx, fy: dy,
-            onScreen: -destSize / 2 < dx && dx < this.width + destSize / 2 &&
-              -destSize / 2 < dy && dy < this.height + destSize / 2
+            x: dx,
+            y: dy,
+            fx: dx,
+            fy: dy,
+            onScreen:
+              -destSize / 2 < dx &&
+              dx < this.width + destSize / 2 &&
+              -destSize / 2 < dy &&
+              dy < this.height + destSize / 2
           })
         })
       })
 
       // only keep the houses on screen
-      _.each(houses, d => Object.assign(d, {
-        onScreen: -houseSizes[1] / 2 < d.x && d.x < this.width + houseSizes[1] / 2 &&
-          -houseSizes[1] < d.y && d.y < this.height + houseSizes[1] / 2
-      }))
+      _.each(houses, d =>
+        Object.assign(d, {
+          onScreen:
+            -houseSizes[1] / 2 < d.x &&
+            d.x < this.width + houseSizes[1] / 2 &&
+            -houseSizes[1] < d.y &&
+            d.y < this.height + houseSizes[1] / 2
+        })
+      )
 
       // create people whose houses appear within community view
       const people = []
-      _.some(this.community.people, ({id, houseIndex}, i) => {
+      _.some(this.community.people, ({ id, houseIndex }, i) => {
         if (houseIndex >= cutoff) return true // terminate loop here
         const house = houses[houseIndex]
         const dests = this.community.houses[houseIndex].destinations
-        if (!house.onScreen || !_.some(dests, i => destinations[i].onScreen)) return
+        if (!house.onScreen || !_.some(dests, i => destinations[i].onScreen))
+          return
 
         const color = this.colorsByHealth[0]
         people.push({
-          i, id,
+          i,
+          id,
           house,
           x: house.x,
           y: house.y,
           r: personR,
-          color,
+          color
         })
       })
 
       this.houses = _.chain(houses)
-        .map(d => Object.assign(d, {fx: d.x, fy: d.y}))
-        .sortBy(d => d.y).value()
+        .map(d => Object.assign(d, { fx: d.x, fy: d.y }))
+        .sortBy(d => d.y)
+        .value()
       this.destinations = destinations
       this.people = this.allPeople = people
-      this.buildings = _.chain(this.destinations).union(this.houses)
-        .filter(d => d && d.onScreen).value()
+      this.buildings = _.chain(this.destinations)
+        .union(this.houses)
+        .filter(d => d && d.onScreen)
+        .value()
 
       this.setGroups(groups)
       // this.links = links
@@ -284,9 +341,7 @@ export default {
 
 <style scoped>
 #community {
-  position: absolute;
-  top: 0;
-  left: 0;
+  overflow: hidden;
 }
 
 svg, canvas {
