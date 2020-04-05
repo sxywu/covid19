@@ -20,14 +20,6 @@
           }"
         />
         <div id="actions">
-          <!-- DECISION SCREEN -->
-          <div class="decision" v-if="showDecision">
-            <Decide
-              v-bind="{
-                onUpdate: updateDecision,
-              }"
-            />
-          </div>
           <!-- MINIMAP -->
           <div id="minimapContainer">
             <Minimap
@@ -37,6 +29,14 @@
                 colorsByHealth,
                 containerWidth: width,
                 containerHeight: height,
+              }"
+            />
+          </div>
+          <!-- DECISION SCREEN -->
+          <div class="decision" v-if="showDecision">
+            <Decide
+              v-bind="{
+                onUpdate: updateDecision,
               }"
             />
           </div>
