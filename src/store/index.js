@@ -98,6 +98,7 @@ function infectPerson(
 
 export default new Vuex.Store({
   state: {
+    currentPage: 'landing',
     day: 0,
     zipCode: '',
     dataLoaded: false,
@@ -374,6 +375,9 @@ export default new Vuex.Store({
     },
   },
   mutations: {
+    setCurrentPage(state, currentPage) {
+      state.currentPage = currentPage
+    },
     setDay(state, day) {
       state.day = day
       state.foodStatus.value -= 1 // for every day they don't get groceries

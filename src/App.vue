@@ -1,16 +1,18 @@
 <template>
   <div id="app">
     <GamePlay v-bind="$data" />
+    <LandingPage v-if='currentPage === "landing"' />
   </div>
 </template>
 
 <script>
 import GamePlay from './components/GamePlay'
+import LandingPage from './components/LandingPage'
 
 export default {
   name: 'App',
   components: {
-    GamePlay,
+    GamePlay, LandingPage,
   },
   data() {
     return {
@@ -39,9 +41,13 @@ export default {
       ],
     }
   },
+  computed: {
+    currentPage() {
+      return this.$store.state.currentPage
+    },
+  },
   created() {
     this.$store.dispatch('getRawData')
-    this.$store.commit('setZipCode', '94110')
   },
 }
 </script>

@@ -89,6 +89,8 @@ export default {
       })
     },
     updateBeds() {
+      if (!this.infected) return
+      
       this.tl.to(
         this.beds,
         {

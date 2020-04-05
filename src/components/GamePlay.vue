@@ -130,6 +130,9 @@ export default {
     }
   },
   computed: {
+    currentPage() {
+      return this.$store.state.currentPage
+    },
     day() {
       return this.$store.state.day
     },
@@ -150,15 +153,19 @@ export default {
       }
     },
   },
-  created() {
-    this.updateDay()
-  },
   mounted() {
     window.addEventListener('resize', this.calculateDimensions)
     this.calculateDimensions()
   },
   destroyed() {
     window.removeEventListener('resize', this.calculateDimensions)
+  },
+  watch: {
+    currentPage() {
+      if (this.currentPage === 'game') {
+        this.updateDay()
+      }
+    },
   },
   methods: {
     setGroups(groups) {
