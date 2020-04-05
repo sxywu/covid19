@@ -275,6 +275,7 @@ export default new Vuex.Store({
       const alternateHouses = [] // same as infectedHouses, but for alternate scenario
       const alternateDestinations = []
       let numSevere = 0
+      let numAlternateSevere = 0
       const infected = _.map(people, (person, i) => {
         let {
           health: prevHealth,
@@ -319,6 +320,10 @@ export default new Vuex.Store({
           ),
           {daysSinceInfection: prevAlternate.daysSinceInfection}
         )
+        if (alternate.health === 4) {
+          numAlternateSevere += 1
+          alternate.inHospital = numAlternateSevere <= totalAvailableBeds
+        }
 
         return {
           index: i,
