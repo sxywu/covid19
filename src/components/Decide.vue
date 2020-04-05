@@ -25,7 +25,11 @@
     </div>
     <div class="mt3">
       <h2>How many times will you go out this week?</h2>
-
+      <div>
+        <input type="range" min="0" max="7" v-model="numTimes" />
+        {{ numTimes }}
+      </div>
+      <button @click="onUpdate(numTimes)" class="decideBtn">Start Next Week →</button>
     </div>
   </div>
 </template>
@@ -47,6 +51,7 @@ export default {
     return {
       virusImage,
       bedImage,
+      numTimes: 2,
     }
   },
   computed: {

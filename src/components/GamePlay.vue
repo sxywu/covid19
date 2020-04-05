@@ -168,9 +168,9 @@ export default {
       this.width = window.innerWidth - padding
       this.height = (1 / widthHeightRatio) * this.width
     },
-    updateDecision() {
+    updateDecision(numTimes) {
       this.showDecision = false
-      this.$store.commit('setDecision', 7)
+      this.$store.commit('setDecision', numTimes)
       this.updateDay()
     },
     updateDay() {
