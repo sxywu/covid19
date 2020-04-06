@@ -90,7 +90,10 @@ export default {
     },
     updateBeds() {
       if (!this.infected) return
-      
+      if (this.day === 1) {
+        _.each(this.beds, d => d.r = 0)
+      }
+
       this.tl.to(
         this.beds,
         {

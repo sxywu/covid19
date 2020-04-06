@@ -260,6 +260,9 @@ export default {
     },
     updateTimeline() {
       if (!this.community && !this.people) return
+      if (this.day === 1) {
+        _.each(this.people, d => d.color = this.colorsByHealth[0])
+      }
 
       const [duration1, duration2, duration3] = this.phases
 

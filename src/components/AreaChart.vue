@@ -33,8 +33,6 @@ export default {
     }
   },
   created() {
-    this.healthByDay = [{ day: 0, 4: 0, 3: 0, 2: 0 }]
-
     this.stackGenerator = d3
       .stack()
       .keys(healthStatus)
@@ -59,9 +57,6 @@ export default {
       .tickFormat(d => (d >= 1000 ? `${_.round(d / 1000)}k` : d))
   },
   mounted() {
-    this.paths = _.map(healthStatus.reverse(), health => {
-      return { id: health, path: '', color: this.colorsByHealth[health] }
-    })
   },
   computed: {
     day() {
@@ -72,11 +67,22 @@ export default {
     },
   },
   watch: {
+    day() {
+      if (this.day === 1) {
+        this.startAreaChart()
+      }
+    },
     infected() {
       this.updateAreaChart()
     },
   },
   methods: {
+    startAreaChart() {
+      this.healthByDay = [{ day: 0, 4: 0, 3: 0, 2: 0 }]
+      this.paths = _.map(healthStatus.reverse(), health => {
+        return { id: health, path: '', color: this.colorsByHealth[health] }
+      })
+    },
     updateAreaChart() {
       this.xScale.domain([0, Math.max(this.day, 7)])
 

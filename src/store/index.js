@@ -107,8 +107,8 @@ export default new Vuex.Store({
     bedOccupancyRate: 0.66,
     allDecisions: [],
     totalDays: 8 * 7,
-    foodStatus,
-    exerciseStatus,
+    foodStatus: {},
+    exerciseStatus: {},
   },
   getters: {
     week({day}) {
@@ -392,7 +392,7 @@ export default new Vuex.Store({
       }
     },
     setZipCode(state, zipCode) {
-      state.zipCode = zipCode
+      state.zipCode = '' + zipCode // stringify just in case
     },
     setDataLoaded(state, dataLoaded) {
       state.dataLoaded = dataLoaded
@@ -412,10 +412,10 @@ export default new Vuex.Store({
       state.allDecisions[0].push(decision) // update decision for current player
     },
     setFoodStatus(state, foodStatus) {
-      state.foodStatus = foodStatus
+      state.foodStatus = _.clone(foodStatus)
     },
     setExerciseStatus(state, exerciseStatus) {
-      state.exerciseStatus = exerciseStatus
+      state.exerciseStatus = _.clone(exerciseStatus)
     },
   },
   actions: {
@@ -436,16 +436,21 @@ export default new Vuex.Store({
 
         commit('setDataLoaded', true)
         commit('setAllDecisions', allDecisions)
+        commit('setFoodStatus', foodStatus)
+        commit('setExerciseStatus', exerciseStatus)
       })
     },
     resetGame({commit, state}) {
+      // reset prevInfected
+      prevInfected = []
+
       const allDecisions = _.clone(state.allDecisions) // to avoid mutating?
       allDecisions[0] = [7]
       commit('setAllDecisions', allDecisions)
       commit('setDay', 0)
       commit('setFoodStatus', foodStatus)
       commit('setExerciseStatus', exerciseStatus)
-      commit('currentPage', 'game')
+      commit('setCurrentPage', 'game')
     },
   },
 })

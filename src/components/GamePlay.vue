@@ -164,8 +164,10 @@ export default {
     window.removeEventListener('resize', this.calculateDimensions)
   },
   watch: {
-    currentPage() {
+    day() {
       if (this.currentPage === 'game') {
+        // if current page became "game" again that means we restarted
+        this.tl.clear(true)
         this.updateDay()
       }
     },
