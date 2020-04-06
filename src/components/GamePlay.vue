@@ -3,7 +3,7 @@
     <div class="container">
       <!-- TOP PANEL -->
       <div id="topPanel">
-        <Header v-bind="{day}" />
+        <Header />
       </div>
       <!-- COMMUNITY -->
       <div id="communityPanel">
@@ -20,14 +20,6 @@
           }"
         />
         <div id="actions">
-          <!-- DECISION SCREEN -->
-          <div class="decision" v-if="showDecision">
-            <Decide
-              v-bind="{
-                onUpdate: updateDecision,
-              }"
-            />
-          </div>
           <!-- MINIMAP -->
           <div id="minimapContainer">
             <Minimap
@@ -40,14 +32,18 @@
               }"
             />
           </div>
+          <!-- DECISION SCREEN -->
+          <div class="decision" v-if="showDecision">
+            <Decide v-bind="{
+                onUpdate: updateDecision,
+              }" />
+          </div>
         </div>
       </div>
       <!-- RIGHT PANEL -->
       <div id="rightPanel">
-        <CommunityStats />
-        <Hospital
-          v-bind="{colorsByHealth, width: rightWidth, tl, phases, playTimeline}"
-        />
+        <CommunityStats v-bind="{healthStatus}" />
+        <Hospital v-bind="{colorsByHealth, width: rightWidth, tl, phases, playTimeline}" />
       </div>
       <!-- BOTTOM PANEL -->
       <div id="bottomPanel">
@@ -90,7 +86,6 @@ import Community from './Community'
 import Decide from './Decide'
 import CommunityStats from './CommunityStats'
 import Minimap from './Minimap'
-import Stats from './Stats'
 import Hospital from './Hospital'
 import BarChart from './BarChart'
 import AreaChart from './AreaChart'
@@ -122,9 +117,9 @@ export default {
       width: window.innerWidth,
       height: window.innerHeight,
       topHeight: 40,
-      rightWidth: 360,
+      rightWidth: 320,
       bottomHeight: 150,
-      tl: new gsap.timeline({paused: true}),
+      tl: new gsap.timeline({ paused: true }),
       phases: [0.5, 1, 1],
       groups: [],
       showDecision: false,
@@ -169,9 +164,9 @@ export default {
       this.width = window.innerWidth - padding
       this.height = (1 / widthHeightRatio) * this.width
     },
-    updateDecision() {
+    updateDecision(numTimes) {
       this.showDecision = false
-      this.$store.commit('setDecision', 7)
+      this.$store.commit('setDecision', numTimes)
       this.updateDay()
     },
     updateDay() {
@@ -225,6 +220,9 @@ export default {
 
 #topPanel {
   grid-column: 1 / 3;
+  width: 100%;
+  top: 0;
+  border-bottom: 1px solid $gray;
 }
 
 #communityPanel {
@@ -268,13 +266,6 @@ export default {
 
 .panel {
   position: absolute;
-  background: rgba(255, 255, 255, 0.9);
-}
-
-#topPanel {
-  width: 100%;
-  top: 0;
-  border-bottom: 1px solid $gray;
 }
 
 #rightPanel {

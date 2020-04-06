@@ -4,10 +4,7 @@
     <ul>
       <li v-for="legend in legends" :key="legend.label">
         <span>
-          <svg width="16" height="16">
-            <circle cx="8" cy="8" r="8" :fill="legend.color" />
-          </svg>
-
+          <div class="legend-circle" :style="{background: legend.color}" />
           <!-- <span class="value">{{ legend.value }}</span> -->
         </span>
         <span class="legend-label">{{ legend.label }}</span>
@@ -81,6 +78,11 @@ export default {
   }
   .legend-label {
     font-size: 12.5px;
+  }
+  .legend-circle {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
   }
 }
 </style>
