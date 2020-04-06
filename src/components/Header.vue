@@ -1,13 +1,5 @@
 <template>
   <div id="header">
-    <div id="date">
-      <h3 class="label">week</h3>
-      <h4>{{ week }}</h4>
-    </div>
-    <div id="date">
-      <h3 class="label">day</h3>
-      <h4>{{ day }}</h4>
-    </div>
     <div class="item">
       <h3 class="label">Food</h3>
       <ProgressBar v-bind="foodStatus" />
@@ -15,6 +7,14 @@
     <div class="item">
       <h3 class="label">Exercise</h3>
       <ProgressBar v-bind="exerciseStatus" />
+    </div>
+    <div id="date">
+      <h3 class="label">week</h3>
+      <h4>{{ week }}</h4>
+    </div>
+    <div id="date">
+      <h3 class="label">day</h3>
+      <h4>{{ day }}</h4>
     </div>
     <div class="item">
       <h3 class="label">Stayed Home</h3>
@@ -67,7 +67,7 @@ export default {
 <style lang="scss" scoped>
 #header {
   display: grid;
-  grid-template-columns: 80px 80px 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 80px 80px 1fr 1fr;
   height: 100%;
 
   h3,
