@@ -394,8 +394,8 @@ export default new Vuex.Store({
         commit('setDataLoaded', true)
       })
     },
-    getGameState({state}) {
-      getGamesCollection
+    getGameState() {
+      getGamesCollection()
         .then(collectionSnapshot => {
           return collectionSnapshot.docs.map(docSnapShot => docSnapShot.data())
         })
