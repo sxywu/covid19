@@ -1,14 +1,24 @@
 <template>
-  <div id="minimap" :style='{
-    left: `${x}px`, top: `${y}px`,
+  <div
+    id="minimap"
+    :style="{
+    // left: `${x}px`, top: `${y}px`,
     width: `${width}px`, height: `${height}px`,
-  }'>
-    <canvas ref='canvas' :width='2 * width' :height='2 * height'
-      :style='{width: `${width}px`, height: `${height}px`}' />
-    <div class='box' :style='{
-      left: `${box.x - box.width / 2}px`, top: `${box.y - box.height / 2}px`,
-      width: `${box.width}px`, height: `${box.height}px`,
-    }' />
+  }"
+  >
+    <canvas
+      ref="canvas"
+      :width="2 * width"
+      :height="2 * height"
+      :style="{width: `${width}px`, height: `${height}px`}"
+    />
+    <div
+      class="box"
+      :style="{
+        left: `${box.x - box.width / 2}px`, top: `${box.y - box.height / 2}px`,
+        width: `${box.width}px`, height: `${box.height}px`,
+      }"
+    />
   </div>
 </template>
 
@@ -21,8 +31,14 @@ const destSize = 120
 export default {
   name: 'Minimap',
   props: [
-    'x', 'y', 'width', 'height', 'colorsByHealth',
-    'groups', 'containerWidth', 'containerHeight',
+    'x',
+    'y',
+    'width',
+    'height',
+    'colorsByHealth',
+    'groups',
+    'containerWidth',
+    'containerHeight',
   ],
   data() {
     return {
@@ -53,9 +69,9 @@ export default {
   methods: {
     setupPositions() {
       // first calculate group positions
-      const {x, y} = this.groups[0]
+      const { x, y } = this.groups[0]
       const groups = _.union(
-        _.map(this.groups, d => Object.assign(d, {fx: d.x, fy: d.y})),
+        _.map(this.groups, d => Object.assign(d, { fx: d.x, fy: d.y })),
         _.times(this.community.numGroups - this.groups.length, i => {
           return {
             x: p5.prototype.randomGaussian(x, this.width * 30),
@@ -70,44 +86,51 @@ export default {
       const height = maxY - minY
       const scale = Math.max(this.width / width, this.height / height)
       this.people = _.chain(this.community.people)
-        .map(({houseIndex}, i) => {
+        .map(({ houseIndex }, i) => {
           if (i % 15) return
-          let {x, y} = groups[this.community.houses[houseIndex].groupIndex]
+          let { x, y } = groups[this.community.houses[houseIndex].groupIndex]
           x = p5.prototype.randomGaussian(x, 3 * destSize) // jitter it
           y = p5.prototype.randomGaussian(y, 3 * destSize)
           // then scale it
           x = (x - minX) * scale
           y = (y - minY) * scale
-          return {x, y, i}
-        }).filter().value()
+          return { x, y, i }
+        })
+        .filter()
+        .value()
 
       this.box = {
-        x: (x - minX) * scale, width: this.containerWidth * scale,
-        y: (y - minY) * scale, height: window.innerHeight * scale,
+        x: (x - minX) * scale,
+        width: this.containerWidth * scale,
+        y: (y - minY) * scale,
+        height: window.innerHeight * scale,
       }
     },
     colorMap() {
       this.ctx.clearRect(0, 0, this.width, this.height)
       // go through and color
       _.chain(this.people)
-        .sortBy(({i}) => this.infected[i].health)
-        .each(({x, y, i}) => {
-          const {health} = this.infected[i]
+        .sortBy(({ i }) => this.infected[i].health)
+        .each(({ x, y, i }) => {
+          const { health } = this.infected[i]
           if (health > 3) return
           this.ctx.fillStyle = this.colorsByHealth[health]
           this.ctx.beginPath()
           this.ctx.arc(x, y, 1, 0, 2 * Math.PI)
           this.ctx.fill()
-        }).value()
+        })
+        .value()
     },
   },
 }
 </script>
 
-<style>
+<style lang="scss">
 #minimap {
-  position: absolute;
-  border: 1px solid #efefef;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid $gray;
   background: rgba(255, 255, 255, 0.9);
 }
 
