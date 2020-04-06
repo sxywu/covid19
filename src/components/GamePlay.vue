@@ -34,20 +34,16 @@
           </div>
           <!-- DECISION SCREEN -->
           <div class="decision" v-if="showDecision">
-            <Decide
-              v-bind="{
+            <Decide v-bind="{
                 onUpdate: updateDecision,
-              }"
-            />
+              }" />
           </div>
         </div>
       </div>
       <!-- RIGHT PANEL -->
       <div id="rightPanel">
-        <CommunityStats v-bind='{healthStatus}' />
-        <Hospital
-          v-bind="{colorsByHealth, width: rightWidth, tl, phases, playTimeline}"
-        />
+        <CommunityStats v-bind="{healthStatus}" />
+        <Hospital v-bind="{colorsByHealth, width: rightWidth, tl, phases, playTimeline}" />
       </div>
       <!-- BOTTOM PANEL -->
       <div id="bottomPanel">
@@ -121,9 +117,9 @@ export default {
       width: window.innerWidth,
       height: window.innerHeight,
       topHeight: 40,
-      rightWidth: 360,
+      rightWidth: 320,
       bottomHeight: 150,
-      tl: new gsap.timeline({paused: true}),
+      tl: new gsap.timeline({ paused: true }),
       phases: [0.5, 0.75, 0.75],
       groups: [],
       showDecision: false,
@@ -238,6 +234,9 @@ export default {
 
 #topPanel {
   grid-column: 1 / 3;
+  width: 100%;
+  top: 0;
+  border-bottom: 1px solid $gray;
 }
 
 #communityPanel {
@@ -281,13 +280,6 @@ export default {
 
 .panel {
   position: absolute;
-  background: rgba(255, 255, 255, 0.9);
-}
-
-#topPanel {
-  width: 100%;
-  top: 0;
-  border-bottom: 1px solid $gray;
 }
 
 #rightPanel {

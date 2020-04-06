@@ -18,21 +18,29 @@
           <ProgressBar v-bind="{value: filledBeds, maxValue: totalAvailableBeds}" />
           <div class="mt2">
             <strong>{{ formatNumber(filledBeds) }}</strong> beds are filled
-            out of <strong>{{ formatNumber(totalAvailableBeds) }}</strong> available
+            out of
+            <strong>{{ formatNumber(totalAvailableBeds) }}</strong> available
           </div>
         </div>
       </div>
     </div>
     <div class="mt3">
       <h2>How many times will you go out this week?</h2>
-      <div>
+      <div class="numTimes">
         <input type="range" min="0" max="7" v-model="numTimes" />
-        {{ numTimes }}
+        <div class="labels">
+          <div v-for="(value) in range" v-bind:key="value">
+            <label for="range" v-if="value === numTimes" style="font-weight: bold;">{{ value }}</label>
+            <label for="range" v-if="value !== numTimes">{{ value }}</label>
+          </div>
+        </div>
+        <div>
+          (1) go for a walk AND (2) buy groceries AND (3) go for a run AND (4) lunch with a friend AND (5) dinner with family AND (6) go to a house party AND (7) go to a concert
+        </div>
+        <!-- <output for="range">{{ numTimes }}</output> -->
       </div>
-      <div>
-        (1) go for a walk AND (2) buy groceries AND (3) go for a run AND (4) lunch with a friend AND (5) dinner with family AND (6) go to a house party AND (7) go to a concert
-      </div>
-      <button @click="onUpdate(numTimes)" class="decideBtn">Start Next Week →</button>
+
+      <button @click="onUpdate(numTimes)" class="decideBtn mt3">Start Next Week →</button>
     </div>
   </div>
 </template>
@@ -55,6 +63,7 @@ export default {
       virusImage,
       bedImage,
       numTimes: 0,
+      range: ['0', '1', '2', '3', '4', '5', '6', '7'],
     }
   },
   computed: {
@@ -87,6 +96,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import '../styles/range';
+
 #decideArea {
   width: 100%;
   height: 100%;
@@ -96,7 +107,6 @@ export default {
   margin-bottom: 30px;
   margin-right: auto;
   margin-left: auto;
-  max-width: 600px;
 }
 
 .info {
@@ -171,5 +181,19 @@ export default {
 
 .align-justify {
   text-align: justify;
+}
+
+.numTimes {
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  .labels {
+    margin: 0 auto;
+    max-width: 550px;
+    justify-content: flex-start;
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(8, 12.5%);
+  }
 }
 </style>
