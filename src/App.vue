@@ -32,7 +32,7 @@ export default {
       ],
       colorsByHealth: [
         '#e1e0ed',
-        '#8058b6',
+        '#63cbe2',
         '#8f6dbd',
         '#fe8f55',
         '#fe476f',
@@ -49,12 +49,34 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
+*,
+*:before,
+*:after {
+  box-sizing: border-box;
+}
 #app {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $text;
+  padding: 2rem;
+  padding-bottom: 5rem;
+  background-color: $gray;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
 button {
   font-size: 1.25em;
   margin-top: 20px;
+}
+
+.label {
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin: 0;
 }
 </style>
