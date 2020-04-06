@@ -1,4 +1,11 @@
 import Firebase from 'firebase/app'
 import {config} from './credentials'
+import isEmpty from 'lodash/isEmpty'
 
-export const App = Firebase.initializeApp(config)
+let App
+if (isEmpty(config)) {
+  console.warn('firebase config is empty, these sessions wont be saved.')
+} else {
+  App = Firebase.initializeApp(config)
+}
+export {App}

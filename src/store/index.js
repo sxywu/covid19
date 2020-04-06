@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import * as d3 from 'd3'
 import _ from 'lodash'
-import {gamesCollection} from '../firebase/db'
+import {getGamesInstance, getGamesCollection} from '../firebase/db'
 
 Vue.use(Vuex)
 
@@ -395,15 +395,14 @@ export default new Vuex.Store({
       })
     },
     getGameState({state}) {
-      gamesCollection.get().then(collectionSnapshot => {
-        const games = collectionSnapshot.docs.map(docSnapShot =>
-          docSnapShot.data(),
-        )
-        console.log({games})
-      })
+      getGamesCollection
+        .then(collectionSnapshot => {
+          return collectionSnapshot.docs.map(docSnapShot => docSnapShot.data())
+        })
+        .catch(console.warn)
     },
     storeGame({state}) {
-      gamesCollection.doc(state.gameId).set({
+      getGamesInstance(state.gameId).set({
         ...state,
       })
     },
