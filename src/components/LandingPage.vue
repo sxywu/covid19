@@ -13,7 +13,7 @@ export default {
   name: 'LandingPage',
   data() {
     return {
-      zipCode: null,
+      zipCode: '60605',
     }
   },
   methods: {
