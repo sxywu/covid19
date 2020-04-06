@@ -10,11 +10,13 @@
         <h4>{{ formatNumber(avoided) }}</h4>
       </div>
     </header>
-    <div class="item" v-for="num in [4, 5, 1]">
-      <h4>{{ formatNumber(current[num] || 0) }}</h4>
-      <div>
+    <div class="bars">
+      <div class="item" v-for="num in [4, 5, 1]" v-bind:key="num">
         <h3 class="label">{{ healthStatus[num] }}</h3>
-        <ProgressBar v-bind="{value: current[num], maxValue: current.total}" />
+        <div class="value">
+          <h4 style="margin-right: 10px;">{{ formatNumber(current[num] || 0) }}</h4>
+          <ProgressBar v-bind="{value: current[num], maxValue: current.total}" />
+        </div>
       </div>
     </div>
   </div>
@@ -65,13 +67,15 @@ export default {
 
 <style lang="scss" scoped>
 #communityStats {
-  padding: 1rem;
 }
 
 header {
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-gap: 1rem;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border-bottom: 1px solid $gray;
   div {
     display: flex;
     flex-direction: column;
@@ -86,16 +90,31 @@ header {
     margin-top: 0.25rem;
   }
 }
+.bars {
+  border-bottom: 1px solid $gray;
+  padding-bottom: 0.5rem;
+}
 .item {
-  display: grid;
-  grid-template-columns: 1fr 3fr;
-  grid-gap: 1rem;
-  // display: flex;
-  // align-items: flex-start;
-  // justify-content: center;
-  // flex-direction: column;
+  padding: 0.5rem 1rem;
+  // display: grid;
+  // grid-gap: 1rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  flex-direction: column;
+  margin-bottom: 0.25rem;
+  .value {
+    width: 100%;
+    display: grid;
+    align-items: center;
+    grid-template-columns: 20% auto;
+  }
+  h4 {
+    margin: 0;
+    padding: 0;
+  }
   h3 {
-    padding-bottom: 3px;
+    margin-bottom: 5px;
   }
   progress {
     margin-top: 4px;

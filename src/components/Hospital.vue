@@ -35,7 +35,7 @@ export default {
   props: ['width', 'colorsByHealth', 'tl', 'phases', 'playTimeline'],
   data() {
     return {
-      height: 430,
+      height: 500,
       bedWidth: 211,
       bedHeight: 197,
       beds: [],
