@@ -99,7 +99,7 @@ export default {
       topHeight: 40,
       rightWidth: 360,
       bottomHeight: 150,
-      tl: new gsap.timeline({paused: true}),
+      tl: new gsap.timeline({ paused: true }),
       phases: [0.5, 1, 1],
       groups: [],
       showDecision: false,
@@ -200,6 +200,9 @@ export default {
 
 #topPanel {
   grid-column: 1 / 3;
+  width: 100%;
+  top: 0;
+  border-bottom: 1px solid $gray;
 }
 
 #communityPanel {
@@ -216,6 +219,7 @@ export default {
   grid-column: 2;
   grid-row-start: 2;
   grid-row-end: 4;
+  border-left: 1px solid $gray;
 }
 
 #bottomPanel {
@@ -244,18 +248,6 @@ export default {
 .panel {
   position: absolute;
   background: rgba(255, 255, 255, 0.9);
-}
-
-#topPanel {
-  width: 100%;
-  top: 0;
-  border-bottom: 1px solid $gray;
-}
-
-#rightPanel {
-  right: 0px;
-  bottom: 0px;
-  border-left: 1px solid $gray;
 }
 
 #bottomPanel {
