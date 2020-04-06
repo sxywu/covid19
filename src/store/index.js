@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import * as d3 from 'd3'
 import _ from 'lodash'
-import {gamesCollection} from '../db'
+import {gamesCollection} from '../firebase/db'
 
 Vue.use(Vuex)
 
