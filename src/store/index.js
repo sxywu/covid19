@@ -198,6 +198,10 @@ export default new Vuex.Store({
             }
           }
 
+          const symptomaticIfInfected = +(Math.random() < 0.8)
+          const hospitalIfInfected = +(symptomaticIfInfected && Math.random() < 0.25)
+          const dieIfInfected = +(hospitalIfInfected && Math.random() < 0.12)
+          const dieIfNotHospitalized = +(hospitalIfInfected && Math.random() < 0.4)
           people.push({
             index: personIndex + i,
             id: `person${personIndex + i}`,
@@ -205,10 +209,10 @@ export default new Vuex.Store({
             age,
             ageGroup,
             susceptibility: 0.03, // TODO: UPDATE
-            symptomaticIfInfected: +(Math.random() < 0.8), // TODO: updated based on age
-            hospitalIfInfected: +(Math.random() < 0.2), // TODO: updated based on age
-            dieIfInfected: +(Math.random() < 0.03), // TODO: updated based on age
-            dieIfNotHospitalized: +(Math.random() < 0.1), // TODO: update based on age
+            symptomaticIfInfected, // TODO: updated based on age
+            hospitalIfInfected, // TODO: updated based on age
+            dieIfInfected, // TODO: updated based on age
+            dieIfNotHospitalized, // TODO: update based on age
           })
         })
 
@@ -303,7 +307,7 @@ export default new Vuex.Store({
           infectedDestinations,
           infectedHouses
         )
-        let inHospital = false
+        let inHospital = prevInHospital
         if (health === 4) {
           // if the person is in severe condition
           numSevere += 1
