@@ -2,7 +2,8 @@
   <div id="areaChart">
     <svg :width="width" :height="height">
       <text :x="margin.right" dy="1em" class="label">Infected cases by day</text>
-      <path v-for="d in paths" :key="d.id" :d="d.path" :fill="d.color" />
+      <path v-for="d in paths" :key="d.id" :d="d.path" fill="none"
+        :stroke="d.color" stroke-width="2" />
       <g ref="xAxis" :transform="`translate(0, ${height - margin.bottom})`" />
       <g ref="yAxis" :transform="`translate(${margin.left}, 0)`" />
     </svg>
@@ -16,7 +17,7 @@ import _ from 'lodash'
 const healthStatus = [4, 3, 2, 5]
 const margin = {top: 20, right: 20, bottom: 20, left: 30}
 export default {
-  name: 'AreaChart',
+  name: 'LineChart',
   props: [
     'height',
     'ageGroups',
@@ -46,9 +47,8 @@ export default {
       .scaleLinear()
       .range([this.height - margin.bottom, margin.top])
 
-    this.areaGenerator = d3
-      .area()
-      .y0(this.yScale(0))
+    this.lineGenerator = d3
+      .line()
       .curve(d3.curveCatmullRom)
 
     this.xAxis = d3.axisBottom().scale(this.xScale).ticks(7)
@@ -69,21 +69,21 @@ export default {
   watch: {
     day() {
       if (this.day === 1) {
-        this.startAreaChart()
+        this.startLineChart()
       }
     },
     infected() {
-      this.updateAreaChart()
+      this.updateLineChart()
     },
   },
   methods: {
-    startAreaChart() {
+    startLineChart() {
       this.healthByDay = [{ day: 0, 4: 0, 3: 0, 2: 0 }]
       this.paths = _.map(healthStatus.reverse(), health => {
         return { id: health, path: '', color: this.colorsByHealth[health] }
       })
     },
-    updateAreaChart() {
+    updateLineChart() {
       this.xScale.domain([0, Math.max(this.day, 7)])
 
       this.healthByDay.push(
@@ -102,7 +102,7 @@ export default {
           })
           return {
             id: stack.key,
-            path: this.areaGenerator(points),
+            path: this.lineGenerator(points),
           }
         })
         .keyBy('id')

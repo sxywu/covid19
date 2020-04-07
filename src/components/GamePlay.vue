@@ -63,7 +63,7 @@
             playTimeline,
           }"
         />
-        <AreaChart
+        <LineChart
           v-bind="{
             height: bottomHeight,
             ageGroups,
@@ -93,7 +93,7 @@ import CommunityStats from './CommunityStats'
 import Minimap from './Minimap'
 import Hospital from './Hospital'
 import BarChart from './BarChart'
-import AreaChart from './AreaChart'
+import LineChart from './LineChart'
 import Header from './Header'
 import Legend from './Legend'
 
@@ -110,7 +110,7 @@ export default {
     Minimap,
     Hospital,
     BarChart,
-    AreaChart,
+    LineChart,
     Header,
     Legend,
   },
