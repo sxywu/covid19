@@ -44,7 +44,6 @@
       </div>
       <!-- BOTTOM PANEL -->
       <div id="bottomPanel">
-        <Legend />
         <BarChart
           v-bind="{
             height: bottomHeight,
@@ -65,6 +64,7 @@
             playTimeline,
           }"
         />
+        <Legend v-bind="{healthStatus, colorsByHealth}" />
       </div>
       <!-- DECISION SCREEN -->
       <Decide v-if="showDecision" v-bind="{
@@ -119,7 +119,7 @@ export default {
       height: window.innerHeight,
       topHeight: 40,
       rightWidth: 320,
-      bottomHeight: 160,
+      bottomHeight: 180,
       tl: new gsap.timeline({ paused: true }),
       phases: [0.5, 0.75, 0.75],
       groups: [],
@@ -259,7 +259,7 @@ export default {
 
 #bottomPanel {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr min-content;
   grid-row: 3;
   padding: 1rem;
 }
