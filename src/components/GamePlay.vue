@@ -188,7 +188,7 @@ export default {
         this.tl.add(label, `${prevLabel}+=${d}`)
         prevLabel = label
       })
-      this.$store.commit('setDay', this.day + 1)=
+      this.$store.commit('setDay', this.day + 1)
       if (this.currentCommunityHealth) {
         this.$store.commit(
           'setDailyHealthStatusCounts',
