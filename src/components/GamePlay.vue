@@ -19,25 +19,17 @@
             setGroups,
           }"
         />
-        <div id="actions">
-          <!-- MINIMAP -->
-          <div id="minimapContainer">
-            <Minimap
-              v-bind="{
-                ...minimapDimensions,
-                groups,
-                colorsByHealth,
-                containerWidth: width,
-                containerHeight: height,
-              }"
-            />
-          </div>
-          <!-- DECISION SCREEN -->
-          <div class="decision" v-if="showDecision">
-            <Decide v-bind="{
-                onUpdate: updateDecision,
-              }" />
-          </div>
+        <!-- MINIMAP -->
+        <div id="minimapContainer">
+          <Minimap
+            v-bind="{
+              ...minimapDimensions,
+              groups,
+              colorsByHealth,
+              containerWidth: width,
+              containerHeight: height,
+            }"
+          />
         </div>
       </div>
       <!-- RIGHT PANEL -->
@@ -74,6 +66,10 @@
           }"
         />
       </div>
+      <!-- DECISION SCREEN -->
+      <Decide v-if="showDecision" v-bind="{
+          onUpdate: updateDecision,
+        }" />
     </div>
     <div class="zipCode">
       ZIP CODE:
@@ -123,7 +119,7 @@ export default {
       height: window.innerHeight,
       topHeight: 40,
       rightWidth: 320,
-      bottomHeight: 150,
+      bottomHeight: 160,
       tl: new gsap.timeline({ paused: true }),
       phases: [0.5, 0.75, 0.75],
       groups: [],
@@ -232,6 +228,7 @@ export default {
 }
 
 .container {
+  position: relative;
   display: grid;
   height: 100%;
   grid-template-rows: 1fr 7fr 2fr;
@@ -267,15 +264,6 @@ export default {
   padding: 1rem;
 }
 
-#actions {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 #minimapContainer {
   position: relative;
   align-self: flex-end;
@@ -305,15 +293,4 @@ export default {
   right: 0px;
 }
 
-.decision {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  top: 50%;
-  left: 50%;
-  border: 1px solid $gray;
-  transform: translate(-50%, -50%);
-  background: #fff;
-  text-align: center;
-}
 </style>
