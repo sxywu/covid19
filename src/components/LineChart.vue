@@ -1,11 +1,11 @@
 <template>
   <div id="areaChart">
     <svg :width="width" :height="height">
-      <text :x="margin.right" dy="1em" class="label">Infected cases by day</text>
-      <path v-for="d in paths" :key="d.id" :d="d.path" fill="none"
-        :stroke="d.color" stroke-width="2" :stroke-dasharray="d.strokeDasharray" />
-      <g ref="xAxis" :transform="`translate(0, ${height - margin.bottom})`" />
+      <text :x="margin.right" dy="1em" class="label">Case Growth Rate</text>
       <g ref="yAxis" :transform="`translate(${margin.left}, 0)`" />
+      <path v-for="d in paths" :key="d.id" :d="d.path" fill="none"
+        :stroke="d.color" stroke-width="3" :stroke-dasharray="d.strokeDasharray" />
+      <g ref="xAxis" :transform="`translate(0, ${height - margin.bottom})`" />
     </svg>
   </div>
 </template>
@@ -31,6 +31,7 @@ export default {
       width: 320,
       margin,
       paths: [],
+      yAxis: [],
     }
   },
   created() {
@@ -47,8 +48,9 @@ export default {
 
     this.xAxis = d3.axisBottom().scale(this.xScale).ticks(7)
     this.yAxis = d3.axisLeft().scale(this.yScale)
-      .ticks(5)
-      .tickFormat(d => (d >= 1000 ? `${_.round(d / 1000, 1)}k` : d))
+      .ticks(4, d3.format(",.1s"))
+      .tickSizeOuter(0)
+      .tickSizeInner(-this.width + margin.left + margin.right)
   },
   computed: {
     day() {
@@ -78,8 +80,9 @@ export default {
       const allNumbers = _.chain(this.dailyHealthStatus)
         .map(d => _.map(types, type => d[type][this.healthStatus]))
         .flatten().value()
+      const [min, max] = d3.extent(allNumbers, d => d)
       // this.yScale.domain(d3.extent(allNumbers, d => d))
-      this.yScale.domain([1, _.max(allNumbers)])
+      this.yScale.domain([1, max]).nice()
 
       this.paths = _.map(types, id => {
         const points = _.map(this.dailyHealthStatus, d => {
@@ -99,10 +102,22 @@ export default {
           .call(this.xAxis)
         d3.select(this.$refs.yAxis)
           .transition()
+          .on('start', this.formatYAxis)
           .call(this.yAxis)
       }, `day${this.day}-1`)
 
       this.playTimeline('area')
+    },
+    formatYAxis(d, i, nodes) {
+      const container = d3.select(nodes[0])
+      container.select('path').remove()
+      container.selectAll('g')
+        .filter(d => !_.includes([10, 100, 1000, 10000, 100000], d))
+        .remove()
+      container.selectAll('line')
+        .attr('stroke-dasharray', '5')
+        .attr('stroke', '#cfcfcf')
+        .attr('shape-rendering', 'crispEdges')
     },
   },
 }
@@ -112,5 +127,13 @@ export default {
 #areaChart {
   display: inline-block;
   border-left: $gray;
+}
+
+svg {
+  overflow: visible;
+
+  line {
+    stroke: $gray;
+  }
 }
 </style>
