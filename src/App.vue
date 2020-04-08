@@ -40,6 +40,18 @@ export default {
       ],
     }
   },
+  computed: {
+    dataLoaded() {
+      return this.$store.state.dataLoaded
+    },
+  },
+  watch: {
+    dataLoaded(dataLoaded) {
+      if (dataLoaded) {
+        this.$store.dispatch('storeGame')
+      }
+    },
+  },
   created() {
     this.$store.dispatch('getRawData')
     this.$store.commit('setZipCode', '22031')

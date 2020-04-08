@@ -1,48 +1,49 @@
 import {App} from './app'
 import 'firebase/firestore'
 import isEmpty from 'lodash/isEmpty'
-let fireStore
+let noop = () => {}
+let apiService = {
+  getAllGames:noop,
+  getFilteredGames:noop,
+  getGameById:noop,
+  setGameById:noop,
+}
 if (!isEmpty(App)) {
-  fireStore = App.firestore()
-} else {
-  throw 'Firebase app not set up. This session will not be saved.'
-}
-function ApiService() {
-}
+  let fireStore = App.firestore()
+  apiService = {
+    getAllGames: () => {
+      fireStore.collection('games')
+    },
+    getFilteredGames: (filters, cb) => {
+      let query = fireStore.collection('games')
 
-ApiService.prototype.getAllGames = () => {
-  fireStore.collection('games')
-}
+      if (filters.zipCode !== 'Any') {
+        query = query.where('zipCode', '==', filters.zipCode)
+      }
 
-ApiService.prototype.getFilteredGames = (filters, cb) => {
-  let query = fireStore.collection('games')
-
-  if (filters.zipCode !== 'Any') {
-    query = query.where('zipCode', '==', filters.zipCode)
+      query
+        .get()
+        .then(collectionSnapshot => {
+          cb(collectionSnapshot.docs.map(docSnapShot => docSnapShot.data()))
+        })
+        .catch(console.warn)
+    },
+    getGameById: id => {
+      return fireStore
+        .collection('games')
+        .doc(id)
+        .get()
+    },
+    setGameById: (id, state) => {
+      return fireStore
+        .collection('games')
+        .doc(id)
+        .set(state)
+    },
   }
-  
-  query
-    .get()
-    .then(collectionSnapshot => {
-      cb(collectionSnapshot.docs.map(docSnapShot => docSnapShot.data()))
-    })
-    .catch(console.warn)
+} else {
+  console.warn('Firebase app not set up. This session will not be saved.')
 }
 
-ApiService.prototype.getGameById = id => {
-    return fireStore.collection('games')
-      .doc(id)
-      .get()
-    
-}
 
-ApiService.prototype.setGameById = (id, state) => {
-    return fireStore.collection('games')
-      .doc(id)
-      .set(state)
-  
-}
-const apiService = new ApiService()
-
-console.log({apiService})
 export {apiService}
