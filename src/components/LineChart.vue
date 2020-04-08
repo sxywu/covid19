@@ -3,7 +3,7 @@
     <svg :width="width" :height="height">
       <text :x="margin.right" dy="1em" class="label">Infected cases by day</text>
       <path v-for="d in paths" :key="d.id" :d="d.path" fill="none"
-        :stroke="d.color" stroke-width="2" />
+        :stroke="d.color" stroke-width="2" :stroke-dasharray="d.strokeDasharray" />
       <g ref="xAxis" :transform="`translate(0, ${height - margin.bottom})`" />
       <g ref="yAxis" :transform="`translate(${margin.left}, 0)`" />
     </svg>
@@ -34,17 +34,11 @@ export default {
     }
   },
   created() {
-    this.stackGenerator = d3
-      .stack()
-      .keys(healthStatus)
-      .order(d3.stackOrderNone)
-      .offset(d3.stackOffsetNone)
-
     this.xScale = d3
       .scaleLinear()
       .range([margin.left, this.width - margin.right])
     this.yScale = d3
-      .scaleLinear()
+      .scaleLog()
       .range([this.height - margin.bottom, margin.top])
 
     this.lineGenerator = d3
@@ -54,69 +48,50 @@ export default {
     this.xAxis = d3.axisBottom().scale(this.xScale).ticks(7)
     this.yAxis = d3.axisLeft().scale(this.yScale)
       .ticks(5)
-      .tickFormat(d => (d >= 1000 ? `${_.round(d / 1000)}k` : d))
-  },
-  mounted() {
+      .tickFormat(d => (d >= 1000 ? `${_.round(d / 1000, 1)}k` : d))
   },
   computed: {
     day() {
       return this.$store.state.day
     },
-    infected() {
-      return this.$store.getters.infected
+    dailyHealthStatus() {
+      return this.$store.getters.dailyHealthStatus
+    },
+    healthStatus() {
+      // which health status to show in line chart
+      // if there are deaths, and it's the start of a week
+      // then show line chart with deaths, otherwise show total case numbers
+      // return _.last(this.dailyHealthStatus)[5] && (this.day % 7 === 0) ? 5 : 'total'
+      return 'total'
     },
   },
   watch: {
-    day() {
-      if (this.day === 1) {
-        this.startLineChart()
-      }
-    },
-    infected() {
+    dailyHealthStatus() {
       this.updateLineChart()
     },
   },
   methods: {
-    startLineChart() {
-      this.healthByDay = [{ day: 0, 4: 0, 3: 0, 2: 0 }]
-      this.paths = _.map(healthStatus.reverse(), health => {
-        return { id: health, path: '', color: this.colorsByHealth[health] }
-      })
-    },
     updateLineChart() {
-      this.xScale.domain([0, Math.max(this.day, 7)])
+      this.xScale.domain([1, Math.max(this.day, 7)])
 
-      this.healthByDay.push(
-        Object.assign(_.countBy(this.infected, 'health'), { day: this.day })
-      )
+      const types = ['player', 'worstAlternate']
+      const allNumbers = _.chain(this.dailyHealthStatus)
+        .map(d => _.map(types, type => d[type][this.healthStatus]))
+        .flatten().value()
+      // this.yScale.domain(d3.extent(allNumbers, d => d))
+      this.yScale.domain([1, _.max(allNumbers)])
 
-      const stacks = this.stackGenerator(this.healthByDay)
-      this.yScale.domain([0, d3.max(_.flatten(stacks), d => d[1])])
-
-      const nextPathsById = _.chain(stacks)
-        .map(stack => {
-          const points = _.map(stack, d => {
-            let [y0, y1] = d
-            y1 = y1 || 0 // in case they are NaN
-            return [this.xScale(d.data.day), this.yScale(y1)]
-          })
-          return {
-            id: stack.key,
-            path: this.lineGenerator(points),
-          }
+      this.paths = _.map(types, id => {
+        const points = _.map(this.dailyHealthStatus, d => {
+          return [this.xScale(d.day), this.yScale(d[id][this.healthStatus])]
         })
-        .keyBy('id')
-        .value()
-
-      // set up gsap animation
-      this.tl.to(
-        this.paths,
-        {
-          path: (i, { id }) => nextPathsById[id].path,
-          duration: this.phases[1] / 2,
-        },
-        `day${this.day}-1`
-      )
+        return {
+          id,
+          color: this.colorsByHealth[this.healthStatus] || this.colorsByHealth[2],
+          path: this.lineGenerator(points),
+          strokeDasharray: id === 'player' ? 0 : 2,
+        }
+      })
       // and at same time update scales
       this.tl.add(() => {
         d3.select(this.$refs.xAxis)
