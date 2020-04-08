@@ -14,8 +14,8 @@ if (!isEmpty(App)) {
     getAllGames: () => {
       fireStore.collection('games')
     },
-    getFilteredGames: (filters, cb) => {
-      let query = fireStore.collection('games')
+    getFilteredGames: ({filters = {}, limit=100, cb = noop}) => {
+      let query = fireStore.collection('games').limit(limit)
 
       if (filters.zipCode !== 'Any') {
         query = query.where('zipCode', '==', filters.zipCode)

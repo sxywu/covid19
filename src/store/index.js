@@ -412,7 +412,7 @@ export default new Vuex.Store({
       })
     },
     getGameState() {
-      apiService.getFilteredGames({zipCode: '22031'}, console.log)
+      apiService.getFilteredGames({filters: {zipCode: '22031'}, cb: console.log})
     },
     storeGame({state: {dailyHealthStatusCounts, decisions, zipCode, gameId}, getters: {infectedCasesCount}}) {
       apiService.setGameById(gameId, {infectedCasesCount, gameId, dailyHealthStatusCounts, decisions, zipCode})
