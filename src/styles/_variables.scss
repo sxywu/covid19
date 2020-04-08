@@ -1,11 +1,17 @@
 $primary: #393939;
 $text: hsl(0, 0%, 10%);
 $gray: #f2f2f2;
+$silver: #e1e0ed;
+$aqua: #63cbe2;
+$purple: #8f6dbd;
+$orange: #fe8f55;
+$red: #fe476f;
+$darkPurple: #4b3b59;
 
 @mixin container {
   margin: 0 auto;
   width: 100%;
-  max-width: 800px;
+  max-width: 860px;
   background: white;
 }
 
@@ -27,7 +33,7 @@ $breakpoints: (
   // If the key exists in the map
   @if map-has-key($breakpoints, $breakpoint) {
     // Prints a media query based on the value
-    @media (min-width: map-get($breakpoints, $breakpoint)) {
+    @media (max-width: map-get($breakpoints, $breakpoint)) {
       @content;
     }
   }

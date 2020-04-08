@@ -1,6 +1,6 @@
 <template>
   <div id="gameplay" :style="{width: `${width}px`, height: `${height}px`}">
-    <div class="container">
+    <div class="gameContainer">
       <!-- TOP PANEL -->
       <div id="topPanel">
         <Header />
@@ -42,12 +42,14 @@
       </div>
       <!-- RIGHT PANEL -->
       <div id="rightPanel">
-        <CommunityStats v-bind="{
+        <CommunityStats
+          v-bind="{
           healthStatus,
           tl,
           phases,
           playTimeline,
-        }" />
+        }"
+        />
         <Hospital v-bind="{colorsByHealth, width: rightWidth, tl, phases, playTimeline}" />
       </div>
       <!-- BOTTOM PANEL -->
@@ -231,7 +233,7 @@ export default {
     0 100px 80px rgba(0, 0, 0, 0.03);
 }
 
-.container {
+.gameContainer {
   display: grid;
   height: 100%;
   grid-template-rows: 1fr 7fr 2fr;
