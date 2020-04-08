@@ -2,18 +2,14 @@
   <div id="landing">
     <form class="content" @submit="startPlay">
       <label class="zipInput">
-        <strong>
-          Enter Your ZIP Code
-        </strong>
+        <strong>Enter Your ZIP Code</strong>
         <input
           type="number"
           v-model="zipCode"
           placeholder="For example: 94203"
           pattern="/(^\d{5}$)|(^\d{5}-\d{4}$)/"
         />
-        <div v-if="displayZipCodeError" class="zipCodeError">
-          {{ zipCodeError }}
-        </div>
+        <div v-if="errors['zipCode']" class="zipCodeError">{{ errors['zipCode'] }}</div>
       </label>
       <button type="submit" class="playNowBtn">Start Playing →</button>
     </form>
@@ -31,12 +27,6 @@ export default {
     }
   },
   computed: {
-    zipCodeError() {
-      return _.get(this.errors, 'zipCode')
-    },
-    displayZipCodeError() {
-      return !_.isEmpty(this.zipCodeError)
-    },
     zips() {
       return this.$store.getters.allZips
     },
@@ -48,18 +38,17 @@ export default {
         this.$store.commit('setCurrentPage', 'game')
       }
     },
-    checkFormValid(e) {
-      let createError = ({ condition, event, fieldName, errorMessage }) => {
-        if (condition) {
-          this.errors[fieldName] = errorMessage
-          event.preventDefault()
-          return true
-        }
+    createFormError({ condition, event, fieldName, errorMessage }) {
+      if (condition) {
+        this.errors[fieldName] = errorMessage
+        event.preventDefault()
+        return true
       }
-
+    },
+    checkFormValid(e) {
       this.errors = {}
       let validZip = /(^\d{5}$)|(^\d{5}-\d{4}$)/
-      createError({
+      this.createFormError({
         event: e,
         condition: !validZip.test(this.zipCode),
         fieldName: 'zipCode',
@@ -67,7 +56,7 @@ export default {
       })
 
       if (_.isEmpty(this.errors.zipCode)) {
-        createError({
+        this.createFormError({
           event: e,
           condition: !_.includes(this.zips, this.zipCode),
           fieldName: 'zipCode',

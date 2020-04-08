@@ -122,8 +122,9 @@ export default new Vuex.Store({
     week({day}) {
       return Math.ceil(day / 7)
     },
-    allZips({populationsByZip}) {
-      return populationsByZip
+    allZips({dataLoaded}) {
+      if (!dataLoaded) return
+      return _.map(populationsByZip, d => d.zip)
     },
     population({zipCode, dataLoaded}) {
       if (!zipCode || !dataLoaded) return
@@ -450,10 +451,6 @@ export default new Vuex.Store({
         d3.csv('./hospitals-by-zip-code.csv', formatData),
       ]).then(([populations, hospitals]) => {
         populationsByZip = populations
-        commit(
-          'setPopulationsByZip',
-          _.map(populationsByZip, d => d.zip),
-        )
         hospitalsByZip = hospitals
         const allDecisions = _.times(totalPlayers - 1, i =>
           _.times(state.totalDays / 7, i => (i ? _.random(7) : 7)),
