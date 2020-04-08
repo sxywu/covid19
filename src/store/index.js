@@ -113,8 +113,6 @@ export default new Vuex.Store({
     week({day}) {
       return Math.ceil(day / 7)
     },
-    // infectious cases (infected.infectious == 1), 
-    // and counts of each of the 6 health statuses (infected.health == 0 - 5).
     infectedCasesCount(state, {infected}) {
       if(!infected) return
       return _.chain(infected)
