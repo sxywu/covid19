@@ -49,7 +49,7 @@ export default {
       }
     },
     checkFormValid(e) {
-      let createError = ({condition, event, fieldName, errorMessage}) => {
+      let createError = ({ condition, event, fieldName, errorMessage }) => {
         if (condition) {
           this.errors[fieldName] = errorMessage
           event.preventDefault()
@@ -82,22 +82,44 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 #landing {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(255, 255, 255, 0.95);
+  width: 100%;
+}
+
+header {
+  @include respond-to('medium') {
+    padding: 4rem;
+  }
+  padding: 2rem;
+  h1 {
+    font-size: 3rem;
+    margin-bottom: 0;
+  }
+  h2 {
+    margin-top: 0.5rem;
+    font-size: 1.75rem;
+    font-weight: normal;
+  }
+  text-align: center;
+}
+
+.container {
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+  position: relative;
+  z-index: 10;
+  box-shadow: 0 2.8px 2.2px rgba(0, 0, 0, 0.008),
+    0 6.7px 5.3px rgba(0, 0, 0, 0.012), 0 12.5px 10px rgba(0, 0, 0, 0.015),
+    0 22.3px 17.9px rgba(0, 0, 0, 0.018), 0 41.8px 33.4px rgba(0, 0, 0, 0.022),
+    0 100px 80px rgba(0, 0, 0, 0.03);
 }
 
 .content {
-  margin-left: 50%;
-  margin-top: 50%;
-  transform: translate(-50%, -50%);
-  display: flex;
-  justify-content: space-around;
+  padding: 2rem;
+  @include respond-to('medium') {
+    padding: 4rem;
+  }
 }
 
 .zipInput {
@@ -125,5 +147,16 @@ export default {
   padding: 10px 30px;
   border: none;
   border-radius: 5px;
+}
+
+.bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  min-height: 840px;
+  overflow: hidden;
+  z-index: 0;
+  background: red;
 }
 </style>

@@ -1,9 +1,9 @@
 <template>
   <div id="app">
-    <GamePlay v-bind="$data" />
-    <LandingPage v-if='currentPage === "landing"' />
-    <EndPage v-if='currentPage === "end"' />
-    <FailedPage v-if='currentPage === "failed"' />
+    <GamePlay v-bind="$data" v-if="currentPage !== 'landing'" />
+    <LandingPage v-if="currentPage === 'landing'" />
+    <EndPage v-if="currentPage === 'end'" />
+    <FailedPage v-if="currentPage === 'failed'" />
   </div>
 </template>
 
@@ -16,7 +16,10 @@ import FailedPage from './components/FailedPage'
 export default {
   name: 'App',
   components: {
-    GamePlay, LandingPage, EndPage, FailedPage,
+    GamePlay,
+    LandingPage,
+    EndPage,
+    FailedPage,
   },
   data() {
     return {
@@ -68,8 +71,6 @@ export default {
   align-items: center;
   justify-content: center;
   color: $text;
-  padding: 2rem;
-  padding-bottom: 5rem;
   background-color: $gray;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
     Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
