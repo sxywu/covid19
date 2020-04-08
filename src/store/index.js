@@ -8,6 +8,8 @@ Vue.use(Vuex)
 let populationsByZip = []
 let hospitalsByZip = []
 let prevInfected = []
+let dailyHealthStatus = []
+let dailyInfectious = []
 const totalPlayers = 20
 const foodStatus = {value: 18, maxValue: 18}
 const exerciseStatus = {value: 7, maxValue: 7}
@@ -379,6 +381,33 @@ export default new Vuex.Store({
 
       return infected
     },
+    dailyHealthStatus({day}, {infected}) {
+      if (!infected) return
+      // keeps track of all cumulative numbers for every scenario daily
+      const player = _.countBy(infected, 'health')
+      const worstAlternate = _.chain(infected).map(d => d.alternate.health).countBy().value()
+      dailyHealthStatus.push({
+        day,
+        player: Object.assign(player, {
+          total: _.sumBy([1, 2, 3, 4, 5], d => player[d] || 0),
+        }),
+        worstAlternate: Object.assign(worstAlternate, {
+          total: _.sumBy([1, 2, 3, 4, 5], d => worstAlternate[d] || 0),
+        }),
+      })
+
+      return dailyHealthStatus
+    },
+    dailyInfectious({day}, {infected}) {
+      if (!infected) return
+      dailyInfectious.push({
+        day,
+        player: _.countBy(infected, 'infectious'),
+        worstAlternate: _.chain(infected).map(d => d.alternate.infectious).countBy().value(),
+      })
+
+      return dailyInfectious
+    },
   },
   mutations: {
     setCurrentPage(state, currentPage) {
@@ -447,6 +476,8 @@ export default new Vuex.Store({
     resetGame({commit, state}) {
       // reset prevInfected
       prevInfected = []
+      dailyHealthStatus = []
+      dailyInfectious = []
 
       const allDecisions = _.clone(state.allDecisions) // to avoid mutating?
       allDecisions[0] = [7]
