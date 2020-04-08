@@ -107,10 +107,24 @@ export default new Vuex.Store({
     totalDays: 8 * 7,
     foodStatus: {value: 18, maxValue: 18},
     exerciseStatus: {value: 7, maxValue: 7},
+    dailyHealthStatusCounts: []
   },
   getters: {
     week({day}) {
       return Math.ceil(day / 7)
+    },
+    // infectious cases (infected.infectious == 1), 
+    // and counts of each of the 6 health statuses (infected.health == 0 - 5).
+    infectedCasesCount(state, {infected}) {
+      if(!infected) return
+      return _.chain(infected)
+        .filter(i=> i.infectious === 1)
+        .sumBy(i => i.infectious)
+        .value()
+    },
+    currentCommunityHealth(state, {infected}) {
+      if(!infected) return
+      return _.countBy(infected, 'health')
     },
     population({zipCode, dataLoaded}) {
       if (!zipCode || !dataLoaded) return
@@ -372,6 +386,9 @@ export default new Vuex.Store({
     setGameId(state, id) {
       state.gameId = id
     },
+    setDailyHealthStatusCounts(state, healthStatus){
+      state.dailyHealthStatusCounts.push(healthStatus)
+    }
   },
   actions: {
     getRawData({commit, state}) {
@@ -397,8 +414,8 @@ export default new Vuex.Store({
     getGameState() {
       apiService.getFilteredGames({zipCode: '22031'}, console.log)
     },
-    storeGame({state}) {
-      apiService.setGameById(state.gameId, state)
+    storeGame({state: {dailyHealthStatusCounts, decisions, zipCode, gameId}, getters: {infectedCasesCount}}) {
+      apiService.setGameById(gameId, {infectedCasesCount, gameId, dailyHealthStatusCounts, decisions, zipCode})
     },
   },
 })

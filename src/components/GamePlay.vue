@@ -85,6 +85,7 @@
 
 <script>
 import gsap from 'gsap'
+import _ from 'lodash'
 
 import Community from './Community'
 import Decide from './Decide'
@@ -149,6 +150,9 @@ export default {
         y: this.height - this.bottomHeight - height - 10,
       }
     },
+    currentCommunityHealth() {
+      return this.$store.getters.currentCommunityHealth
+    },
   },
   created() {
     this.updateDay()
@@ -173,7 +177,6 @@ export default {
       this.$store.commit('setDecision', numTimes)
       this.updateDay()
       this.$store.dispatch('storeGame')
-      this.$store.dispatch('getGameState')
     },
     updateDay() {
       this.setupDone = []
@@ -185,7 +188,13 @@ export default {
         this.tl.add(label, `${prevLabel}+=${d}`)
         prevLabel = label
       })
-      this.$store.commit('setDay', this.day + 1)
+      this.$store.commit('setDay', this.day + 1)=
+      if (this.currentCommunityHealth) {
+        this.$store.commit(
+          'setDailyHealthStatusCounts',
+          this.currentCommunityHealth,
+        )
+      }
     },
     playTimeline(child) {
       this.setupDone.push(child)
