@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import * as d3 from 'd3'
 import _ from 'lodash'
-import {getGamesInstance, getGamesCollection} from '../firebase/db'
+import {apiService} from '../firebase/db'
 
 Vue.use(Vuex)
 
@@ -395,16 +395,10 @@ export default new Vuex.Store({
       })
     },
     getGameState() {
-      getGamesCollection()
-        .then(collectionSnapshot => {
-          return collectionSnapshot.docs.map(docSnapShot => docSnapShot.data())
-        })
-        .catch(console.warn)
+      apiService.getFilteredGames({zipCode: '22031'}, console.log)
     },
     storeGame({state}) {
-      getGamesInstance(state.gameId).set({
-        ...state,
-      })
+      apiService.setGameById(state.gameId, state)
     },
   },
 })

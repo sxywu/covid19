@@ -42,7 +42,7 @@ export default {
   },
   created() {
     this.$store.dispatch('getRawData')
-    this.$store.commit('setZipCode', '94110')
+    this.$store.commit('setZipCode', '22031')
     const gameId = uuidv4()
     this.$store.commit('setGameId', gameId)
   },
