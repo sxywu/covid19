@@ -27,15 +27,15 @@
             <fieldset>
               <legend>Choose Community Size</legend>
               <div class="communitySize">
-                <div class="radio">
+                <div class="radioWrapper">
                   <input type="radio" id="urban" name="communitySize" value="Urban" />
                   <label for="urban">Urban</label>
                 </div>
-                <div class="radio">
+                <div class="radioWrapper">
                   <input type="radio" id="suburban" name="communitySize" value="Suburban" />
                   <label for="suburban">Suburban</label>
                 </div>
-                <div class="radio">
+                <div class="radioWrapper">
                   <input type="radio" id="rural" name="communitySize" value="Rural" />
                   <label for="rural">Rural</label>
                 </div>
@@ -177,7 +177,6 @@ form {
       -webkit-appearance: none;
       margin: 0;
     }
-
     input[type='number'] {
       -moz-appearance: textfield;
     }
@@ -216,7 +215,6 @@ form {
   }
   .communitySize {
     width: 100%;
-    height: 100%;
     display: grid;
     font-size: 1rem;
     grid-template-columns: 1fr 1fr 1fr;
@@ -231,27 +229,34 @@ form {
     height: 100%;
     padding: 0.75rem 0;
   }
-
-  input[type='radio'] {
-    visibility: hidden;
-    display: none;
-  }
-  .radio {
+  .radioWrapper {
     width: 100%;
     display: flex;
     &:not(:last-of-type) {
       border-right: 1px solid rgba(0, 0, 0, 0.3);
     }
   }
-
+  input[type='radio'] {
+    opacity: 0;
+    position: absolute;
+  }
+  input[type='radio'] + label {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+  }
+  input[type='radio']:focus + label {
+    outline: 1px dotted $aqua;
+    outline: 5px auto -webkit-focus-ring-color;
+  }
   input[type='radio']:checked + label {
     background: $text;
     color: white;
   }
 }
-
 header {
   padding: 4rem 4rem 0 4rem;
+  text-align: center;
   h1 {
     font-size: 3.75rem;
     margin-bottom: 0;
@@ -282,10 +287,7 @@ header {
       margin-top: 2rem;
     }
   }
-
-  text-align: center;
 }
-
 .container {
   border: 1px solid #e5e5e5;
   border-radius: 12px;
@@ -297,7 +299,6 @@ header {
     0 22.3px 17.9px rgba(0, 0, 0, 0.018), 0 41.8px 33.4px rgba(0, 0, 0, 0.022),
     0 100px 80px rgba(0, 0, 0, 0.03);
 }
-
 .content {
   display: flex;
   align-items: center;
@@ -314,11 +315,9 @@ header {
     padding: 1rem 2rem 2rem 2rem;
   }
 }
-
 .zipInput {
   display: flex;
   flex-direction: column;
-
   strong {
     margin-bottom: 5px;
   }
@@ -328,13 +327,11 @@ header {
     border-radius: 5px;
   }
 }
-
 .zipCodeError {
   padding-top: 0.5rem;
   color: $red;
   text-align: justify;
 }
-
 .playNowBtn {
   background-color: $red;
   color: #fff;
@@ -347,7 +344,6 @@ header {
     filter: brightness(0.9) contrast(1.2) saturate(0.9);
   }
 }
-
 .bg {
   position: absolute;
   top: 0;
@@ -361,7 +357,6 @@ header {
   background-position: 0 -60px;
   background-size: 1040px;
 }
-
 .people {
   margin-top: 1.5rem;
   width: 100%;
