@@ -1,6 +1,9 @@
 <template>
   <div id="app">
-    <GamePlay v-bind="$data" v-if="currentPage !== 'landing'" />
+    <GamePlay
+      v-bind="$data"
+      :style="{display: currentPage === 'landing' ? 'none' : 'block', visibility: currentPage === landing ? 'hidden' : 'visible' }"
+    />
     <LandingPage v-if="currentPage === 'landing'" />
     <EndPage v-if="currentPage === 'end'" />
     <FailedPage v-if="currentPage === 'failed'" />
