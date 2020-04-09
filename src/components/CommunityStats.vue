@@ -2,11 +2,11 @@
   <div id="communityStats">
     <header>
       <div>
-        <h3 class="label">{{ $t('total') }}</h3>
+        <h3 class="label">{{ $t('communityStats.total') }}</h3>
         <h4>{{ formatNumber(total) }}</h4>
       </div>
       <div>
-        <h3 class="label">{{ $t('avoided') }}</h3>
+        <h3 class="label">{{ $t('communityStats.avoided') }}</h3>
         <h4>{{ formatNumber(avoided) }}</h4>
       </div>
     </header>
