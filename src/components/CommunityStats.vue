@@ -124,6 +124,7 @@ header {
   h4 {
     margin: 0;
     font-size: 1.75rem;
+    font-variant-numeric: tabular-nums;
   }
   h3 {
     margin-top: 0.25rem;
@@ -149,6 +150,7 @@ header {
   h4 {
     margin: 0;
     padding: 0;
+    font-variant-numeric: tabular-nums;
   }
   h3 {
     margin-bottom: 5px;
