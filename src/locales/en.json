@@ -1,3 +1,18 @@
 {
-  "message": "hello i18n !!"
+  "title": "The Game Title",
+  "subtitle": "Lorem Ipsum Dolor Sit",
+  "or": "or",
+  "urban": "Urban",
+  "suburban": "Suburban",
+  "rural": "Rural",
+  "landing": {
+    "explanation": "The first few cases of a new infectious disease that has caused a global pandemic has also arrived in your backyard. You have twelve weeks to save as many lives as you can in your community.",
+    "instruction": "First, enter your ZIP code. We’ll find out how densely populated your community is, and how many available hospital beds are in your area. Or choose a community size that resembles area you live in:",
+    "enterZip": "Enter Your ZIP Code",
+    "chooseCommunity": "Choose Community Size",
+    "gameInstruction1": "Each week you’ll have to decide how many times to go out.",
+    "gameInstruction2": "Because this virus spreads before people show symptoms, physical distancing is crucial to slowing down its spread. But you can’t do it alone, your whole community needs to be involved. Thankfully, you have the help of all the people that have visited the site before you. These 20 players each represent 5% of your local population.",
+    "gameInstruction3": "Their decisions and yours will determine how many lives are lost or saved in your community.",
+    "buttonCta": "Start Playing →"
+  }
 }
