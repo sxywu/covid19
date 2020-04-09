@@ -21,33 +21,33 @@ export default {
       legends: [
         {
           value: 5630,
-          label: 'Uninfected',
-          color: '#CCCCCC',
+          label: this.$t('healthStatus.healthy'),
+          color: '#e1e0ed',
         },
         {
           value: 2450,
-          label: 'Asymptomatic',
-          color: '#999999',
+          label: this.$t('healthStatus.infectedAsymptomatic'),
+          color: '#8f6dbd',
         },
         {
           value: 1280,
-          label: 'Mild Symptoms',
-          color: '#999999',
+          label: this.$t('healthStatus.mildSymptoms'),
+          color: '#fe8f55',
         },
         {
           value: 980,
-          label: 'Severe Symptoms',
-          color: '#333333',
+          label: this.$t('healthStatus.severeSymptoms'),
+          color: '#fe476f',
         },
         {
           value: 300,
-          label: 'Deceased',
-          color: '#000000',
+          label: this.$t('healthStatus.deceased'),
+          color: '#4b3b59',
         },
         {
           value: 2,
-          label: 'Recovered',
-          color: '#000000',
+          label: this.$t('healthStatus.recovered'),
+          color: '#63cbe2',
         },
       ],
     }
@@ -86,4 +86,3 @@ export default {
   }
 }
 </style>
-

@@ -1,7 +1,9 @@
 <template>
   <div id="barChart">
     <svg :width="width" :height="height">
-      <text :x="margin.right" dy="1em" class="label">Infected cases by age group</text>
+      <text :x="margin.right" dy="1em" class="label">
+        {{ $t('barChart.label') }}
+      </text>
       <rect
         v-for="d in bars"
         :key="d.id"
@@ -115,8 +117,8 @@ export default {
         .groupBy('ageGroup')
         .map((people, age) => {
           return Object.assign(
-            _.countBy(people, ({ index }) => this.infected[index].health),
-            { ageGroup: this.ageGroups[age] }
+            _.countBy(people, ({index}) => this.infected[index].health),
+            {ageGroup: this.ageGroups[age]},
           )
         })
         .value()
@@ -145,12 +147,12 @@ export default {
       this.tl.to(
         this.bars,
         {
-          x: (i, { id }) => nextBarsById[id].x,
-          y: (i, { id }) => nextBarsById[id].y,
-          height: (i, { id }) => nextBarsById[id].height,
+          x: (i, {id}) => nextBarsById[id].x,
+          y: (i, {id}) => nextBarsById[id].y,
+          height: (i, {id}) => nextBarsById[id].height,
           duration: this.phases[1] / 2,
         },
-        `day${this.day}-1`
+        `day${this.day}-1`,
       )
       // and at same time update scales
       this.tl.add(() => {

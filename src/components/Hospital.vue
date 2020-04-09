@@ -1,12 +1,17 @@
 <template>
   <div id="hospital">
     <div class="stats">
-      <div>{{ filledBeds }} filled of {{ totalAvailableBeds }} available</div>
-      <div>{{ totalBeds }} total beds</div>
+      <div>
+        {{ filledBeds }} {{ $t('hospital.filledOf') }} {{ totalAvailableBeds }}
+        {{ $t('available') }}
+      </div>
+      <div>{{ totalBeds }} {{ $t('hospital.totalBeds') }}</div>
     </div>
     <svg :width="width" :height="height">
       <clipPath id="bedClip">
-        <path d="M17.72,116.38,130.36,55.75,186,87.22v15.24L78,163.75,17.39,128.3Z" />
+        <path
+          d="M17.72,116.38,130.36,55.75,186,87.22v15.24L78,163.75,17.39,128.3Z"
+        />
       </clipPath>
       <g v-for="d in beds" :transform="`translate(${d.x}, ${d.y})scale(0.2)`">
         <image :href="bedImage" />
@@ -91,7 +96,7 @@ export default {
     updateBeds() {
       if (!this.infected) return
       if (this.day === 1) {
-        _.each(this.beds, d => d.r = 0)
+        _.each(this.beds, d => (d.r = 0))
       }
 
       this.tl.to(
@@ -101,7 +106,7 @@ export default {
           duration: this.phases[1],
           stagger: 0.02,
         },
-        `day${this.day}-1`
+        `day${this.day}-1`,
       )
 
       this.playTimeline('hospital')

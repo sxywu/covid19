@@ -21,9 +21,9 @@
   "healthStatus": {
     "healthy": "Healthy",
     "recovered": "Recovered",
-    "infectedAsymptomatic": "Infected, asymptomatic",
-    "mildSymptoms": "Mild symptoms",
-    "severeSymptoms": "Severe symptoms",
+    "infectedAsymptomatic": "Asymptomatic",
+    "mildSymptoms": "Mild Symptoms",
+    "severeSymptoms": "Severe Symptoms",
     "deceased": "Deceased"
   },
   "landing": {
@@ -51,5 +51,15 @@
   "communityStats": {
     "total": "total cases",
     "avoided": "avoided cases"
+  },
+  "barChart": {
+    "label": "Infected cases by age group"
+  },
+  "areaChart": {
+    "label": "Infected cases by day"
+  },
+  "hospital": {
+    "filledOf": "filled of",
+    "totalBeds": "total beds"
   }
 }

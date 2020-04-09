@@ -1,7 +1,7 @@
 <template>
   <div id="areaChart">
     <svg :width="width" :height="height">
-      <text :x="margin.right" dy="1em" class="label">Infected cases by day</text>
+      <text :x="margin.right" dy="1em" class="label">{{ $t('areaChart.label') }}</text>
       <path v-for="d in paths" :key="d.id" :d="d.path" :fill="d.color" />
       <g ref="xAxis" :transform="`translate(0, ${height - margin.bottom})`" />
       <g ref="yAxis" :transform="`translate(${margin.left}, 0)`" />
