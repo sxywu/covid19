@@ -32,22 +32,19 @@
               }"
             />
           </div>
-          <!-- DECISION SCREEN -->
-          <div class="decision" v-if="showDecision">
-            <Decide v-bind="{
-                onUpdate: updateDecision,
-              }" />
-          </div>
         </div>
       </div>
+
       <!-- RIGHT PANEL -->
       <div id="rightPanel">
-        <CommunityStats v-bind="{
+        <CommunityStats
+          v-bind="{
           healthStatus,
           tl,
           phases,
           playTimeline,
-        }" />
+        }"
+        />
         <Hospital v-bind="{colorsByHealth, width: rightWidth, tl, phases, playTimeline}" />
       </div>
       <!-- BOTTOM PANEL -->
@@ -73,6 +70,12 @@
             playTimeline,
           }"
         />
+        <!-- DECISION SCREEN -->
+        <div class="decision" v-if="showDecision">
+          <Decide v-bind="{
+                onUpdate: updateDecision,
+              }" />
+        </div>
       </div>
     </div>
     <div class="zipCode">
@@ -232,6 +235,7 @@ export default {
 }
 
 .container {
+  position: relative;
   display: grid;
   height: 100%;
   grid-template-rows: 1fr 7fr 2fr;
@@ -309,11 +313,10 @@ export default {
   position: absolute;
   width: 100%;
   height: 100%;
-  top: 50%;
-  left: 50%;
-  border: 1px solid $gray;
-  transform: translate(-50%, -50%);
-  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.95);
   text-align: center;
 }
 </style>

@@ -31,12 +31,7 @@ export default {
   components: {
     ProgressBar,
   },
-  props: [
-    'healthStatus',
-    'tl',
-    'phases',
-    'playTimeline',
-  ],
+  props: ['healthStatus', 'tl', 'phases', 'playTimeline'],
   data() {
     return {
       total: 0,
@@ -85,17 +80,25 @@ export default {
       }
     },
     animateNumbers() {
-      this.tl.to(this.$data, {
-        total: this.current.total,
-        avoided: Math.max(this.alternate.total - this.current.total, 0),
-        duration: this.duration,
-      }, `day${this.day}`)
+      this.tl.to(
+        this.$data,
+        {
+          total: this.current.total,
+          avoided: Math.max(this.alternate.total - this.current.total, 0),
+          duration: this.duration,
+        },
+        `day${this.day}`
+      )
 
-      this.tl.to(this.items, {
-        value: (i, {num}) => this.current[num] || 0,
-        maxValue: this.current.total,
-        duration: this.duration,
-      }, `day${this.day}`)
+      this.tl.to(
+        this.items,
+        {
+          value: (i, { num }) => this.current[num] || 0,
+          maxValue: this.current.total,
+          duration: this.duration,
+        },
+        `day${this.day}`
+      )
     },
     formatNumber(number) {
       return d3.format(',')(Math.round(number))
@@ -124,6 +127,8 @@ header {
   h4 {
     margin: 0;
     font-size: 1.75rem;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -1px;
   }
   h3 {
     margin-top: 0.25rem;
@@ -149,6 +154,8 @@ header {
   h4 {
     margin: 0;
     padding: 0;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -1px;
   }
   h3 {
     margin-bottom: 5px;
