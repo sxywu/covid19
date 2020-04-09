@@ -107,7 +107,8 @@ export default new Vuex.Store({
     totalDays: 8 * 7,
     foodStatus: {value: 18, maxValue: 18},
     exerciseStatus: {value: 7, maxValue: 7},
-    dailyHealthStatusCounts: []
+    dailyHealthStatusCounts: [],
+    zipCodeHistory: []
   },
   getters: {
     week({day}) {
@@ -386,10 +387,13 @@ export default new Vuex.Store({
     },
     setDailyHealthStatusCounts(state, healthStatus){
       state.dailyHealthStatusCounts.push(healthStatus)
+    },
+    setZipCodeHistory(state, zipCodeHistory) {
+      state.zipCodeHistory = zipCodeHistory
     }
   },
   actions: {
-    getRawData({commit, state}) {
+    getRawData({commit, state, dispatch}) {
       function formatData(obj) {
         const zip = obj.zip // make sure zip doesn't get turned into integers
         return Object.assign(d3.autoType(obj), {zip}) // but everything else is formatted correctly
@@ -405,12 +409,12 @@ export default new Vuex.Store({
         //     decisions: _.times(state.totalDays, i => _.random(1)),
         //   }
         // })
-
+        dispatch('getZipCodeGameHistory')
         commit('setDataLoaded', true)
       })
     },
-    getGameState() {
-      apiService.getFilteredGames({filters: {zipCode: '22031'}, cb: console.log})
+    getZipCodeGameHistory({state: {zipCode="Any"}, commit}) {
+      apiService.getFilteredGames({filters: {zipCode}, cb: (data) => commit('setZipCodeHistory', data)})
     },
     storeGame({state: {dailyHealthStatusCounts, decisions, zipCode, gameId}, getters: {infectedCasesCount}}) {
       apiService.setGameById(gameId, {infectedCasesCount, gameId, dailyHealthStatusCounts, decisions, zipCode})
