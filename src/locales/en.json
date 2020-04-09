@@ -7,8 +7,10 @@
   "rural": "Rural",
   "food": "Food",
   "exercise": "Exercise",
-  "week": "week",
+  "week": "{count} week | {count} weeks",
   "day": "day",
+  "outOf": "out of",
+  "available": "available",
   "landing": {
     "explanation": "The first few cases of a new infectious disease that has caused a global pandemic has also arrived in your backyard. You have twelve weeks to save as many lives as you can in your community.",
     "instruction": "First, enter your ZIP code. We’ll find out how densely populated your community is, and how many available hospital beds are in your area. Or choose a community size that resembles area you live in:",
@@ -22,5 +24,13 @@
   "header": {
     "stayedHome": "Stayed Home",
     "hospitalCapacity": "Hospital Capacity"
+  },
+  "decide": {
+    "h1": "You've been fighting the virus for ",
+    "passedAway": "infected people have passed away",
+    "bedsOutOf": "beds are filled out of",
+    "h2Question": "How many times will you go out this week?",
+    "sliderExplanation": "(1) go for a walk AND (2) buy groceries AND (3) go for a run AND (4) lunch with a friend AND (5) dinner with family AND (6) go to a house party AND (7) go to a concert",
+    "cta": "Start Next Week →"
   }
 }

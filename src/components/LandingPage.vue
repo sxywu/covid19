@@ -103,7 +103,6 @@
 
 <script>
 import _ from 'lodash'
-const personImage1 = require('../assets/person-1.svg')
 
 export default {
   name: 'LandingPage',

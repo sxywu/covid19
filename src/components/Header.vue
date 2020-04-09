@@ -33,7 +33,7 @@
       </div>
     </div>
     <div id="date">
-      <h3 class="label">{{ $t('week') }}</h3>
+      <h3 class="label">{{ $tc('week', 1, {count: ''}) }}</h3>
       <h4>{{ week }}</h4>
     </div>
     <div id="date">
@@ -70,7 +70,7 @@
         />
       </svg>
       <div class="item-content">
-        <h3 class="label">{{ $t('hospitalCapacity') }}</h3>
+        <h3 class="label">{{ $t('header.hospitalCapacity') }}</h3>
         <ProgressBar
           v-bind="{value: filledBeds, maxValue: totalAvailableBeds}"
         />
