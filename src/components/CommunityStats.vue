@@ -2,16 +2,20 @@
   <div id="communityStats">
     <header>
       <div>
-        <h3 class="label">total cases</h3>
+        <h3 class="label">{{ $t('total') }}</h3>
         <h4>{{ formatNumber(total) }}</h4>
       </div>
       <div>
-        <h3 class="label">avoided cases</h3>
+        <h3 class="label">{{ $t('avoided') }}</h3>
         <h4>{{ formatNumber(avoided) }}</h4>
       </div>
     </header>
     <div class="bars">
-      <div class="item" v-for="({label, value, maxValue}) in items" v-bind:key="label">
+      <div
+        class="item"
+        v-for="{label, value, maxValue} in items"
+        v-bind:key="label"
+      >
         <h3 class="label">{{ label }}</h3>
         <div class="value">
           <h4 style="margin-right: 10px;">{{ formatNumber(value) }}</h4>
@@ -31,12 +35,7 @@ export default {
   components: {
     ProgressBar,
   },
-  props: [
-    'healthStatus',
-    'tl',
-    'phases',
-    'playTimeline',
-  ],
+  props: ['healthStatus', 'tl', 'phases', 'playTimeline'],
   data() {
     return {
       total: 0,
@@ -85,17 +84,25 @@ export default {
       }
     },
     animateNumbers() {
-      this.tl.to(this.$data, {
-        total: this.current.total,
-        avoided: Math.max(this.alternate.total - this.current.total, 0),
-        duration: this.duration,
-      }, `day${this.day}`)
+      this.tl.to(
+        this.$data,
+        {
+          total: this.current.total,
+          avoided: Math.max(this.alternate.total - this.current.total, 0),
+          duration: this.duration,
+        },
+        `day${this.day}`,
+      )
 
-      this.tl.to(this.items, {
-        value: (i, {num}) => this.current[num] || 0,
-        maxValue: this.current.total,
-        duration: this.duration,
-      }, `day${this.day}`)
+      this.tl.to(
+        this.items,
+        {
+          value: (i, {num}) => this.current[num] || 0,
+          maxValue: this.current.total,
+          duration: this.duration,
+        },
+        `day${this.day}`,
+      )
     },
     formatNumber(number) {
       return d3.format(',')(Math.round(number))

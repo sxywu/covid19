@@ -11,6 +11,21 @@
   "day": "day",
   "outOf": "out of",
   "available": "available",
+  "ageGroups": {
+    "0": "under 19",
+    "20": "20 to 39",
+    "40": "40 to 59",
+    "60": "60 to 79",
+    "80": "over 80"
+  },
+  "healthStatus": {
+    "healthy": "Healthy",
+    "recovered": "Recovered",
+    "infectedAsymptomatic": "Infected, asymptomatic",
+    "mildSymptoms": "Mild symptoms",
+    "severeSymptoms": "Severe symptoms",
+    "deceased": "Deceased"
+  },
   "landing": {
     "explanation": "The first few cases of a new infectious disease that has caused a global pandemic has also arrived in your backyard. You have twelve weeks to save as many lives as you can in your community.",
     "instruction": "First, enter your ZIP code. We’ll find out how densely populated your community is, and how many available hospital beds are in your area. Or choose a community size that resembles area you live in:",
@@ -32,5 +47,9 @@
     "h2Question": "How many times will you go out this week?",
     "sliderExplanation": "(1) go for a walk AND (2) buy groceries AND (3) go for a run AND (4) lunch with a friend AND (5) dinner with family AND (6) go to a house party AND (7) go to a concert",
     "cta": "Start Next Week →"
+  },
+  "communityStats": {
+    "total": "total cases",
+    "avoided": "avoided cases"
   }
 }
