@@ -436,11 +436,15 @@ export default new Vuex.Store({
     setDecision(state, decision) {
       if (decision > 0) {
         // if go out more than once, then they did exercise
-        state.exerciseStatus.value += 1
+        state.exerciseStatus.value += 2
       }
       if (decision > 1) {
         // if they go out twice, 2 weeks of groceries are taken care of
         state.foodStatus.value += 14
+      }
+      if (decision > 2) {
+        // if they go out three times
+        state.exerciseStatus.value += 3
       }
       state.allDecisions[0].push(decision) // update decision for current player
     },
