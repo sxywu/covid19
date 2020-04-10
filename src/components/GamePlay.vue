@@ -44,6 +44,7 @@
       </div>
       <!-- BOTTOM PANEL -->
       <div id="bottomPanel">
+        <Legend v-bind="{healthStatus, colorsByHealth}" />
         <BarChart
           v-bind="{
             height: bottomHeight,
@@ -64,7 +65,6 @@
             playTimeline,
           }"
         />
-        <Legend v-bind="{healthStatus, colorsByHealth}" />
       </div>
       <!-- DECISION SCREEN -->
       <Decide v-if="showDecision" v-bind="{
@@ -255,13 +255,19 @@ export default {
   grid-column: 2;
   grid-row-start: 2;
   grid-row-end: 4;
+  right: 0px;
+  bottom: 0px;
+  border-left: 1px solid $gray;
 }
 
 #bottomPanel {
   display: grid;
-  grid-template-columns: 1fr 1fr min-content;
+  grid-template-columns: min-content 1fr 1fr;
   grid-row: 3;
   padding: 1rem;
+  left: 0px;
+  bottom: 0px;
+  border-top: 1px solid $gray;
 }
 
 #minimapContainer {
@@ -273,18 +279,6 @@ export default {
 
 .panel {
   position: absolute;
-}
-
-#rightPanel {
-  right: 0px;
-  bottom: 0px;
-  border-left: 1px solid $gray;
-}
-
-#bottomPanel {
-  left: 0px;
-  bottom: 0px;
-  border-top: 1px solid $gray;
 }
 
 .zipCode {
