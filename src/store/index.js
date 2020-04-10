@@ -5,6 +5,8 @@ import _ from 'lodash'
 
 Vue.use(Vuex)
 
+import diseaseNumbers from '../assets/diseaseNumbers.json'
+
 let populationsByZip = []
 let hospitalsByZip = []
 let prevInfected = []
@@ -21,10 +23,10 @@ function assignHealth(person, daysSinceInfection, prevInHospital) {
   let newHealth = 0
   let newInfectious = 0
   if (daysSinceInfection >= 14) {
-    const dies = prevInHospital ? person.dieIfInfected : person.dieIfNotHospitalized
+    const dies = prevInHospital ? person.dieIfSymptomatic : person.dieIfNotHospitalized
     newHealth = dies ? 5 : 1 // dead or recovered
     newInfectious = 0
-  } else if (daysSinceInfection >= 7 && person.hospitalIfInfected) {
+  } else if (daysSinceInfection >= 7 && person.hospitalIfSymptomatic) {
     newHealth = 4 // hospitalized
     newInfectious = 1
   } else if (daysSinceInfection >= 6) {
@@ -200,20 +202,29 @@ export default new Vuex.Store({
             }
           }
 
-          const symptomaticIfInfected = +(Math.random() < 0.8)
-          const hospitalIfInfected = +(symptomaticIfInfected && Math.random() < 0.25)
-          const dieIfInfected = +(hospitalIfInfected && Math.random() < 0.12)
-          const dieIfNotHospitalized = +(hospitalIfInfected && Math.random() < 0.4)
+          // set susceptibility and other numbers based on their age group
+          let {
+            susceptibility,
+            symptomaticIfInfected,
+            hospitalIfSymptomatic,
+            dieIfSymptomatic,
+            dieIfNotHospitalized,
+          } = diseaseNumbers['ageGroups'][ageGroup]
+          symptomaticIfInfected = +(Math.random() < symptomaticIfInfected)
+          hospitalIfSymptomatic = +(symptomaticIfInfected && Math.random() < hospitalIfSymptomatic)
+          dieIfSymptomatic = +(hospitalIfSymptomatic && Math.random() < dieIfSymptomatic)
+          dieIfNotHospitalized = +(hospitalIfSymptomatic && Math.random() < dieIfNotHospitalized)
+
           people.push({
             index: personIndex + i,
             id: `person${personIndex + i}`,
             houseIndex, // reference house person lives in
             age,
             ageGroup,
-            susceptibility: 0.03, // TODO: UPDATE
+            susceptibility, // TODO: UPDATE
             symptomaticIfInfected, // TODO: updated based on age
-            hospitalIfInfected, // TODO: updated based on age
-            dieIfInfected, // TODO: updated based on age
+            hospitalIfSymptomatic, // TODO: updated based on age
+            dieIfSymptomatic, // TODO: updated based on age
             dieIfNotHospitalized, // TODO: update based on age
           })
         })
