@@ -231,6 +231,7 @@ export default {
 }
 
 .gameContainer {
+  position: relative;
   display: grid;
   height: 100%;
   grid-template-rows: 1fr 7fr 2fr;
@@ -288,5 +289,4 @@ export default {
   top: -20px;
   right: 0px;
 }
-
 </style>
