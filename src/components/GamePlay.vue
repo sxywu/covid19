@@ -90,7 +90,6 @@
 
 <script>
 import gsap from 'gsap'
-import _ from 'lodash'
 
 import Community from './Community'
 import Decide from './Decide'
