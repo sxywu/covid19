@@ -123,7 +123,6 @@ export default new Vuex.Store({
     foodStatus: {},
     exerciseStatus: {},
     gameId: '',
-    dailyHealthStatusCounts: [],
     zipCodeHistory: [],
   },
   getters: {
@@ -551,9 +550,6 @@ export default new Vuex.Store({
     },
     setGameId(state) {
       state.gameId = uuidv4()
-    },
-    setDailyHealthStatusCounts(state, healthStatus) {
-      state.dailyHealthStatusCounts.push(healthStatus)
     },
     setZipCodeHistory(state, zipCodeHistory) {
       state.zipCodeHistory = zipCodeHistory
