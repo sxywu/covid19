@@ -1,5 +1,5 @@
 <template>
-  <div id="decideArea" class="mt85">
+  <div id="decideArea">
     <h1 class="header">You've been fighting the virus for {{ week }} week{{ week > 1 ? 's' : ''}}.</h1>
     <div class="flex info mx justify-between">
       <div class="flex w100 mr1 virus-info">
@@ -27,17 +27,19 @@
     <div class="mt3">
       <h2>How many times will you go out this week?</h2>
       <div class="numTimes">
-        <input type="range" min="0" max="7" v-model="numTimes" />
         <div class="labels">
-          <div v-for="(value) in range" v-bind:key="value">
-            <label for="range" v-if="value === numTimes" style="font-weight: bold;">{{ value }}</label>
-            <label for="range" v-if="value !== numTimes">{{ value }}</label>
+          <div v-for="({value}) in range" v-bind:key="value">
+            <label for="range" v-if="value === +numTimes" style="font-weight: bold;">{{ value }}</label>
+            <label for="range" v-if="value !== +numTimes">{{ value }}</label>
           </div>
         </div>
-        <div>
-          (1) go for a walk AND (2) buy groceries AND (3) go for a run AND (4) lunch with a friend AND (5) dinner with family AND (6) go to a house party AND (7) go to a concert
+        <input type="range" min="0" max="7" v-model="numTimes" />
+        <div class="labels">
+          <div v-for="({value, label}) in range" v-bind:key="value">
+            <label for="range" v-if="value <= numTimes" style="font-weight: bold;">{{ label }}</label>
+            <label for="range" v-if="value > numTimes">{{ label }}</label>
+          </div>
         </div>
-        <!-- <output for="range">{{ numTimes }}</output> -->
       </div>
 
       <button @click="onUpdate(numTimes)" class="decideBtn mt3">Start Next Week →</button>
@@ -63,7 +65,32 @@ export default {
       virusImage,
       bedImage,
       numTimes: 0,
-      range: ['0', '1', '2', '3', '4', '5', '6', '7'],
+      range: [
+        {
+          value: 0,
+          label: '',
+        }, {
+          value: 1,
+          label: 'go for a walk',
+        }, {
+          value: 2,
+          label: '& buy groceries',
+        }, {
+          value: 3,
+          label: '& go for a run',
+        }, {
+          value: 4,
+          label: '& lunch with a friend',
+        }, {
+          value: 5,
+          label: '& dinner with family',
+        }, {
+          value: 6,
+          label: '& go to a house party',
+        }, {
+          value: 7,
+          label: '& go to a concert'
+        }],
     }
   },
   computed: {
@@ -99,8 +126,15 @@ export default {
 @import '../styles/range';
 
 #decideArea {
+  position: absolute;
   width: 100%;
   height: 100%;
+  top: 50%;
+  left: 50%;
+  border: 1px solid $gray;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 255, 255, 0.9);
+  text-align: center;
 }
 
 .header {

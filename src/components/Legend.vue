@@ -2,12 +2,9 @@
   <div id="legend">
     <h5 class="label">Legend</h5>
     <ul>
-      <li v-for="legend in legends" :key="legend.label">
-        <span>
-          <div class="legend-circle" :style="{background: legend.color}" />
-          <!-- <span class="value">{{ legend.value }}</span> -->
-        </span>
-        <span class="legend-label">{{ legend.label }}</span>
+      <li v-for="i in [0, 2, 3, 4, 5, 1]" :key="i">
+        <div class="legend-circle" :style="{background: colorsByHealth[i]}" />
+        <span class="legend-label">{{ healthStatus[i] }}</span>
       </li>
     </ul>
   </div>
@@ -16,51 +13,14 @@
 <script>
 export default {
   name: 'Legend',
-  data() {
-    return {
-      legends: [
-        {
-          value: 5630,
-          label: 'Uninfected',
-          color: '#CCCCCC',
-        },
-        {
-          value: 2450,
-          label: 'Asymptomatic',
-          color: '#999999',
-        },
-        {
-          value: 1280,
-          label: 'Mild Symptoms',
-          color: '#999999',
-        },
-        {
-          value: 980,
-          label: 'Severe Symptoms',
-          color: '#333333',
-        },
-        {
-          value: 300,
-          label: 'Deceased',
-          color: '#000000',
-        },
-        {
-          value: 2,
-          label: 'Recovered',
-          color: '#000000',
-        },
-      ],
-    }
-  },
+  props: ['healthStatus', 'colorsByHealth'],
 }
 </script>
 
 <style lang="scss" scoped>
 #legend {
-  ul {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-  }
+  min-width: 180px;
+
   ul,
   li {
     list-style-type: none;
@@ -72,18 +32,14 @@ export default {
     grid-template-columns: 24px 1fr;
     align-items: center;
   }
-  .value {
-    font-weight: bold;
-    padding: 0 1rem 0 0.4rem;
-  }
   .legend-label {
     font-size: 12.5px;
   }
   .legend-circle {
+    display: inline-block;
     width: 16px;
     height: 16px;
     border-radius: 50%;
   }
 }
 </style>
-
