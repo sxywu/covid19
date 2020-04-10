@@ -4,7 +4,8 @@
       <text :x="margin.right" dy="1em" class="label">Case Growth Rate</text>
       <g ref="yAxis" :transform="`translate(${margin.left}, 0)`" />
       <path v-for="d in paths" :key="d.id" :d="d.path" fill="none"
-        :stroke="d.color" stroke-width="3" :stroke-dasharray="d.strokeDasharray" />
+        :stroke="d.color" stroke-width="2"
+        stroke-linecap="round" :stroke-dasharray="d.strokeDasharray" />
       <g ref="xAxis" :transform="`translate(0, ${height - margin.bottom})`" />
     </svg>
   </div>
@@ -15,7 +16,7 @@ import * as d3 from 'd3'
 import _ from 'lodash'
 
 const healthStatus = [4, 3, 2, 5]
-const margin = {top: 20, right: 20, bottom: 20, left: 30}
+const margin = {top: 30, right: 20, bottom: 20, left: 30}
 export default {
   name: 'LineChart',
   props: [
@@ -76,7 +77,7 @@ export default {
     updateLineChart() {
       this.xScale.domain([1, Math.max(this.day, 7)])
 
-      const types = ['player', 'worstAlternate']
+      const types = ['player', 'worstAlternate', 'bestAlternate']
       const allNumbers = _.chain(this.dailyHealthStatus)
         .map(d => _.map(types, type => d[type][this.healthStatus]))
         .flatten().value()
@@ -92,7 +93,7 @@ export default {
           id,
           color: this.colorsByHealth[this.healthStatus] || this.colorsByHealth[2],
           path: this.lineGenerator(points),
-          strokeDasharray: id === 'player' ? 0 : 2,
+          strokeDasharray: id === 'player' ? 0 : (id === 'worstAlternate' ? '2 4' : '12'),
         }
       })
       // and at same time update scales
