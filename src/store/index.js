@@ -50,9 +50,13 @@ function healthAndDestination(
   prevInHospital,
   playerGoesOut,
   infectedDestinations,
-  infectedHouses
+  infectedHouses,
 ) {
-  const {health, infectious} = assignHealth(person, daysSinceInfection, prevInHospital)
+  const {health, infectious} = assignHealth(
+    person,
+    daysSinceInfection,
+    prevInHospital,
+  )
 
   let destination = -1 // default to home
   if (health < 3 && playerGoesOut) {
@@ -85,14 +89,15 @@ function infectPerson(
   destination,
   susceptibility,
   infectedDestinations,
-  infectedHouses
+  infectedHouses,
 ) {
   const timesExposed =
     (infectedDestinations[destination] || 0) + (infectedHouses[house] || 0)
   // if didn't get exposed, don't need to update
   if (!timesExposed) return
   // ( 1 - ( ( 1 - susceptibility ) ^ number of exposures ) ) > random number from 0-1
-  const infected = 1 - Math.pow( 1 - susceptibility, timesExposed ) > Math.random()
+  const infected =
+    1 - Math.pow(1 - susceptibility, timesExposed) > Math.random()
   if (!infected) return
 
   Object.assign(obj, {
@@ -118,6 +123,10 @@ export default new Vuex.Store({
     week({day}) {
       return Math.ceil(day / 7)
     },
+    allZips({dataLoaded}) {
+      if (!dataLoaded) return
+      return _.map(populationsByZip, d => d.zip)
+    },
     population({zipCode, dataLoaded}) {
       if (!zipCode || !dataLoaded) return
       return _.find(populationsByZip, d => d.zip === zipCode)
@@ -142,8 +151,8 @@ export default new Vuex.Store({
     },
     filledBeds(state, {infected, totalAvailableBeds}) {
       return Math.min(
-        _.sumBy(infected, ({ health }) => health === 4), // hospitalized
-        totalAvailableBeds
+        _.sumBy(infected, ({health}) => health === 4), // hospitalized
+        totalAvailableBeds,
       )
     },
     community(state, {population}) {
@@ -238,16 +247,16 @@ export default new Vuex.Store({
       _.times(numDestGroups, groupIndex => {
         const housesIndicesInGroup = _.range(
           groupIndex * housesPerGroup,
-          (groupIndex + 1) * housesPerGroup
+          (groupIndex + 1) * housesPerGroup,
         )
         const destIndicesInGroup = _.union(
           _.range(groupIndex * destPerGroup, (groupIndex + 1) * destPerGroup),
           _.times(3, i =>
             _.random(
               (groupIndex + 2) * destPerGroup,
-              (groupIndex + 4) * destPerGroup
-            )
-          )
+              (groupIndex + 4) * destPerGroup,
+            ),
+          ),
         )
         _.each(
           housesIndicesInGroup,
@@ -256,7 +265,7 @@ export default new Vuex.Store({
             Object.assign(houses[i], {
               groupIndex,
               destinations: destIndicesInGroup,
-            })
+            }),
         )
       })
 
@@ -286,7 +295,7 @@ export default new Vuex.Store({
         prevInfected = _.map(people, (person, i) => {
           // And then assign days for those randomly between 1 and 6.
           // We'll probably want to change this, but it gives us something to work with.
-          let daysSinceInfection = i % 1000 ? 0 : _.random(1, 4);
+          let daysSinceInfection = i % 1000 ? 0 : _.random(1, 4)
           let {health, infectious} = assignHealth(person, daysSinceInfection)
 
           return {
@@ -329,7 +338,7 @@ export default new Vuex.Store({
           prevInHospital,
           weeklyDecisions[i % totalPlayers].player[(day - 1) % 7],
           infectedDestinations,
-          infectedHouses
+          infectedHouses,
         )
         let inHospital = prevInHospital
         if (health === 4) {
@@ -402,7 +411,7 @@ export default new Vuex.Store({
             destination,
             people[index].susceptibility,
             infectedDestinations,
-            infectedHouses
+            infectedHouses,
           )
         }
         if (person.worstAlternate.health === 0) {
@@ -527,7 +536,8 @@ export default new Vuex.Store({
         populationsByZip = populations
         hospitalsByZip = hospitals
         const allDecisions = _.times(totalPlayers - 1, i =>
-          _.times(state.totalDays / 7, i => i ? _.random(7) : 7))
+          _.times(state.totalDays / 7, i => (i ? _.random(7) : 7)),
+        )
         allDecisions.unshift([7]) // add this player's decision at beginning, assume they go out every day
 
         commit('setDataLoaded', true)

@@ -1,25 +1,75 @@
 <template>
   <div id="landing">
-    <div class='content'>
-      Enter zip code:
-      <input type='number' v-model='zipCode' />
-      <button @click='startPlay'>Start Playing →</button>
-    </div>
+    <form class="content" @submit="startPlay">
+      <label class="zipInput">
+        <strong>
+          Enter Your ZIP Code
+        </strong>
+        <input
+          type="number"
+          v-model="zipCode"
+          placeholder="For example: 94203"
+          pattern="/(^\d{5}$)|(^\d{5}-\d{4}$)/"
+        />
+        <div v-if="errors['zipCode']" class="zipCodeError">
+          {{ errors['zipCode'] }}
+        </div>
+      </label>
+      <button type="submit" class="playNowBtn">Start Playing →</button>
+    </form>
   </div>
 </template>
 
 <script>
+import _ from 'lodash'
 export default {
   name: 'LandingPage',
   data() {
     return {
-      zipCode: '60605',
+      errors: {},
+      zipCode: '',
     }
   },
+  computed: {
+    zips() {
+      return this.$store.getters.allZips
+    },
+  },
   methods: {
-    startPlay() {
-      this.$store.commit('setZipCode', this.zipCode)
-      this.$store.commit('setCurrentPage', 'game')
+    startPlay(e) {
+      if (this.checkFormValid(e)) {
+        this.$store.commit('setZipCode', this.zipCode)
+        this.$store.commit('setCurrentPage', 'game')
+      }
+    },
+    createFormError({condition, event, fieldName, errorMessage}) {
+      if (condition) {
+        this.errors[fieldName] = errorMessage
+        event.preventDefault()
+        return true
+      }
+    },
+    checkFormValid(e) {
+      this.errors = {}
+      let validZip = /(^\d{5}$)|(^\d{5}-\d{4}$)/
+      this.createFormError({
+        event: e,
+        condition: !validZip.test(this.zipCode),
+        fieldName: 'zipCode',
+        errorMessage: 'zipcode is invalid',
+      })
+
+      if (_.isEmpty(this.errors.zipCode)) {
+        this.createFormError({
+          event: e,
+          condition: !_.includes(this.zips, this.zipCode),
+          fieldName: 'zipCode',
+          errorMessage: 'zipcode not found, please try another',
+        })
+      }
+
+      e.preventDefault()
+      return _.isEmpty(this.errors)
     },
   },
 }
@@ -39,6 +89,34 @@ export default {
   margin-left: 50%;
   margin-top: 50%;
   transform: translate(-50%, -50%);
-  text-align: center;
+  display: flex;
+  justify-content: space-around;
+}
+
+.zipInput {
+  display: flex;
+  flex-direction: column;
+
+  strong {
+    margin-bottom: 5px;
+  }
+  input {
+    padding: 15px;
+    border: 1px solid lightgray;
+    border-radius: 5px;
+  }
+}
+
+.zipCodeError {
+  color: red;
+  text-align: justify;
+}
+
+.playNowBtn {
+  background-color: #393939;
+  color: #fff;
+  padding: 10px 30px;
+  border: none;
+  border-radius: 5px;
 }
 </style>
