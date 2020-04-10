@@ -1,13 +1,25 @@
 <template>
   <div id="lineChart">
     <svg :width="width" :height="height">
-      <text :x="margin.right" dy="1em" class="label">Case Growth Rate</text>
-      <g ref="yAxis" :transform="`translate(${margin.left}, 0)`" />
+      <text :x="margin.right" dy="1em" class="label">Total Cases Daily Growth Rate</text>
+      <g class="axis" ref="yAxis" :transform="`translate(${margin.left}, 0)`" />
       <path v-for="d in paths" :key="d.type" :d="d.path" fill="none"
-        :stroke="d.color" stroke-width="2"
+        :stroke="pathColor" stroke-width="2"
         stroke-linecap="round" :stroke-dasharray="d.strokeDasharray" />
-      <g ref="xAxis" :transform="`translate(0, ${height - margin.bottom})`" />
+      <g class="axis" ref="xAxis" :transform="`translate(0, ${height - margin.bottom})`" />
     </svg>
+    <ul class="legend">
+      <li v-for="({label, count, strokeDasharray}) in legend">
+        <div>
+          <svg :width="legendSVGWidth" height="1">
+            <line :x2="legendSVGWidth" :stroke="pathColor" stroke-width="2"
+              stroke-linecap="round" :stroke-dasharray="strokeDasharray" />
+          </svg>
+          <span class="label">  {{ formatNumber(count) }} Cases</span>
+        </div>
+        <div class="label">{{ label }}</div>
+      </li>
+    </ul>
   </div>
 </template>
 
@@ -15,7 +27,7 @@
 import * as d3 from 'd3'
 import _ from 'lodash'
 
-const types = ['player', 'worstAlternate', 'bestAlternate']
+const types = ['worstAlternate', 'player', 'bestAlternate']
 const margin = {top: 30, right: 20, bottom: 20, left: 30}
 export default {
   name: 'LineChart',
@@ -30,6 +42,8 @@ export default {
   data() {
     return {
       width: 320,
+      legendSVGWidth: 60,
+      pathColor: this.colorsByHealth[2],
       margin,
       paths: [],
       yAxis: [],
@@ -47,7 +61,9 @@ export default {
       .line()
       .curve(d3.curveCatmullRom)
 
-    this.xAxis = d3.axisBottom().scale(this.xScale).ticks(7)
+    this.xAxis = d3.axisBottom().scale(this.xScale)
+      .ticks(7).tickSizeOuter(0)
+      .tickFormat((d, i) => (!i ? 'Day ' : '') + d)
     this.yAxis = d3.axisLeft().scale(this.yScale)
       .ticks(6, d3.format(",.1s"))
       .tickSizeOuter(0)
@@ -59,6 +75,19 @@ export default {
     },
     dailyHealthStatus() {
       return this.$store.getters.dailyHealthStatus
+    },
+    legend() {
+      const latest = _.last(this.dailyHealthStatus)
+      return _.map(types, type => {
+        return {
+          strokeDasharray: type === 'player' ? 0 : (type === 'worstAlternate' ? '2 4' : '12'),
+          count: latest && latest[type].total,
+          label: type === "worstAlternate" ?
+            'Worst Case Scenario' : type === "player" ?
+            'Current Scenario' :
+            'Best Case Scenario'
+        }
+      })
     },
   },
   watch: {
@@ -76,7 +105,6 @@ export default {
       this.paths = _.map(types, type => {
         return {
           type,
-          color: this.colorsByHealth[2], // a different color for total?
           points: [],
           path: '',
           strokeDasharray: type === 'player' ? 0 : (type === 'worstAlternate' ? '2 4' : '12'),
@@ -137,6 +165,9 @@ export default {
         .attr('stroke', '#cfcfcf')
         .attr('shape-rendering', 'crispEdges')
     },
+    formatNumber(number) {
+      return d3.format(',')(Math.round(number))
+    },
   },
 }
 </script>
@@ -145,13 +176,35 @@ export default {
 #lineChart {
   display: inline-block;
   border-left: $gray;
+  display: grid;
+  grid-template-columns: repeat(2, min-content);
 }
 
 svg {
   overflow: visible;
 
-  line {
+  .axis line {
     stroke: $gray;
+  }
+}
+
+ul,
+li {
+  list-style-type: none;
+  padding: 0;
+}
+li {
+  padding: 0.25rem 0;
+  align-items: center;
+}
+
+.legend {
+  svg {
+    vertical-align: middle;
+  }
+
+  .label {
+    white-space: nowrap;
   }
 }
 </style>

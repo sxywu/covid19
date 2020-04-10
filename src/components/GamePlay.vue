@@ -36,6 +36,7 @@
       <div id="rightPanel">
         <CommunityStats v-bind="{
           healthStatus,
+          colorsByHealth,
           tl,
           phases,
           playTimeline,
@@ -262,7 +263,7 @@ export default {
 
 #bottomPanel {
   display: grid;
-  grid-template-columns: min-content 1fr 1fr;
+  grid-template-columns: 0.75fr 1fr 1.5fr;
   grid-row: 3;
   padding: 1rem;
   left: 0px;
