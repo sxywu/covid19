@@ -42,7 +42,12 @@
       </div>
       <!-- RIGHT PANEL -->
       <div id="rightPanel">
-        <CommunityStats v-bind="{healthStatus}" />
+        <CommunityStats v-bind="{
+          healthStatus,
+          tl,
+          phases,
+          playTimeline,
+        }" />
         <Hospital v-bind="{colorsByHealth, width: rightWidth, tl, phases, playTimeline}" />
       </div>
       <!-- BOTTOM PANEL -->
@@ -120,14 +125,20 @@ export default {
       rightWidth: 320,
       bottomHeight: 150,
       tl: new gsap.timeline({ paused: true }),
-      phases: [0.5, 1, 1],
+      phases: [0.5, 0.75, 0.75],
       groups: [],
       showDecision: false,
     }
   },
   computed: {
+    currentPage() {
+      return this.$store.state.currentPage
+    },
     day() {
       return this.$store.state.day
+    },
+    totalDays() {
+      return this.$store.state.totalDays
     },
     zipCode() {
       return this.$store.state.zipCode
@@ -146,15 +157,21 @@ export default {
       }
     },
   },
-  created() {
-    this.updateDay()
-  },
   mounted() {
     window.addEventListener('resize', this.calculateDimensions)
     this.calculateDimensions()
   },
   destroyed() {
     window.removeEventListener('resize', this.calculateDimensions)
+  },
+  watch: {
+    currentPage() {
+      if (this.currentPage === 'game') {
+        // if current page became "game" again that means we restarted
+        this.tl.clear(true)
+        this.updateDay()
+      }
+    },
   },
   methods: {
     setGroups(groups) {
@@ -189,8 +206,10 @@ export default {
       this.tl.add(() => {
         if (this.day % 7) {
           this.updateDay()
-        } else {
+        } else if (this.day < this.totalDays) {
           this.showDecision = true
+        } else {
+          this.$store.commit('setCurrentPage', 'end') // if we've gone through all the days, end
         }
       }, `day${this.day}-3`)
       this.tl.play(`day${this.day}`)

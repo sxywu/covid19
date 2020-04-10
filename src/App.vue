@@ -1,16 +1,22 @@
 <template>
   <div id="app">
     <GamePlay v-bind="$data" />
+    <LandingPage v-if='currentPage === "landing"' />
+    <EndPage v-if='currentPage === "end"' />
+    <FailedPage v-if='currentPage === "failed"' />
   </div>
 </template>
 
 <script>
 import GamePlay from './components/GamePlay'
+import LandingPage from './components/LandingPage'
+import EndPage from './components/EndPage'
+import FailedPage from './components/FailedPage'
 
 export default {
   name: 'App',
   components: {
-    GamePlay,
+    GamePlay, LandingPage, EndPage, FailedPage,
   },
   data() {
     return {
@@ -39,9 +45,13 @@ export default {
       ],
     }
   },
+  computed: {
+    currentPage() {
+      return this.$store.state.currentPage
+    },
+  },
   created() {
     this.$store.dispatch('getRawData')
-    this.$store.commit('setZipCode', '94110')
   },
 }
 </script>

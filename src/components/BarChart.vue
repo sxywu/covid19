@@ -65,24 +65,6 @@ export default {
       .ticks(5)
       .tickFormat(d => (d >= 1000 ? `${_.round(d / 1000)}k` : d))
   },
-  mounted() {
-    // create bars so that can animate later
-    // outer array is health status, inner is age groups
-    this.bars = _.chain(healthStatus)
-      .map(health => {
-        return _.map(_.values(this.ageGroups), ageGroup => {
-          return {
-            id: `${health}-${ageGroup}`,
-            x: this.xScale(ageGroup),
-            y: this.yScale(0),
-            height: 0,
-            color: this.colorsByHealth[health],
-          }
-        })
-      })
-      .flatten()
-      .value()
-  },
   computed: {
     day() {
       return this.$store.state.day
@@ -100,11 +82,34 @@ export default {
     },
   },
   watch: {
+    day() {
+      if (this.day === 1) {
+        this.startBarChart()
+      }
+    },
     infected() {
       this.updateBarChart()
     },
   },
   methods: {
+    startBarChart() {
+      // create bars so that can animate later
+      // outer array is health status, inner is age groups
+      this.bars = _.chain(healthStatus)
+        .map(health => {
+          return _.map(_.values(this.ageGroups), ageGroup => {
+            return {
+              id: `${health}-${ageGroup}`,
+              x: this.xScale(ageGroup),
+              y: this.yScale(0),
+              height: 0,
+              color: this.colorsByHealth[health],
+            }
+          })
+        })
+        .flatten()
+        .value()
+    },
     updateBarChart() {
       const healthByAge = _.chain(this.people)
         .groupBy('ageGroup')

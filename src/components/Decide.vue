@@ -34,8 +34,12 @@
             <label for="range" v-if="value !== numTimes">{{ value }}</label>
           </div>
         </div>
+        <div>
+          (1) go for a walk AND (2) buy groceries AND (3) go for a run AND (4) lunch with a friend AND (5) dinner with family AND (6) go to a house party AND (7) go to a concert
+        </div>
         <!-- <output for="range">{{ numTimes }}</output> -->
       </div>
+
       <button @click="onUpdate(numTimes)" class="decideBtn mt3">Start Next Week →</button>
     </div>
   </div>
@@ -58,7 +62,7 @@ export default {
     return {
       virusImage,
       bedImage,
-      numTimes: 2,
+      numTimes: 0,
       range: ['0', '1', '2', '3', '4', '5', '6', '7'],
     }
   },

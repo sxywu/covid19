@@ -3,7 +3,7 @@
     <header>
       <div>
         <h3 class="label">total cases</h3>
-        <h4>{{ formatNumber(current.total) }}</h4>
+        <h4>{{ formatNumber(total) }}</h4>
       </div>
       <div>
         <h3 class="label">avoided cases</h3>
@@ -11,11 +11,11 @@
       </div>
     </header>
     <div class="bars">
-      <div class="item" v-for="num in [4, 5, 1]" v-bind:key="num">
-        <h3 class="label">{{ healthStatus[num] }}</h3>
+      <div class="item" v-for="({label, value, maxValue}) in items" v-bind:key="label">
+        <h3 class="label">{{ label }}</h3>
         <div class="value">
-          <h4 style="margin-right: 10px;">{{ formatNumber(current[num] || 0) }}</h4>
-          <ProgressBar v-bind="{value: current[num], maxValue: current.total}" />
+          <h4 style="margin-right: 10px;">{{ formatNumber(value) }}</h4>
+          <ProgressBar v-bind="{value, maxValue}" />
         </div>
       </div>
     </div>
@@ -31,35 +31,74 @@ export default {
   components: {
     ProgressBar,
   },
-  props: ['healthStatus'],
+  props: [
+    'healthStatus',
+    'tl',
+    'phases',
+    'playTimeline',
+  ],
+  data() {
+    return {
+      total: 0,
+      avoided: 0,
+      items: _.map([4, 5, 1], num => {
+        return {
+          label: this.healthStatus[num],
+          value: 0,
+          maxValue: 0,
+          num,
+        }
+      }),
+    }
+  },
   computed: {
+    day() {
+      return this.$store.state.day
+    },
     infected() {
       return this.$store.getters.infected
     },
-    current() {
+    duration() {
+      return _.sum(this.phases)
+    },
+  },
+  watch: {
+    infected() {
+      this.calculateNumbers()
+      this.animateNumbers()
+    },
+  },
+  methods: {
+    calculateNumbers() {
       const current = _.countBy(this.infected, 'health')
-      return {
+      this.current = {
         total: _.sumBy([1, 2, 3, 4, 5], d => current[d] || 0),
         ...current,
       }
-    },
-    alternate() {
       const alternate = _.chain(this.infected)
         .map(d => d.alternate.health)
         .countBy()
         .value()
-      return {
+      this.alternate = {
         total: _.sumBy([1, 2, 3, 4, 5], d => alternate[d] || 0),
         ...alternate,
       }
     },
-    avoided() {
-      return Math.max(this.alternate.total - this.current.total, 0)
+    animateNumbers() {
+      this.tl.to(this.$data, {
+        total: this.current.total,
+        avoided: Math.max(this.alternate.total - this.current.total, 0),
+        duration: this.duration,
+      }, `day${this.day}`)
+
+      this.tl.to(this.items, {
+        value: (i, {num}) => this.current[num] || 0,
+        maxValue: this.current.total,
+        duration: this.duration,
+      }, `day${this.day}`)
     },
-  },
-  methods: {
     formatNumber(number) {
-      return d3.format(',')(number)
+      return d3.format(',')(Math.round(number))
     },
   },
 }
@@ -96,8 +135,6 @@ header {
 }
 .item {
   padding: 0.5rem 1rem;
-  // display: grid;
-  // grid-gap: 1rem;
   display: flex;
   align-items: flex-start;
   justify-content: center;
