@@ -11,11 +11,11 @@
       </div>
     </header>
     <div class="bars">
-      <div class="item" v-for="({label, value, maxValue}) in items" v-bind:key="label">
+      <div class="item" v-for="({label, value, maxValue, color}) in items" v-bind:key="label">
         <h3 class="label">{{ label }}</h3>
         <div class="value">
           <h4 style="margin-right: 10px;">{{ formatNumber(value) }}</h4>
-          <ProgressBar v-bind="{value, maxValue}" />
+          <ProgressBar v-bind="{value, maxValue, color}" />
         </div>
       </div>
     </div>
@@ -32,6 +32,7 @@ export default {
     ProgressBar,
   },
   props: [
+    'colorsByHealth',
     'healthStatus',
     'tl',
     'phases',
@@ -43,6 +44,7 @@ export default {
       avoided: 0,
       items: _.map([4, 5, 1], num => {
         return {
+          color: this.colorsByHealth[num],
           label: this.healthStatus[num],
           value: 0,
           maxValue: 0,
