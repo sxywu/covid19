@@ -254,12 +254,15 @@ export default new Vuex.Store({
     weeklyDecisions({allDecisions}, {week}) {
       return _.map(allDecisions, decisions => {
         const numTimes = decisions[week - 1]
+        const player = _.chain(7)
+          .times(i => +(i <numTimes))
+          .shuffle()
+          .value()
         return {
-          player: _.chain(7)
-            .times(i => +(i <numTimes))
-            .shuffle()
-            .value(),
-          bestAlternate: _.shuffle([1, 0, 0, 0, 0, 0, 0]),
+          player,
+          // for best alternate, have everyone go out the same amount in week 1
+          // and after week 1, only go out once a week
+          bestAlternate: week === 1 ? player : _.shuffle([1, 0, 0, 0, 0, 0, 0]),
         }
       })
     },

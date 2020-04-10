@@ -83,7 +83,7 @@ export default {
         .flatten().value()
       const [min, max] = d3.extent(allNumbers, d => d)
       // this.yScale.domain(d3.extent(allNumbers, d => d))
-      this.yScale.domain([1, max]).nice()
+      this.yScale.domain([min, max]).nice()
 
       this.paths = _.map(types, id => {
         const points = _.map(this.dailyHealthStatus, d => {
