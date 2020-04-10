@@ -277,15 +277,15 @@ export default new Vuex.Store({
             daysSinceInfection,
             health,
             infectious,
-            alternate: {health, infectious, daysSinceInfection},
+            worstAlternate: {health, infectious, daysSinceInfection},
           }
         })
       }
 
       const infectedHouses = []
       const infectedDestinations = []
-      const alternateHouses = [] // same as infectedHouses, but for alternate scenario
-      const alternateDestinations = []
+      const worstAlternateHouses = [] // same as infectedHouses, but for worstAlternate scenario
+      const worstAlternateDestinations = []
       let numSevere = 0
       let numAlternateSevere = 0
       const infected = _.map(people, (person, i) => {
@@ -294,7 +294,7 @@ export default new Vuex.Store({
           infectious: prevInfectious,
           inHospital: prevInHospital,
           daysSinceInfection,
-          alternate: prevAlternate,
+          worstAlternate: prevWorstAlternate,
         } = prevInfected[i]
 
         // calculate everyone's new health/infectiousness for current day
@@ -317,24 +317,24 @@ export default new Vuex.Store({
         }
 
 
-        // now calculate for an alternate scenario
-        prevAlternate.daysSinceInfection += !!prevAlternate.daysSinceInfection
-        const alternate = Object.assign(
+        // now calculate for an worstAlternate scenario
+        prevWorstAlternate.daysSinceInfection += !!prevWorstAlternate.daysSinceInfection
+        const worstAlternate = Object.assign(
           healthAndDestination(
             person,
             houses,
-            prevAlternate.daysSinceInfection,
-            prevAlternate.infectious,
-            prevAlternate.inHospital,
+            prevWorstAlternate.daysSinceInfection,
+            prevWorstAlternate.infectious,
+            prevWorstAlternate.inHospital,
             true,
-            alternateDestinations,
-            alternateHouses
+            worstAlternateDestinations,
+            worstAlternateHouses
           ),
-          {daysSinceInfection: prevAlternate.daysSinceInfection}
+          {daysSinceInfection: prevWorstAlternate.daysSinceInfection}
         )
-        if (alternate.health === 4) {
+        if (worstAlternate.health === 4) {
           numAlternateSevere += 1
-          alternate.inHospital = numAlternateSevere <= totalAvailableBeds
+          worstAlternate.inHospital = numAlternateSevere <= totalAvailableBeds
         }
 
         return {
@@ -345,7 +345,7 @@ export default new Vuex.Store({
           infectious,
           destination,
           inHospital,
-          alternate,
+          worstAlternate,
         }
       })
 
@@ -363,16 +363,16 @@ export default new Vuex.Store({
             infectedHouses
           )
         }
-        if (person.alternate.health === 0) {
-          // if in alternate simulation they're healthy
+        if (person.worstAlternate.health === 0) {
+          // if in worstAlternate simulation they're healthy
           // calculate whether they get infected there
           infectPerson(
-            person.alternate,
+            person.worstAlternate,
             house,
-            person.alternate.destination,
+            person.worstAlternate.destination,
             people[index].susceptibility,
-            alternateDestinations,
-            alternateHouses
+            worstAlternateDestinations,
+            worstAlternateHouses
           )
         }
       })
@@ -385,7 +385,7 @@ export default new Vuex.Store({
       if (!infected) return
       // keeps track of all cumulative numbers for every scenario daily
       const player = _.countBy(infected, 'health')
-      const worstAlternate = _.chain(infected).map(d => d.alternate.health).countBy().value()
+      const worstAlternate = _.chain(infected).map(d => d.worstAlternate.health).countBy().value()
       dailyHealthStatus.push({
         day,
         player: Object.assign(player, {
@@ -403,7 +403,7 @@ export default new Vuex.Store({
       dailyInfectious.push({
         day,
         player: _.countBy(infected, 'infectious'),
-        worstAlternate: _.chain(infected).map(d => d.alternate.infectious).countBy().value(),
+        worstAlternate: _.chain(infected).map(d => d.worstAlternate.infectious).countBy().value(),
       })
 
       return dailyInfectious

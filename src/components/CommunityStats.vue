@@ -75,19 +75,19 @@ export default {
         total: _.sumBy([1, 2, 3, 4, 5], d => current[d] || 0),
         ...current,
       }
-      const alternate = _.chain(this.infected)
-        .map(d => d.alternate.health)
+      const worstAlternate = _.chain(this.infected)
+        .map(d => d.worstAlternate.health)
         .countBy()
         .value()
-      this.alternate = {
-        total: _.sumBy([1, 2, 3, 4, 5], d => alternate[d] || 0),
-        ...alternate,
+      this.worstAlternate = {
+        total: _.sumBy([1, 2, 3, 4, 5], d => worstAlternate[d] || 0),
+        ...worstAlternate,
       }
     },
     animateNumbers() {
       this.tl.to(this.$data, {
         total: this.current.total,
-        avoided: Math.max(this.alternate.total - this.current.total, 0),
+        avoided: Math.max(this.worstAlternate.total - this.current.total, 0),
         duration: this.duration,
       }, `day${this.day}`)
 
