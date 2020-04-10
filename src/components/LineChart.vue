@@ -15,6 +15,7 @@
 import * as d3 from 'd3'
 import _ from 'lodash'
 
+const healthStatus = [4, 3, 2, 5]
 const margin = {top: 30, right: 20, bottom: 20, left: 30}
 export default {
   name: 'LineChart',
@@ -63,7 +64,8 @@ export default {
       // which health status to show in line chart
       // if there are deaths, and it's the start of a week
       // then show line chart with deaths, otherwise show total case numbers
-      return _.last(this.dailyHealthStatus).player[5] ? 5 : 'total'
+      // return _.last(this.dailyHealthStatus)[5] && (this.day % 7 === 0) ? 5 : 'total'
+      return 'total'
     },
   },
   watch: {
@@ -73,7 +75,7 @@ export default {
   },
   methods: {
     updateLineChart() {
-      this.xScale.domain([0, Math.max(this.day, 7)])
+      this.xScale.domain([1, Math.max(this.day, 7)])
 
       const types = ['player', 'worstAlternate', 'bestAlternate']
       const allNumbers = _.chain(this.dailyHealthStatus)
@@ -83,18 +85,15 @@ export default {
       // this.yScale.domain(d3.extent(allNumbers, d => d))
       this.yScale.domain([min, max]).nice()
 
-      this.paths = _.map(types, type => {
-        const firstDay = _.find(this.dailyHealthStatus, d => d[type][this.healthStatus]).day
-        const points = _.chain(this.dailyHealthStatus)
-          .filter(({day}) => day >= firstDay)
-          .map(d => {
-            return [this.xScale(d.day - firstDay), this.yScale(d[type][this.healthStatus])]
-          }).value()
+      this.paths = _.map(types, id => {
+        const points = _.map(this.dailyHealthStatus, d => {
+          return [this.xScale(d.day), this.yScale(d[id][this.healthStatus])]
+        })
         return {
-          id: type,
+          id,
           color: this.colorsByHealth[this.healthStatus] || this.colorsByHealth[2],
           path: this.lineGenerator(points),
-          strokeDasharray: type === 'player' ? 0 : (type === 'worstAlternate' ? '2 4' : '12'),
+          strokeDasharray: id === 'player' ? 0 : (id === 'worstAlternate' ? '2 4' : '12'),
         }
       })
       // and at same time update scales
