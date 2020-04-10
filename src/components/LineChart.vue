@@ -49,7 +49,7 @@ export default {
 
     this.xAxis = d3.axisBottom().scale(this.xScale).ticks(7)
     this.yAxis = d3.axisLeft().scale(this.yScale)
-      .ticks(4, d3.format(",.1s"))
+      .ticks(6, d3.format(",.1s"))
       .tickSizeOuter(0)
       .tickSizeInner(-this.width + margin.left + margin.right)
   },
@@ -90,7 +90,7 @@ export default {
         .map(d => _.map(types, type => d[type].total))
         .flatten().value()
       const [min, max] = d3.extent(allNumbers, d => d)
-      this.yScale.domain([min, max]).nice()
+      this.yScale.domain([_.floor(min, -1), _.ceil(max, -1)])
 
       _.each(this.paths, d => {
         const nextPoints = _.map(this.dailyHealthStatus, o => {
@@ -130,7 +130,7 @@ export default {
       const container = d3.select(nodes[0])
       container.select('path').remove()
       container.selectAll('g')
-        .filter(d => !_.includes([10, 100, 1000, 10000, 100000], d))
+        .filter(d => !_.includes([1, 5, 10, 50, 100, 500, 1000, 5000, 10000, 50000, 100000], d))
         .remove()
       container.selectAll('line')
         .attr('stroke-dasharray', '5')
