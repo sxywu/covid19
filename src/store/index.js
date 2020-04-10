@@ -255,7 +255,7 @@ export default new Vuex.Store({
       return _.map(allDecisions, decisions => {
         const numTimes = decisions[week - 1]
         return {
-          current: _.chain(7)
+          player: _.chain(7)
             .times(i => +(i <numTimes))
             .shuffle()
             .value(),
@@ -313,7 +313,7 @@ export default new Vuex.Store({
           daysSinceInfection,
           prevInfectious,
           prevInHospital,
-          weeklyDecisions[i % totalPlayers].current[(day - 1) % 7],
+          weeklyDecisions[i % totalPlayers].player[(day - 1) % 7],
           infectedDestinations,
           infectedHouses
         )
@@ -353,7 +353,7 @@ export default new Vuex.Store({
             prevBestAlternate.daysSinceInfection,
             prevBestAlternate.infectious,
             prevBestAlternate.inHospital,
-            true,
+            weeklyDecisions[i % totalPlayers].bestAlternate[(day - 1) % 7],
             bestAlternateDestinations,
             bestAlternateHouses
           ),
