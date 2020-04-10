@@ -266,14 +266,17 @@ export default {
     },
     updateTimeline() {
       if (!this.community && !this.people) return
+      if (this.day === 1) {
+        _.each(this.people, d => d.color = this.colorsByHealth[0])
+      }
 
       const [duration1, duration2, duration3] = this.phases
 
       // calculate next state
       this.people = _.chain(this.allPeople)
         .map(person => {
-          const { health, destination } = this.infected[person.i]
-          if (health > 3) return
+          const { health, destination, inHospital } = this.infected[person.i]
+          if (health > 4 || inHospital) return
           const { x, y, id } =
             destination > 0 ? this.destinations[destination] : person.house
           const nextColor = this.colorsByHealth[health]

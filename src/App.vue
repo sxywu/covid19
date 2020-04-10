@@ -1,17 +1,25 @@
 <template>
   <div id="app">
     <GamePlay v-bind="$data" />
+    <LandingPage v-if="currentPage === 'landing'" />
+    <EndPage v-if="currentPage === 'end'" />
+    <FailedPage v-if="currentPage === 'failed'" />
   </div>
 </template>
 
 <script>
 import GamePlay from './components/GamePlay'
-import {v4 as uuidv4} from 'uuid'
+import LandingPage from './components/LandingPage'
+import EndPage from './components/EndPage'
+import FailedPage from './components/FailedPage'
 
 export default {
   name: 'App',
   components: {
     GamePlay,
+    LandingPage,
+    EndPage,
+    FailedPage,
   },
   data() {
     return {
@@ -44,6 +52,9 @@ export default {
     dataLoaded() {
       return this.$store.state.dataLoaded
     },
+    currentPage() {
+      return this.$store.state.currentPage
+    },
   },
   watch: {
     dataLoaded(dataLoaded) {
@@ -54,9 +65,8 @@ export default {
   },
   created() {
     this.$store.dispatch('getRawData')
-    this.$store.commit('setZipCode', '22031')
-    const gameId = uuidv4()
-    this.$store.commit('setGameId', gameId)
+
+    this.$store.commit('setGameId')
   },
 }
 </script>

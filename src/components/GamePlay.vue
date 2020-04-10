@@ -19,39 +19,37 @@
             setGroups,
           }"
         />
-        <div id="actions">
-          <!-- MINIMAP -->
-          <div id="minimapContainer">
-            <Minimap
-              v-bind="{
-                ...minimapDimensions,
-                groups,
-                colorsByHealth,
-                containerWidth: width,
-                containerHeight: height,
-              }"
-            />
-          </div>
-          <!-- DECISION SCREEN -->
-          <div class="decision" v-if="showDecision">
-            <Decide
-              v-bind="{
-                onUpdate: updateDecision,
-              }"
-            />
-          </div>
+        <!-- MINIMAP -->
+        <div id="minimapContainer">
+          <Minimap
+            v-bind="{
+              ...minimapDimensions,
+              groups,
+              colorsByHealth,
+              containerWidth: width,
+              containerHeight: height,
+            }"
+          />
         </div>
       </div>
       <!-- RIGHT PANEL -->
       <div id="rightPanel">
-        <CommunityStats v-bind="{healthStatus}" />
+        <CommunityStats
+          v-bind="{
+            healthStatus,
+            colorsByHealth,
+            tl,
+            phases,
+            playTimeline,
+          }"
+        />
         <Hospital
           v-bind="{colorsByHealth, width: rightWidth, tl, phases, playTimeline}"
         />
       </div>
       <!-- BOTTOM PANEL -->
       <div id="bottomPanel">
-        <Legend />
+        <Legend v-bind="{healthStatus, colorsByHealth}" />
         <BarChart
           v-bind="{
             height: bottomHeight,
@@ -62,7 +60,7 @@
             playTimeline,
           }"
         />
-        <AreaChart
+        <LineChart
           v-bind="{
             height: bottomHeight,
             ageGroups,
@@ -73,6 +71,13 @@
           }"
         />
       </div>
+      <!-- DECISION SCREEN -->
+      <Decide
+        v-if="showDecision"
+        v-bind="{
+          onUpdate: updateDecision,
+        }"
+      />
     </div>
     <div class="zipCode">
       ZIP CODE:
@@ -93,7 +98,7 @@ import CommunityStats from './CommunityStats'
 import Minimap from './Minimap'
 import Hospital from './Hospital'
 import BarChart from './BarChart'
-import AreaChart from './AreaChart'
+import LineChart from './LineChart'
 import Header from './Header'
 import Legend from './Legend'
 
@@ -110,7 +115,7 @@ export default {
     Minimap,
     Hospital,
     BarChart,
-    AreaChart,
+    LineChart,
     Header,
     Legend,
   },
@@ -123,16 +128,22 @@ export default {
       height: window.innerHeight,
       topHeight: 40,
       rightWidth: 320,
-      bottomHeight: 150,
+      bottomHeight: 180,
       tl: new gsap.timeline({paused: true}),
-      phases: [0.5, 1, 1],
+      phases: [0.5, 0.75, 0.75],
       groups: [],
       showDecision: false,
     }
   },
   computed: {
+    currentPage() {
+      return this.$store.state.currentPage
+    },
     day() {
       return this.$store.state.day
+    },
+    totalDays() {
+      return this.$store.state.totalDays
     },
     zipCode() {
       return this.$store.state.zipCode
@@ -150,12 +161,6 @@ export default {
         y: this.height - this.bottomHeight - height - 10,
       }
     },
-    currentCommunityHealth() {
-      return this.$store.getters.currentCommunityHealth
-    },
-  },
-  created() {
-    this.updateDay()
   },
   mounted() {
     window.addEventListener('resize', this.calculateDimensions)
@@ -163,6 +168,15 @@ export default {
   },
   destroyed() {
     window.removeEventListener('resize', this.calculateDimensions)
+  },
+  watch: {
+    currentPage() {
+      if (this.currentPage === 'game') {
+        // if current page became "game" again that means we restarted
+        this.tl.clear(true)
+        this.updateDay()
+      }
+    },
   },
   methods: {
     setGroups(groups) {
@@ -189,12 +203,6 @@ export default {
         prevLabel = label
       })
       this.$store.commit('setDay', this.day + 1)
-      if (this.currentCommunityHealth) {
-        this.$store.commit(
-          'setDailyHealthStatusCounts',
-          this.currentCommunityHealth,
-        )
-      }
     },
     playTimeline(child) {
       this.setupDone.push(child)
@@ -204,8 +212,10 @@ export default {
       this.tl.add(() => {
         if (this.day % 7) {
           this.updateDay()
-        } else {
+        } else if (this.day < this.totalDays) {
           this.showDecision = true
+        } else {
+          this.$store.commit('setCurrentPage', 'end') // if we've gone through all the days, end
         }
       }, `day${this.day}-3`)
       this.tl.play(`day${this.day}`)
@@ -228,6 +238,7 @@ export default {
 }
 
 .container {
+  position: relative;
   display: grid;
   height: 100%;
   grid-template-rows: 1fr 7fr 2fr;
@@ -254,22 +265,19 @@ export default {
   grid-column: 2;
   grid-row-start: 2;
   grid-row-end: 4;
+  right: 0px;
+  bottom: 0px;
+  border-left: 1px solid $gray;
 }
 
 #bottomPanel {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 0.75fr 1fr 1.5fr;
   grid-row: 3;
   padding: 1rem;
-}
-
-#actions {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  left: 0px;
+  bottom: 0px;
+  border-top: 1px solid $gray;
 }
 
 #minimapContainer {
@@ -283,33 +291,9 @@ export default {
   position: absolute;
 }
 
-#rightPanel {
-  right: 0px;
-  bottom: 0px;
-  border-left: 1px solid $gray;
-}
-
-#bottomPanel {
-  left: 0px;
-  bottom: 0px;
-  border-top: 1px solid $gray;
-}
-
 .zipCode {
   position: absolute;
   top: -20px;
   right: 0px;
-}
-
-.decision {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  top: 50%;
-  left: 50%;
-  border: 1px solid $gray;
-  transform: translate(-50%, -50%);
-  background: #fff;
-  text-align: center;
 }
 </style>
