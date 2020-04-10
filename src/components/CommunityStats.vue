@@ -11,11 +11,11 @@
       </div>
     </header>
     <div class="bars">
-      <div class="item" v-for="({label, value, maxValue}) in items" v-bind:key="label">
+      <div class="item" v-for="({label, value, maxValue, color}) in items" v-bind:key="label">
         <h3 class="label">{{ label }}</h3>
         <div class="value">
           <h4 style="margin-right: 10px;">{{ formatNumber(value) }}</h4>
-          <ProgressBar v-bind="{value, maxValue}" />
+          <ProgressBar v-bind="{value, maxValue, color}" />
         </div>
       </div>
     </div>
@@ -32,6 +32,7 @@ export default {
     ProgressBar,
   },
   props: [
+    'colorsByHealth',
     'healthStatus',
     'tl',
     'phases',
@@ -43,6 +44,7 @@ export default {
       avoided: 0,
       items: _.map([4, 5, 1], num => {
         return {
+          color: this.colorsByHealth[num],
           label: this.healthStatus[num],
           value: 0,
           maxValue: 0,
@@ -75,19 +77,19 @@ export default {
         total: _.sumBy([1, 2, 3, 4, 5], d => current[d] || 0),
         ...current,
       }
-      const alternate = _.chain(this.infected)
-        .map(d => d.alternate.health)
+      const worstAlternate = _.chain(this.infected)
+        .map(d => d.worstAlternate.health)
         .countBy()
         .value()
-      this.alternate = {
-        total: _.sumBy([1, 2, 3, 4, 5], d => alternate[d] || 0),
-        ...alternate,
+      this.worstAlternate = {
+        total: _.sumBy([1, 2, 3, 4, 5], d => worstAlternate[d] || 0),
+        ...worstAlternate,
       }
     },
     animateNumbers() {
       this.tl.to(this.$data, {
         total: this.current.total,
-        avoided: Math.max(this.alternate.total - this.current.total, 0),
+        avoided: Math.max(this.worstAlternate.total - this.current.total, 0),
         duration: this.duration,
       }, `day${this.day}`)
 
@@ -124,6 +126,7 @@ header {
   h4 {
     margin: 0;
     font-size: 1.75rem;
+    font-variant-numeric: tabular-nums;
   }
   h3 {
     margin-top: 0.25rem;
@@ -149,6 +152,7 @@ header {
   h4 {
     margin: 0;
     padding: 0;
+    font-variant-numeric: tabular-nums;
   }
   h3 {
     margin-bottom: 5px;

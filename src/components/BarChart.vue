@@ -2,17 +2,12 @@
   <div id="barChart">
     <svg :width="width" :height="height">
       <text :x="margin.right" dy="1em" class="label">Infected cases by age group</text>
-      <rect
-        v-for="d in bars"
-        :key="d.id"
-        :x="d.x"
-        :y="d.y"
-        :width="barWidth"
-        :height="d.height"
-        :fill="d.color"
-      />
-      <g ref="xAxis" :transform="`translate(0, ${height - margin.bottom})`" />
       <g ref="yAxis" :transform="`translate(${margin.left}, 0)`" />
+      <g v-for="d in bars" v-if="d.height" :key="d.id" :transform='`translate(${d.x}, ${d.y})`'>
+        <rect :width="barWidth" :height="d.height" :fill="d.color" opacity="0.75" />
+        <line :x2="barWidth" :stroke="d.color" :stroke-width="2" />
+      </g>
+      <g ref="xAxis" :transform="`translate(0, ${height - margin.bottom})`" />
     </svg>
   </div>
 </template>
@@ -21,8 +16,8 @@
 import * as d3 from 'd3'
 import _ from 'lodash'
 
-const healthStatus = [4, 3, 2, 5]
-const margin = {top: 20, right: 20, bottom: 20, left: 30}
+const healthStatus = [2, 3, 4, 5]
+const margin = {top: 30, right: 0, bottom: 20, left: 30}
 export default {
   name: 'BarChart',
   props: [
@@ -35,7 +30,7 @@ export default {
   ],
   data() {
     return {
-      width: 300,
+      width: 280,
       margin,
       bars: [],
       barWidth: 0,
@@ -58,12 +53,14 @@ export default {
       .range([this.height - margin.bottom, margin.top])
     this.barWidth = this.xScale.bandwidth()
 
-    this.xAxis = d3.axisBottom().scale(this.xScale)
+    this.xAxis = d3.axisBottom().scale(this.xScale).tickSizeOuter(0)
     this.yAxis = d3
       .axisLeft()
       .scale(this.yScale)
-      .ticks(5)
-      .tickFormat(d => (d >= 1000 ? `${_.round(d / 1000)}k` : d))
+      .ticks(4)
+      .tickSizeOuter(0)
+      .tickSizeInner(-this.width + margin.left + margin.right)
+      .tickFormat(d => (d >= 1000 ? `${_.round(d / 1000, 1)}k` : d))
   },
   computed: {
     day() {
@@ -115,7 +112,10 @@ export default {
         .groupBy('ageGroup')
         .map((people, age) => {
           return Object.assign(
-            _.countBy(people, ({ index }) => this.infected[index].health),
+            _.reduce(healthStatus, (obj, health) => {
+              obj[health] = _.sumBy(people, ({index}) => this.infected[index].health === health)
+              return obj
+            }, {}),
             { ageGroup: this.ageGroups[age] }
           )
         })
@@ -127,8 +127,6 @@ export default {
         .map(stack => {
           return _.map(stack, d => {
             let [y1, y2] = d
-            y1 = y1 || 0
-            y2 = y2 || y1 // in case they are NaN
             return {
               id: `${stack.key}-${d.data.ageGroup}`,
               x: this.xScale(d.data.ageGroup),
@@ -159,10 +157,19 @@ export default {
           .call(this.xAxis)
         d3.select(this.$refs.yAxis)
           .transition()
+          .on('start', this.formatYAxis)
           .call(this.yAxis)
       }, `day${this.day}-1`)
 
       this.playTimeline('bar')
+    },
+    formatYAxis(d, i, nodes) {
+      const container = d3.select(nodes[0])
+      container.select('path').remove()
+      container.selectAll('line')
+        .attr('stroke-dasharray', '5')
+        .attr('stroke', '#cfcfcf')
+        .attr('shape-rendering', 'crispEdges')
     },
   },
 }
