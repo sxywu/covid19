@@ -1,9 +1,9 @@
 <template>
-  <div id="areaChart">
+  <div id="lineChart">
     <svg :width="width" :height="height">
       <text :x="margin.right" dy="1em" class="label">Case Growth Rate</text>
       <g ref="yAxis" :transform="`translate(${margin.left}, 0)`" />
-      <path v-for="d in paths" :key="d.id" :d="d.path" fill="none"
+      <path v-for="d in paths" :key="d.type" :d="d.path" fill="none"
         :stroke="d.color" stroke-width="2"
         stroke-linecap="round" :stroke-dasharray="d.strokeDasharray" />
       <g ref="xAxis" :transform="`translate(0, ${height - margin.bottom})`" />
@@ -15,7 +15,7 @@
 import * as d3 from 'd3'
 import _ from 'lodash'
 
-const healthStatus = [4, 3, 2, 5]
+const types = ['player', 'worstAlternate', 'bestAlternate']
 const margin = {top: 30, right: 20, bottom: 20, left: 30}
 export default {
   name: 'LineChart',
@@ -60,42 +60,59 @@ export default {
     dailyHealthStatus() {
       return this.$store.getters.dailyHealthStatus
     },
-    healthStatus() {
-      // which health status to show in line chart
-      // if there are deaths, and it's the start of a week
-      // then show line chart with deaths, otherwise show total case numbers
-      // return _.last(this.dailyHealthStatus)[5] && (this.day % 7 === 0) ? 5 : 'total'
-      return 'total'
-    },
   },
   watch: {
+    day() {
+      if (this.day === 1) {
+        this.startLineChart()
+      }
+    },
     dailyHealthStatus() {
       this.updateLineChart()
     },
   },
   methods: {
+    startLineChart() {
+      this.paths = _.map(types, type => {
+        return {
+          type,
+          color: this.colorsByHealth[2], // a different color for total?
+          points: [],
+          path: '',
+          strokeDasharray: type === 'player' ? 0 : (type === 'worstAlternate' ? '2 4' : '12'),
+        }
+      })
+    },
     updateLineChart() {
       this.xScale.domain([1, Math.max(this.day, 7)])
 
-      const types = ['player', 'worstAlternate', 'bestAlternate']
       const allNumbers = _.chain(this.dailyHealthStatus)
-        .map(d => _.map(types, type => d[type][this.healthStatus]))
+        .map(d => _.map(types, type => d[type].total))
         .flatten().value()
       const [min, max] = d3.extent(allNumbers, d => d)
-      // this.yScale.domain(d3.extent(allNumbers, d => d))
       this.yScale.domain([min, max]).nice()
 
-      this.paths = _.map(types, id => {
-        const points = _.map(this.dailyHealthStatus, d => {
-          return [this.xScale(d.day), this.yScale(d[id][this.healthStatus])]
+      _.each(this.paths, d => {
+        const nextPoints = _.map(this.dailyHealthStatus, o => {
+          return [this.xScale(o.day), this.yScale(o[d.type].total)]
         })
-        return {
-          id,
-          color: this.colorsByHealth[this.healthStatus] || this.colorsByHealth[2],
-          path: this.lineGenerator(points),
-          strokeDasharray: id === 'player' ? 0 : (id === 'worstAlternate' ? '2 4' : '12'),
-        }
+        // debugger
+        // for sake of animation make previous path have same number of points as next set
+        const lastPoint = d.points.length ? _.last(d.points) : nextPoints[0]
+        _.times(this.dailyHealthStatus.length - d.points.length, i => d.points.push(lastPoint))
+
+        return Object.assign(d, {
+          points: nextPoints,
+          path: this.lineGenerator(d.points),
+          nextPath: this.lineGenerator(nextPoints),
+        })
       })
+
+      this.tl.to(this.paths, {
+        duration: this.phases[1],
+        path: (i, d) => d.nextPath,
+      }, `day${this.day}-1`)
+
       // and at same time update scales
       this.tl.add(() => {
         d3.select(this.$refs.xAxis)
@@ -125,7 +142,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-#areaChart {
+#lineChart {
   display: inline-block;
   border-left: $gray;
 }
