@@ -59,12 +59,6 @@ export default {
     dailyHealthStatus() {
       return this.$store.getters.dailyHealthStatus
     },
-    healthStatus() {
-      // which health status to show in line chart
-      // if there are deaths, and it's the start of a week
-      // then show line chart with deaths, otherwise show total case numbers
-      return _.last(this.dailyHealthStatus).player[5] ? 5 : 'total'
-    },
   },
   watch: {
     dailyHealthStatus() {
@@ -77,26 +71,35 @@ export default {
 
       const types = ['player', 'worstAlternate', 'bestAlternate']
       const allNumbers = _.chain(this.dailyHealthStatus)
-        .map(d => _.map(types, type => d[type][this.healthStatus]))
-        .flatten().value()
+        .map(d => _.map(types, type => [d[type].total, d[type][5] || 1]))
+        .flattenDepth(2).value()
       const [min, max] = d3.extent(allNumbers, d => d)
       // this.yScale.domain(d3.extent(allNumbers, d => d))
       this.yScale.domain([min, max]).nice()
 
-      this.paths = _.map(types, type => {
-        const firstDay = _.find(this.dailyHealthStatus, d => d[type][this.healthStatus]).day
-        const points = _.chain(this.dailyHealthStatus)
-          .filter(({day}) => day >= firstDay)
-          .map(d => {
-            return [this.xScale(d.day - firstDay), this.yScale(d[type][this.healthStatus])]
-          }).value()
-        return {
-          id: type,
-          color: this.colorsByHealth[this.healthStatus] || this.colorsByHealth[2],
-          path: this.lineGenerator(points),
-          strokeDasharray: type === 'player' ? 0 : (type === 'worstAlternate' ? '2 4' : '12'),
-        }
-      })
+      this.paths = _.chain(['total', 5])
+        .map(health => {
+          // if main player doesn't have any deceased numbers yet then don't show those lines
+          if (!_.last(this.dailyHealthStatus).player[health]) return
+
+          return _.map(types, type => {
+            let firstDay = _.find(this.dailyHealthStatus, d => d[type][health])
+            if (!firstDay) return
+            firstDay = firstDay.day
+
+            const points = _.chain(this.dailyHealthStatus)
+              .filter(({day}) => day >= firstDay)
+              .map(d => {
+                return [this.xScale(d.day - firstDay), this.yScale(d[type][health])]
+              }).value()
+            return {
+              id: `${health}-${type}`,
+              color: this.colorsByHealth[health] || this.colorsByHealth[2],
+              path: this.lineGenerator(points),
+              strokeDasharray: type === 'player' ? 0 : (type === 'worstAlternate' ? '2 4' : '12'),
+            }
+          })
+        }).filter().flatten().value()
       // and at same time update scales
       this.tl.add(() => {
         d3.select(this.$refs.xAxis)
