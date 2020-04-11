@@ -3,16 +3,14 @@
     <div class="container">
       <!-- TOP PANEL -->
       <div id="topPanel">
-        <Header />
+        <Header v-bind="{height: topHeight}" />
       </div>
       <!-- COMMUNITY -->
       <div id="communityPanel">
         <Community
           v-bind="{
+            ...communityDimensions,
             colorsByHealth,
-            width,
-            height,
-            rightWidth,
             tl,
             phases,
             playTimeline,
@@ -94,7 +92,9 @@ import LineChart from './LineChart'
 import Header from './Header'
 import Legend from './Legend'
 
-const widthHeightRatio = 16 / 9
+const maxWidth = 1320
+const maxHeight = 840
+const widthHeightRatio = maxWidth / maxHeight
 const padding = 40
 const needSetup = ['community', 'area', 'bar', 'hospital']
 
@@ -114,11 +114,9 @@ export default {
   props: ['ageGroups', 'healthStatus', 'colorsByHealth'],
   data() {
     return {
-      // width: 1320,
-      // height: 568,
       width: window.innerWidth,
       height: window.innerHeight,
-      topHeight: 40,
+      topHeight: 75,
       rightWidth: 320,
       bottomHeight: 180,
       tl: new gsap.timeline({ paused: true }),
@@ -142,6 +140,14 @@ export default {
     },
     population() {
       return this.$store.getters.population || {}
+    },
+    communityDimensions() {
+      return {
+        top: 0,
+        left: this.topHeight,
+        width: this.width - this.rightWidth,
+        height: this.height - this.topHeight - this.bottomHeight,
+      }
     },
     minimapDimensions() {
       const width = 140
@@ -175,8 +181,8 @@ export default {
       this.groups = groups
     },
     calculateDimensions() {
-      this.width = window.innerWidth - padding
-      this.height = (1 / widthHeightRatio) * this.width
+      this.width = Math.min(window.innerWidth - padding, maxWidth)
+      this.height = Math.min((1 / widthHeightRatio) * this.width, maxHeight)
     },
     updateDecision(numTimes) {
       this.showDecision = false
@@ -217,8 +223,8 @@ export default {
 
 <style lang="scss" scoped>
 #gameplay {
-  max-width: 1320px;
-  max-height: 840px;
+  // max-width: 1320px;
+  // max-height: 840px;
   background: white;
   border-radius: 6px;
   overflow: hidden;
