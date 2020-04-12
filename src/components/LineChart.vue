@@ -1,11 +1,15 @@
 <template>
   <div id="lineChart">
     <svg :width="width" :height="height">
-      <text :x="margin.right" dy="1em" class="label">Total Cases Daily Growth Rate</text>
+      <text :x="margin.left" dy="1em" class="label">Total Cases Daily Growth Rate</text>
+      <!-- WEEK -->
+      <rect v-if="week > 1" :x="rect.x" :y="rect.y" :width="rect.width" :height="rect.height" />
+      <!-- Y-AXIS -->
       <g class="axis" ref="yAxis" :transform="`translate(${margin.left}, 0)`" />
       <path v-for="d in paths" :key="d.type" :d="d.path" fill="none"
         :stroke="pathColor" stroke-width="2"
         stroke-linecap="round" :stroke-dasharray="d.strokeDasharray" />
+      <!-- X-AXIS -->
       <g class="axis" ref="xAxis" :transform="`translate(0, ${height - margin.bottom})`" />
     </svg>
     <ul class="legend">
@@ -28,7 +32,7 @@ import * as d3 from 'd3'
 import _ from 'lodash'
 
 const types = ['worstAlternate', 'player', 'bestAlternate']
-const margin = {top: 30, right: 20, bottom: 20, left: 30}
+const margin = {top: 30, right: 20, bottom: 20, left: 20}
 export default {
   name: 'LineChart',
   props: [
@@ -46,6 +50,7 @@ export default {
       pathColor: this.colorsByHealth[2],
       margin,
       paths: [],
+      rect: {},
       yAxis: [],
     }
   },
@@ -72,6 +77,9 @@ export default {
   computed: {
     day() {
       return this.$store.state.day
+    },
+    week() {
+      return this.$store.getters.week
     },
     dailyHealthStatus() {
       return this.$store.getters.dailyHealthStatus
@@ -110,6 +118,10 @@ export default {
           strokeDasharray: type === 'player' ? 0 : (type === 'worstAlternate' ? '2 4' : '12'),
         }
       })
+      this.rect = {
+        x: this.width - margin.right, y: margin.top,
+        width: 0, height: this.height - margin.top - margin.bottom,
+      }
     },
     updateLineChart() {
       this.xScale.domain([1, Math.max(this.day, 7)])
@@ -120,6 +132,7 @@ export default {
       const [min, max] = d3.extent(allNumbers, d => d)
       this.yScale.domain([_.floor(min, -1) || 1, _.ceil(max, -1)])
 
+      // animate path
       _.each(this.paths, d => {
         const nextPoints = _.map(this.dailyHealthStatus, o => {
           return [_.round(this.xScale(o.day), 2), _.round(this.yScale(o[d.type].total), 0)]
@@ -134,10 +147,21 @@ export default {
           nextPath: this.lineGenerator(nextPoints),
         })
       })
-
       this.tl.to(this.paths, {
         duration: this.phases[1],
         path: (i, d) => d.nextPath,
+      }, `day${this.day}-1`)
+
+      // animate week rectangle
+      const firstDay = (this.week - 1) * 7
+      if (this.day - 1 === firstDay) {
+        // if it's first day of week, recent rectangle
+        Object.assign(this.rect, {x: this.width - margin.right, width: 0})
+      }
+      this.tl.to(this.rect, {
+        duration: 0.25,
+        x: this.xScale(firstDay),
+        width: this.xScale(this.day) - this.xScale(firstDay),
       }, `day${this.day}-1`)
 
       // and at same time update scales
@@ -181,6 +205,10 @@ export default {
 
 svg {
   overflow: visible;
+
+  rect {
+    fill: $gray;
+  }
 
   .axis line {
     stroke: $gray;
