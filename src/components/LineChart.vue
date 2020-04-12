@@ -1,16 +1,21 @@
 <template>
   <div id="lineChart">
     <svg :width="width" :height="height">
-      <text :x="margin.left" dy="1em" class="label">Total Cases Daily Growth Rate</text>
+      <text class="header label" dy="1em">Total Cases Daily Growth Rate</text>
       <!-- WEEK -->
       <rect v-if="week > 1" :x="rect.x" :y="rect.y" :width="rect.width" :height="rect.height" />
       <!-- Y-AXIS -->
-      <g class="axis" ref="yAxis" :transform="`translate(${margin.left}, 0)`" />
+      <g class="axis label" ref="yAxis" :transform="`translate(${margin.left}, 0)`" />
       <path v-for="d in paths" :key="d.type" :d="d.path" fill="none"
         :stroke="pathColor" stroke-width="2"
         stroke-linecap="round" :stroke-dasharray="d.strokeDasharray" />
       <!-- X-AXIS -->
-      <g class="axis" ref="xAxis" :transform="`translate(0, ${height - margin.bottom})`" />
+      <g class="axis label" ref="xAxis" :transform="`translate(0, ${height - margin.bottom})`" />
+      <!-- HOSPITAL CAPACITY LINE -->
+      <g class="label hospital" v-if="line.x" :transform="`translate(${line.x}, ${margin.top})`">
+        <line :y2="height - margin.top - margin.bottom" :stroke="colorsByHealth[4]" />
+        <text text-anchor="middle" dy="-2" :fill="colorsByHealth[4]">Hospital Capacity Hit</text>
+      </g>
     </svg>
     <ul class="legend">
       <li v-for="({label, count, strokeDasharray}) in legend">
@@ -55,6 +60,7 @@ export default {
       margin,
       paths: [],
       rect: {},
+      line: {},
       yAxis: [],
     }
   },
@@ -87,6 +93,13 @@ export default {
     },
     dailyHealthStatus() {
       return this.$store.getters.dailyHealthStatus
+    },
+    totalAvailableBeds() {
+      return this.$store.getters.totalAvailableBeds
+    },
+    firstHospitalOverDay() {
+      const firstDay = _.find(this.dailyHealthStatus, d => d.player[4] >= this.totalAvailableBeds)
+      return firstDay && firstDay.day
     },
     legend() {
       const latest = _.last(this.dailyHealthStatus)
@@ -153,6 +166,10 @@ export default {
         })
       }
 
+      if (this.firstHospitalOverDay) {
+        this.line.x = this.xScale(this.firstHospitalOverDay)
+      }
+
       // calculate next point
       _.each(this.paths, d => {
         const nextPoints = _.map(this.dailyHealthStatus, o => {
@@ -170,8 +187,9 @@ export default {
       })
 
       // else animate paths and y axis
+      const duration = this.phases[1]
       this.tl.to(this.paths, {
-        duration: this.phases[1],
+        duration,
         path: (i, d) => d.nextPath,
       }, `day${this.day}-1`)
       // y scale
@@ -213,12 +231,24 @@ export default {
 svg {
   overflow: visible;
 
+  .header {
+    font-weight: 700;
+  }
+
   rect {
     fill: $gray;
   }
 
-  .axis line {
-    stroke: $gray;
+  .axis {
+    font-size: 10px;
+
+    line {
+      stroke: $gray;
+    }
+  }
+
+  .hospital {
+    font-size: 10px;
   }
 }
 

@@ -1,13 +1,13 @@
 <template>
   <div id="barChart">
     <svg :width="width" :height="height">
-      <text :x="margin.left" dy="1em" class="label">Infected cases by age group</text>
-      <g ref="yAxis" :transform="`translate(${margin.left}, 0)`" />
+      <text class="header label" dy="1em">Infected cases by age group</text>
+      <g class="label axis" ref="yAxis" :transform="`translate(${margin.left}, 0)`" />
       <g v-for="d in bars" v-if="d.height" :key="d.id" :transform='`translate(${d.x}, ${d.y})`'>
         <rect :width="barWidth" :height="d.height" :fill="d.color" opacity="0.75" />
         <line :x2="barWidth" :stroke="d.color" :stroke-width="2" />
       </g>
-      <g ref="xAxis" :transform="`translate(0, ${height - margin.bottom})`" />
+      <g class="label axis" ref="xAxis" :transform="`translate(0, ${height - margin.bottom})`" />
     </svg>
   </div>
 </template>
@@ -188,5 +188,13 @@ export default {
 <style scoped>
 #barChart {
   display: inline-block;
+}
+
+.header {
+  font-weight: 700;
+}
+
+.axis {
+  font-size: 10px;
 }
 </style>
