@@ -23,6 +23,10 @@
         </div>
         <div class="label">{{ label }}</div>
       </li>
+      <li v-if="week > 1">
+        <span class="week"></span>
+        <span class="label">  Current Week</span>
+      </li>
     </ul>
   </div>
 </template>
@@ -235,6 +239,15 @@ li {
 
   .label {
     white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .week {
+    width: 30px;
+    height: 0.75rem;
+    display: inline-block;
+    background-color: $gray;
+    vertical-align: middle;
   }
 }
 </style>
