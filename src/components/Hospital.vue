@@ -1,8 +1,9 @@
 <template>
   <div id="hospital">
-    <h3 class="label">Your Hospital</h3>
+    <h3 class="label">{{ hospital && hospital.name }}</h3>
     <div class="stats label">
-      <div>{{ filledBeds }} filled of {{ totalAvailableBeds }} available beds</div>
+      <div>{{ filledBeds }} filled of {{
+        includeOthers ? `${totalBeds} total` : `${totalAvailableBeds} available` }} beds</div>
     </div>
     <svg ref="svg">
       <clipPath id="bedClip">
@@ -45,8 +46,11 @@ export default {
     day() {
       return this.$store.state.day
     },
+    hospitals() {
+      return this.$store.getters.hospitals
+    },
     hospital() {
-      return _.maxBy(this.$store.getters.hospitals, 'beds')
+      return _.maxBy(this.hospitals, 'beds')
     },
     infected() {
       return this.$store.getters.infected
@@ -57,12 +61,12 @@ export default {
     totalAvailableBeds() {
       return this.$store.getters.totalAvailableBeds
     },
-    includeOther() {
+    includeOthers() {
       // show all beds if total less than 100
       return this.totalBeds <= 100
     },
     showBeds() {
-      return this.includeOther ? this.totalBeds : this.totalAvailableBeds
+      return this.includeOthers ? this.totalBeds : this.totalAvailableBeds
     },
     filledBeds() {
       return this.$store.getters.filledBeds
@@ -73,6 +77,9 @@ export default {
     this.updateBeds()
   },
   watch: {
+    hospital() {
+      this.$nextTick(this.setupBeds)
+    },
     totalBeds() {
       this.setupBeds()
     },
@@ -103,7 +110,7 @@ export default {
       }
     },
     setupBeds() {
-      if (!this.totalBeds || this.beds.length) return
+      if (!this.totalBeds) return
 
       // get SVG dimensions
       const {top, left, width, height} = this.$refs.svg.getBoundingClientRect()
@@ -119,7 +126,7 @@ export default {
       const columnPadding = _.clamp((this.width - perRow * scaledBedWidth) / perRow, 0, 10)
 
       this.beds = _.times(this.showBeds, i => {
-        const isOther = this.includeOther && i < (this.totalBeds - this.totalAvailableBeds)
+        const isOther = this.includeOthers && i < (this.totalBeds - this.totalAvailableBeds)
         return {
           isOther,
           color: this.colorsByHealth[isOther ? 0 : 4],
@@ -163,6 +170,7 @@ export default {
 
 .stats {
   width: 100%;
+  margin-bottom: 10px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
