@@ -14,7 +14,7 @@
           :cx="bedWidth / 2"
           :cy="bedHeight / 2"
           :r="d.r"
-          :fill="colorsByHealth[4]"
+          :fill="d.color"
           clip-path="url(#bedClip)"
         />
       </g>
@@ -57,8 +57,12 @@ export default {
     totalAvailableBeds() {
       return this.$store.getters.totalAvailableBeds
     },
+    includeOther() {
+      // show all beds if total less than 100
+      return this.totalBeds <= 100
+    },
     showBeds() {
-      return this.totalBeds >= 100 ? this.totalAvailableBeds : this.totalBeds
+      return this.includeOther ? this.totalBeds : this.totalAvailableBeds
     },
     filledBeds() {
       return this.$store.getters.filledBeds
@@ -113,27 +117,30 @@ export default {
 
       const rowPadding = _.clamp((this.height - numRows * scaledBedHeight) / numRows, 0, 10)
       const columnPadding = _.clamp((this.width - perRow * scaledBedWidth) / perRow, 0, 10)
+
       this.beds = _.times(this.showBeds, i => {
+        const isOther = this.includeOther && i < (this.totalBeds - this.totalAvailableBeds)
         return {
-          color: '$gray',
+          isOther,
+          color: this.colorsByHealth[isOther ? 0 : 4],
           x: Math.floor(i % perRow) * (scaledBedWidth + columnPadding),
           y: this.height - scaledBedHeight - Math.floor(i / perRow) * (scaledBedHeight + rowPadding), // have it start from bottom
-          r: 0,
+          r: isOther ? 100 : 0,
         }
       })
+      this.availableBeds = _.filter(this.beds, d => !d.isOther)
     },
     updateBeds() {
       if (!this.infected) return
       if (this.day === 1) {
-        _.each(this.beds, d => d.r = 0)
+        _.each(this.availableBeds, d => d.r = 0)
       }
 
       this.tl.to(
-        this.beds,
+        this.availableBeds,
         {
           r: i => (i < this.filledBeds ? 100 : 0),
           duration: this.phases[1],
-          stagger: 0.02,
         },
         `day${this.day}-1`
       )
