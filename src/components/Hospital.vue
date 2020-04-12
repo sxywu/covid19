@@ -77,39 +77,42 @@ export default {
     },
   },
   methods: {
+    calculateBedScale(scale1, scale2) {
+      const scale = _.floor((scale1 + scale2) / 2, 4) // mid scale
+      const perRow = Math.floor(this.width / (this.bedWidth * scale))
+      const numRows = Math.ceil(this.showBeds / perRow)
+      const height = numRows * this.bedHeight * scale
+
+      if ((this.height - 20 <= height && height <= this.height) || (this.scale === scale)) {
+        // if beds height are within some padding
+        // or the scale is the same within 4 points of precision
+        return {scale, perRow, numRows}
+      }
+
+      this.scale = scale
+      if (height > this.height) {
+        // if the beds go over the container height
+        return this.calculateBedScale(scale1, scale)
+      } else {
+        // else beds are too short and need to scale up
+        return this.calculateBedScale(scale, scale2)
+      }
+    },
     setupBeds() {
       if (!this.totalBeds || this.beds.length) return
 
       // get SVG dimensions
-      let {top, left, width, height} = this.$refs.svg.getBoundingClientRect()
+      const {top, left, width, height} = this.$refs.svg.getBoundingClientRect()
       Object.assign(this.$data, {top, left, width, height})
 
       // calculate bed scale according to svg dimensions
-      let scale = 0.2
-      let perRow
-      let numRows
-      while (true) {
-        perRow = Math.floor(this.width / (this.bedWidth * scale))
-        width = perRow * this.bedWidth * scale
-        numRows = Math.ceil(this.showBeds / perRow)
-        height = numRows * this.bedHeight * scale
-        if (height > this.height) {
-          // if the beds go over the container height, scale down
-          scale -= 0.01
-        } else if (this.height - scale * this.bedHeight <= height && height <= this.height) {
-          // if beds are within some padding, use that scale
-          break
-        } else {
-          // else beds are too short and need to scale up
-          scale += 0.001
-        }
-      }
+      let {scale, perRow, numRows} = this.calculateBedScale(0.1, 0.3)
       this.scale = scale
-
-      const rowPadding = (this.height - height) / numRows
-      const columnPadding = (this.width - width) / perRow
       const scaledBedWidth = this.bedWidth * scale
       const scaledBedHeight = this.bedHeight * scale
+
+      const rowPadding = _.clamp((this.height - numRows * scaledBedHeight) / numRows, 0, 10)
+      const columnPadding = _.clamp((this.width - perRow * scaledBedWidth) / perRow, 0, 10)
       this.beds = _.times(this.showBeds, i => {
         return {
           color: '$gray',
