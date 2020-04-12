@@ -271,10 +271,9 @@ export default new Vuex.Store({
 
       return {people, houses, destinations, numGroups: numDestGroups}
     },
-    weeklyDecisions({allDecisions}, {week, community}) {
-      if (!community) return
-      return _.map(community.people, (person, i) => {
-        const numTimes = allDecisions[i % totalPlayers][week - 1]
+    weeklyDecisions({allDecisions}, {week}) {
+      return _.map(allDecisions, decisions => {
+        const numTimes = decisions[week - 1]
         const player = _.chain(7)
           .times(i => +(i <numTimes))
           .shuffle()
@@ -337,7 +336,7 @@ export default new Vuex.Store({
           daysSinceInfection,
           prevInfectious,
           prevInHospital,
-          weeklyDecisions[i].player[(day - 1) % 7],
+          weeklyDecisions[i % totalPlayers].player[(day - 1) % 7],
           infectedDestinations,
           infectedHouses,
         )
@@ -377,7 +376,7 @@ export default new Vuex.Store({
             prevBestAlternate.daysSinceInfection,
             prevBestAlternate.infectious,
             prevBestAlternate.inHospital,
-            weeklyDecisions[i].bestAlternate[(day - 1) % 7],
+            weeklyDecisions[i % totalPlayers].bestAlternate[(day - 1) % 7],
             bestAlternateDestinations,
             bestAlternateHouses
           ),
