@@ -124,7 +124,7 @@ export default {
       }
     },
     updateLineChart() {
-      this.xScale.domain([1, Math.max(this.day, 7)])
+      this.xScale.domain([1, this.week * 7])
 
       const allNumbers = _.chain(this.dailyHealthStatus)
         .map(d => _.map(types, type => d[type].total))
@@ -132,7 +132,24 @@ export default {
       const [min, max] = d3.extent(allNumbers, d => d)
       this.yScale.domain([_.floor(min, -1) || 1, _.ceil(max, -1)])
 
-      // animate path
+      if (this.day % 7 === 1) {
+        // if first day of week update rect and x axis right away
+        const firstDay = (this.week - 1) * 7
+        Object.assign(this.rect, {
+          x: this.xScale(firstDay),
+          width: this.xScale(firstDay + 7) - this.xScale(firstDay)
+        })
+        d3.select(this.$refs.xAxis).call(this.xAxis)
+
+        // and then recalculate all path points with new scale
+        _.each(this.paths, d => {
+          d.points = _.map(d.points, ([x, y], i) => {
+            return [_.round(this.xScale(i + 1), 2), y]
+          })
+        })
+      }
+
+      // calculate next point
       _.each(this.paths, d => {
         const nextPoints = _.map(this.dailyHealthStatus, o => {
           return [_.round(this.xScale(o.day), 2), _.round(this.yScale(o[d.type].total), 0)]
@@ -147,28 +164,14 @@ export default {
           nextPath: this.lineGenerator(nextPoints),
         })
       })
+
+      // else animate paths and y axis
       this.tl.to(this.paths, {
         duration: this.phases[1],
         path: (i, d) => d.nextPath,
       }, `day${this.day}-1`)
-
-      // animate week rectangle
-      const firstDay = (this.week - 1) * 7
-      if (this.day - 1 === firstDay) {
-        // if it's first day of week, recent rectangle
-        Object.assign(this.rect, {x: this.width - margin.right, width: 0})
-      }
-      this.tl.to(this.rect, {
-        duration: 0.25,
-        x: this.xScale(firstDay),
-        width: this.xScale(this.day) - this.xScale(firstDay),
-      }, `day${this.day}-1`)
-
-      // and at same time update scales
+      // y scale
       this.tl.add(() => {
-        d3.select(this.$refs.xAxis)
-          .transition()
-          .call(this.xAxis)
         d3.select(this.$refs.yAxis)
           .transition()
           .on('start', this.formatYAxis)
