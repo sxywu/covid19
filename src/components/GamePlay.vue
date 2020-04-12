@@ -31,7 +31,7 @@
         </div>
       </div>
       <!-- RIGHT PANEL -->
-      <div id="rightPanel">
+      <div id="rightPanel" :style="{width: `${rightWidth}px`}">
         <CommunityStats v-bind="{
           healthStatus,
           colorsByHealth,
@@ -39,7 +39,7 @@
           phases,
           playTimeline,
         }" />
-        <Hospital v-bind="{colorsByHealth, width: rightWidth, tl, phases, playTimeline}" />
+        <Hospital v-bind="{colorsByHealth, tl, phases, playTimeline}" />
       </div>
       <!-- BOTTOM PANEL -->
       <div id="bottomPanel">
@@ -114,8 +114,8 @@ export default {
   props: ['ageGroups', 'healthStatus', 'colorsByHealth'],
   data() {
     return {
-      width: window.innerWidth,
-      height: window.innerHeight,
+      width: maxWidth,
+      height: maxHeight,
       topHeight: 75,
       rightWidth: 320,
       bottomHeight: 180,
