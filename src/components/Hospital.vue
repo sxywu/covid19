@@ -2,8 +2,7 @@
   <div id="hospital">
     <h3 class="label">{{ hospital && hospital.name }}</h3>
     <div class="stats label">
-      <div>{{ filledBeds }} filled of {{
-        includeOthers ? `${totalBeds} total` : `${totalAvailableBeds} available` }} beds</div>
+      <div>{{ filledBeds }} filled of {{ totalAvailableBeds }} available ({{ totalBeds }} total beds)</div>
     </div>
     <svg ref="svg">
       <clipPath id="bedClip">
