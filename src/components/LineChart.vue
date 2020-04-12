@@ -118,13 +118,12 @@ export default {
         .map(d => _.map(types, type => d[type].total))
         .flatten().value()
       const [min, max] = d3.extent(allNumbers, d => d)
-      this.yScale.domain([_.floor(min, -1), _.ceil(max, -1)])
+      this.yScale.domain([_.floor(min, -1) || 1, _.ceil(max, -1)])
 
       _.each(this.paths, d => {
         const nextPoints = _.map(this.dailyHealthStatus, o => {
-          return [this.xScale(o.day), this.yScale(o[d.type].total)]
+          return [_.round(this.xScale(o.day), 2), _.round(this.yScale(o[d.type].total), 0)]
         })
-        // debugger
         // for sake of animation make previous path have same number of points as next set
         const lastPoint = d.points.length ? _.last(d.points) : nextPoints[0]
         _.times(this.dailyHealthStatus.length - d.points.length, i => d.points.push(lastPoint))

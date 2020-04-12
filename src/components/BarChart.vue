@@ -173,6 +173,9 @@ export default {
     formatYAxis(d, i, nodes) {
       const container = d3.select(nodes[0])
       container.select('path').remove()
+      container.selectAll('g')
+        .filter(d => !_.isInteger(d))
+        .remove()
       container.selectAll('line')
         .attr('stroke-dasharray', '5')
         .attr('stroke', '#cfcfcf')
