@@ -96,7 +96,7 @@ const maxWidth = 1320
 const maxHeight = 840
 const widthHeightRatio = maxWidth / maxHeight
 const padding = 40
-const needSetup = ['community', 'area', 'bar', 'hospital']
+const needSetup = ['community', 'area', 'bar', 'hospital', 'stats']
 
 export default {
   name: 'GamePlay',
@@ -172,6 +172,7 @@ export default {
       if (this.currentPage === 'game') {
         // if current page became "game" again that means we restarted
         this.tl.clear(true)
+        this.showDecision = false
         this.updateDay()
       }
     },

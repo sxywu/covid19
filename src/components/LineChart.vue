@@ -139,6 +139,7 @@ export default {
         x: this.width - margin.right, y: margin.top,
         width: 0, height: this.height - margin.top - margin.bottom,
       }
+      this.line = {}
     },
     updateLineChart() {
       this.xScale.domain([1, this.week * 7])
