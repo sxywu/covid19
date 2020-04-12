@@ -1,7 +1,7 @@
 <template>
   <div id="barChart">
     <svg :width="width" :height="height">
-      <text :x="margin.right" dy="1em" class="label">Infected cases by age group</text>
+      <text :x="margin.left" dy="1em" class="label">Infected cases by age group</text>
       <g ref="yAxis" :transform="`translate(${margin.left}, 0)`" />
       <g v-for="d in bars" v-if="d.height" :key="d.id" :transform='`translate(${d.x}, ${d.y})`'>
         <rect :width="barWidth" :height="d.height" :fill="d.color" opacity="0.75" />
@@ -17,7 +17,7 @@ import * as d3 from 'd3'
 import _ from 'lodash'
 
 const healthStatus = [2, 3, 4, 5]
-const margin = {top: 30, right: 0, bottom: 20, left: 30}
+const margin = {top: 30, right: 0, bottom: 20, left: 20}
 export default {
   name: 'BarChart',
   props: [

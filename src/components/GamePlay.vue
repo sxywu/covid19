@@ -269,7 +269,7 @@ export default {
 
 #bottomPanel {
   display: grid;
-  grid-template-columns: 0.75fr 1fr 1.5fr;
+  grid-template-columns: 180px 1fr 1.5fr;
   grid-row: 3;
   padding: 1rem;
   left: 0px;
