@@ -1,7 +1,7 @@
 <template>
   <div id="decideArea">
     <div>
-      <h1 class="header">{{ $t('decide.h1') }} {{ $tc('week', week) }}</h1>
+      <h1 class="header">{{ $tc('decide.h1', week) }}</h1>
       <div class="mt3">
         <h2>{{ $t('decide.h2Question') }}</h2>
         <div class="numTimes">
@@ -44,40 +44,12 @@ export default {
       virusImage,
       bedImage,
       numTimes: 0,
-      range: [
-        {
-          value: 0,
-          label: '',
-        },
-        {
-          value: 1,
-          label: 'go for a walk',
-        },
-        {
-          value: 2,
-          label: '& buy groceries',
-        },
-        {
-          value: 3,
-          label: '& go for a run',
-        },
-        {
-          value: 4,
-          label: '& lunch with a friend',
-        },
-        {
-          value: 5,
-          label: '& dinner with family',
-        },
-        {
-          value: 6,
-          label: '& go to a house party',
-        },
-        {
-          value: 7,
-          label: '& go to a concert',
-        },
-      ],
+      range: _.times(8, i => {
+        return {
+          value: i,
+          label: this.$t(`decide.range.${i}`),
+        }
+      }),
     }
   },
   computed: {

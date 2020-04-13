@@ -1,7 +1,7 @@
 <template>
   <div id="lineChart">
     <svg :width="width" :height="height">
-      <text class="header label" dy="1em">Total Cases Daily Growth Rate</text>
+      <text class="header label" dy="1em">{{ $t('lineChart.label') }}</text>
       <!-- WEEK -->
       <rect v-if="week > 1" :x="rect.x" :y="rect.y" :width="rect.width" :height="rect.height" />
       <!-- Y-AXIS -->
@@ -14,7 +14,7 @@
       <!-- HOSPITAL CAPACITY LINE -->
       <g class="label hospital" v-if="line.x" :transform="`translate(${line.x}, ${margin.top})`">
         <line :y2="height - margin.top - margin.bottom" :stroke="colorsByHealth[4]" />
-        <text text-anchor="middle" dy="-2" :fill="colorsByHealth[4]">Hospital Capacity Hit</text>
+        <text text-anchor="middle" dy="-2" :fill="colorsByHealth[4]">{{ $t('lineChart.hospital') }}</text>
       </g>
     </svg>
     <ul class="legend">
@@ -24,13 +24,13 @@
             <line :x2="legendSVGWidth" :stroke="pathColor" stroke-width="2"
               stroke-linecap="round" :stroke-dasharray="strokeDasharray" />
           </svg>
-          <span class="label">  {{ formatNumber(count) }} Cases</span>
+          <span class="label">  {{ $tc('lineChart.legend.cases', count) }}</span>
         </div>
         <div class="label">{{ label }}</div>
       </li>
       <li v-if="week > 1">
         <span class="week"></span>
-        <span class="label">  Current Week</span>
+        <span class="label">  {{ $t('lineChart.legend.currentWeek') }}</span>
       </li>
     </ul>
   </div>
@@ -107,10 +107,7 @@ export default {
         return {
           strokeDasharray: type === 'player' ? 0 : (type === 'worstAlternate' ? '2 4' : '12'),
           count: latest && latest[type].total,
-          label: type === "worstAlternate" ?
-            'Worst Case Scenario' : type === "player" ?
-            'Current Scenario' :
-            'Best Case Scenario'
+          label: this.$t(`lineChart.legend.types.${type}`),
         }
       })
     },

@@ -7,7 +7,7 @@
   "rural": "Rural",
   "food": "Food",
   "exercise": "Exercise",
-  "week": "{count} week | {count} weeks",
+  "week": "week",
   "day": "day",
   "outOf": "out of",
   "available": "available",
@@ -19,7 +19,7 @@
     "80": "over 80"
   },
   "healthStatus": {
-    "healthy": "Healthy",
+    "healthy": "Uninfected",
     "recovered": "Recovered",
     "infectedAsymptomatic": "Asymptomatic",
     "mildSymptoms": "Mild Symptoms",
@@ -27,25 +27,35 @@
     "deceased": "Deceased"
   },
   "landing": {
-    "explanation": "The first few cases of a new infectious disease that has caused a global pandemic has also arrived in your backyard. You have twelve weeks to save as many lives as you can in your community.",
-    "instruction": "First, enter your ZIP code. We’ll find out how densely populated your community is, and how many available hospital beds are in your area. Or choose a community size that resembles area you live in:",
-    "enterZip": "Enter Your ZIP Code",
-    "chooseCommunity": "Choose Community Size",
-    "gameInstruction1": "Each week you’ll have to decide how many times to go out.",
-    "gameInstruction2": "Because this virus spreads before people show symptoms, physical distancing is crucial to slowing down its spread. But you can’t do it alone, your whole community needs to be involved. Thankfully, you have the help of all the people that have visited the site before you. These 20 players each represent 5% of your local population.",
-    "gameInstruction3": "Their decisions and yours will determine how many lives are lost or saved in your community.",
-    "buttonCta": "Start Playing →"
+    "explanation1": "The first cases of a global pandemic have arrived in your backyard. Because the disease can be transmitted before symptoms appear, it has the potential to spread throughout the entire community—unless you take action now through physical distancing. The next 8 weeks are crucial for saving thousands of lives.",
+    "explanation2": "But you can’t do this alone! It’ll take the cooperation of the entire community to slow the spread of this disease. Together, you’ll have to find ways to meet your individual needs while limiting your outings as much as possible.",
+    "explanation3": "This game uses the decisions of 20 players—you and 19 other people who have played before—to determine how frequently people in your community leave their homes over the next 8 weeks. Each player’s choices will influence how 5% of the population behaves.",
+    "explanation4": "Their decisions and yours will determine how many lives are lost or saved.",
+    "instruction1": "To start, enter your <strong>zip code</strong> or choose a <strong>community size</strong>.",
+    "instruction2": "We’ll pull real data to set up the game with your community’s actual population, density, and number of available hospital beds.",
+    "buttonCta": "Start Playing →",
+    "errors": {
+      "invalidZip": "Invalid ZIP code",
+      "zipNotFound": "ZIP code not found, please try a different one"
+    }
   },
   "header": {
     "stayedHome": "Stayed Home",
     "hospitalCapacity": "Hospital Capacity"
   },
   "decide": {
-    "h1": "You've been fighting the virus for ",
-    "passedAway": "infected people have passed away",
-    "bedsOutOf": "beds are filled out of",
+    "h1": "You've been fighting the virus for one week | You've been fighting the virus for {count} weeks",
     "h2Question": "How many times will you go out this week?",
-    "sliderExplanation": "(1) go for a walk AND (2) buy groceries AND (3) go for a run AND (4) lunch with a friend AND (5) dinner with family AND (6) go to a house party AND (7) go to a concert",
+    "range": {
+      "0": "",
+      "1": "Go for a walk",
+      "2": "Buy groceries",
+      "3": "Go for a run",
+      "4": "Lunch with a friend",
+      "5": "Dinner with family",
+      "6": "Go to a house party",
+      "7": "Go to a concert"
+    },
     "cta": "Start Next Week →"
   },
   "communityStats": {
@@ -55,11 +65,20 @@
   "barChart": {
     "label": "Infected cases by age group"
   },
-  "areaChart": {
-    "label": "Infected cases by day"
+  "lineChart": {
+    "label": "Total cases by day",
+    "hospital": "Hospital Capacity Reached",
+    "legend": {
+      "cases": "{count} Case | {count} Cases",
+      "currentWeek": "Current Week",
+      "types": {
+        "player": "Current Scenario",
+        "worstAlternate": "Worst Case Scenario",
+        "bestAlternate": "Best Case Scenario"
+      }
+    }
   },
   "hospital": {
-    "filledOf": "filled of",
-    "totalBeds": "total beds"
+    "beds": "{filledBeds} Filled / {totalAvailableBeds} Available ({totalBeds} Total Beds)"
   }
 }
