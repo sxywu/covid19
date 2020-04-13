@@ -1,8 +1,8 @@
 <template>
   <div id="end">
-    <div class='content'>
+    <div class="content">
       <div>Some End Screen</div>
-      <button @click='playAgain'>Play Again</button>
+      <button @click="playAgain">Play Again</button>
     </div>
   </div>
 </template>
@@ -18,7 +18,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 #end {
   position: absolute;
   top: 0;

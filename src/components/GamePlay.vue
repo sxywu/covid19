@@ -1,6 +1,6 @@
 <template>
   <div id="gameplay" :style="{width: `${width}px`, height: `${height}px`}">
-    <div class="container">
+    <div class="gameContainer">
       <!-- TOP PANEL -->
       <div id="topPanel">
         <Header v-bind="{height: topHeight}" />
@@ -235,7 +235,7 @@ export default {
     0 100px 80px rgba(0, 0, 0, 0.03);
 }
 
-.container {
+.gameContainer {
   position: relative;
   display: grid;
   height: 100%;
@@ -294,5 +294,4 @@ export default {
   top: -20px;
   right: 0px;
 }
-
 </style>
