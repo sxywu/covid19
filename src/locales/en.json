@@ -55,8 +55,18 @@
   "barChart": {
     "label": "Infected cases by age group"
   },
-  "areaChart": {
-    "label": "Infected cases by day"
+  "lineChart": {
+    "label": "Total cases by day",
+    "hospital": "Hospital Capacity Reached",
+    "legend": {
+      "cases": "{count} Case | {count} Cases",
+      "currentWeek": "Current Week",
+      "types": {
+        "player": "Current Scenario",
+        "worstAlternate": "Worst Case Scenario",
+        "bestAlternate": "Best Case Scenario"
+      }
+    }
   },
   "hospital": {
     "filledOf": "filled of",
