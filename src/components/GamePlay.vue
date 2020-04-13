@@ -1,55 +1,50 @@
 <template>
   <div id="gameplay" :style="{width: `${width}px`, height: `${height}px`}">
-    <div class="container">
+    <div class="gameContainer">
       <!-- TOP PANEL -->
       <div id="topPanel">
-        <Header />
+        <Header v-bind="{height: topHeight}" />
       </div>
       <!-- COMMUNITY -->
       <div id="communityPanel">
         <Community
           v-bind="{
+            ...communityDimensions,
             colorsByHealth,
-            width,
-            height,
-            rightWidth,
             tl,
             phases,
             playTimeline,
             setGroups,
           }"
         />
-        <div id="actions">
-          <!-- MINIMAP -->
-          <div id="minimapContainer">
-            <Minimap
-              v-bind="{
-                ...minimapDimensions,
-                groups,
-                colorsByHealth,
-                containerWidth: width,
-                containerHeight: height,
-              }"
-            />
-          </div>
+        <!-- MINIMAP -->
+        <div id="minimapContainer">
+          <Minimap
+            v-bind="{
+              ...minimapDimensions,
+              groups,
+              colorsByHealth,
+              containerWidth: width,
+              containerHeight: height,
+            }"
+          />
         </div>
       </div>
 
       <!-- RIGHT PANEL -->
-      <div id="rightPanel">
-        <CommunityStats
-          v-bind="{
+      <div id="rightPanel" :style="{width: `${rightWidth}px`}">
+        <CommunityStats v-bind="{
           healthStatus,
+          colorsByHealth,
           tl,
           phases,
           playTimeline,
-        }"
-        />
-        <Hospital v-bind="{colorsByHealth, width: rightWidth, tl, phases, playTimeline}" />
+        }" />
+        <Hospital v-bind="{colorsByHealth, tl, phases, playTimeline}" />
       </div>
       <!-- BOTTOM PANEL -->
       <div id="bottomPanel">
-        <Legend />
+        <Legend v-bind="{healthStatus, colorsByHealth}" />
         <BarChart
           v-bind="{
             height: bottomHeight,
@@ -60,7 +55,7 @@
             playTimeline,
           }"
         />
-        <AreaChart
+        <LineChart
           v-bind="{
             height: bottomHeight,
             ageGroups,
@@ -77,6 +72,10 @@
               }" />
         </div>
       </div>
+      <!-- DECISION SCREEN -->
+      <Decide v-if="showDecision" v-bind="{
+          onUpdate: updateDecision,
+        }" />
     </div>
     <div class="zipCode">
       ZIP CODE:
@@ -96,13 +95,15 @@ import CommunityStats from './CommunityStats'
 import Minimap from './Minimap'
 import Hospital from './Hospital'
 import BarChart from './BarChart'
-import AreaChart from './AreaChart'
+import LineChart from './LineChart'
 import Header from './Header'
 import Legend from './Legend'
 
-const widthHeightRatio = 16 / 9
+const maxWidth = 1320
+const maxHeight = 840
+const widthHeightRatio = maxWidth / maxHeight
 const padding = 40
-const needSetup = ['community', 'area', 'bar', 'hospital']
+const needSetup = ['community', 'area', 'bar', 'hospital', 'stats']
 
 export default {
   name: 'GamePlay',
@@ -113,20 +114,18 @@ export default {
     Minimap,
     Hospital,
     BarChart,
-    AreaChart,
+    LineChart,
     Header,
     Legend,
   },
   props: ['ageGroups', 'healthStatus', 'colorsByHealth'],
   data() {
     return {
-      // width: 1320,
-      // height: 568,
-      width: window.innerWidth,
-      height: window.innerHeight,
-      topHeight: 40,
+      width: maxWidth,
+      height: maxHeight,
+      topHeight: 75,
       rightWidth: 320,
-      bottomHeight: 150,
+      bottomHeight: 180,
       tl: new gsap.timeline({ paused: true }),
       phases: [0.5, 0.75, 0.75],
       groups: [],
@@ -148,6 +147,14 @@ export default {
     },
     population() {
       return this.$store.getters.population || {}
+    },
+    communityDimensions() {
+      return {
+        top: 0,
+        left: this.topHeight,
+        width: this.width - this.rightWidth,
+        height: this.height - this.topHeight - this.bottomHeight,
+      }
     },
     minimapDimensions() {
       const width = 140
@@ -172,6 +179,7 @@ export default {
       if (this.currentPage === 'game') {
         // if current page became "game" again that means we restarted
         this.tl.clear(true)
+        this.showDecision = false
         this.updateDay()
       }
     },
@@ -181,8 +189,8 @@ export default {
       this.groups = groups
     },
     calculateDimensions() {
-      this.width = window.innerWidth - padding
-      this.height = (1 / widthHeightRatio) * this.width
+      this.width = Math.min(window.innerWidth - padding, maxWidth)
+      this.height = Math.min((1 / widthHeightRatio) * this.width, maxHeight)
     },
     updateDecision(numTimes) {
       this.showDecision = false
@@ -223,8 +231,8 @@ export default {
 
 <style lang="scss" scoped>
 #gameplay {
-  max-width: 1320px;
-  max-height: 840px;
+  // max-width: 1320px;
+  // max-height: 840px;
   background: white;
   border-radius: 6px;
   overflow: hidden;
@@ -234,7 +242,7 @@ export default {
     0 100px 80px rgba(0, 0, 0, 0.03);
 }
 
-.container {
+.gameContainer {
   position: relative;
   display: grid;
   height: 100%;
@@ -262,22 +270,19 @@ export default {
   grid-column: 2;
   grid-row-start: 2;
   grid-row-end: 4;
+  right: 0px;
+  bottom: 0px;
+  border-left: 1px solid $gray;
 }
 
 #bottomPanel {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 180px 1fr 1.5fr;
   grid-row: 3;
   padding: 1rem;
-}
-
-#actions {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  left: 0px;
+  bottom: 0px;
+  border-top: 1px solid $gray;
 }
 
 #minimapContainer {
@@ -291,32 +296,9 @@ export default {
   position: absolute;
 }
 
-#rightPanel {
-  right: 0px;
-  bottom: 0px;
-  border-left: 1px solid $gray;
-}
-
-#bottomPanel {
-  left: 0px;
-  bottom: 0px;
-  border-top: 1px solid $gray;
-}
-
 .zipCode {
   position: absolute;
   top: -20px;
   right: 0px;
-}
-
-.decision {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255, 255, 255, 0.95);
-  text-align: center;
 }
 </style>

@@ -1,45 +1,21 @@
 <template>
   <div id="decideArea">
-    <h1 class="header">You've been fighting the virus for {{ week }} week{{ week > 1 ? 's' : ''}}.</h1>
-    <div class="flex info mx justify-between">
-      <div class="flex w100 mr1 virus-info">
-        <img :src="virusImage" class="virus mr1" />
-        <div class="flex w100 flex-column align-justify">
-          <ProgressBar v-bind="{value: current[5], maxValue: current.total}" />
-          <div class="mt2">
-            <strong>{{ formatNumber(current[5] || 0) }}</strong> out of
-            <strong>{{ formatNumber(current.total) }}</strong> infected people have passed away
+    <div>
+      <h1 class="header">{{ $t('decide.h1') }} {{ $tc('week', week) }}</h1>
+      <div class="mt3">
+        <h2>{{ $t('decide.h2Question') }}</h2>
+        <div class="numTimes">
+          <range-slider class="slider" min="0" max="6" v-model="numTimes" />
+          <!-- <input type="range" min="0" max="7" v-model="numTimes" /> -->
+          <div class="labels">
+            <div v-for="(value) in range" v-bind:key="value">
+              <label for="range" v-if="value === numTimes" style="font-weight: bold;">{{ value }}</label>
+              <label for="range" v-if="value !== numTimes">{{ value }}</label>
+            </div>
           </div>
         </div>
+        <button @click="onUpdate(numTimes)" class="decideBtn mt3">{{ $t('decide.cta') }}</button>
       </div>
-      <div class="flex w100 bed-info">
-        <img :src="bedImage" class="virus" />
-        <div class="flex w100 flex-column align-justify">
-          <ProgressBar v-bind="{value: filledBeds, maxValue: totalAvailableBeds}" />
-          <div class="mt2">
-            <strong>{{ formatNumber(filledBeds) }}</strong> beds are filled
-            out of
-            <strong>{{ formatNumber(totalAvailableBeds) }}</strong> available
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="decide">
-      <h2>What activities are you going to do next week?</h2>
-      <div class="numTimes">
-        <range-slider class="slider" min="0" max="6" v-model="numTimes" />
-        <!-- <input type="range" min="0" max="7" v-model="numTimes" /> -->
-        <div class="labels">
-          <div v-for="(value) in range" v-bind:key="value">
-            <label for="range" v-if="value === numTimes" style="font-weight: bold;">{{ value }}</label>
-            <label for="range" v-if="value !== numTimes">{{ value }}</label>
-          </div>
-        </div>
-        <!-- <div>(1) go for a walk AND (2) buy groceries AND (3) go for a run AND (4) lunch with a friend AND (5) dinner with family AND (6) go to a house party AND (7) go to a concert</div> -->
-        <!-- <output for="range">{{ numTimes }}</output> -->
-      </div>
-
-      <button @click="onUpdate(numTimes)" class="decideBtn mt3">Start Next Week →</button>
     </div>
   </div>
 </template>
@@ -66,13 +42,38 @@ export default {
       bedImage,
       numTimes: 0,
       range: [
-        'go for a walk',
-        'buy groceries',
-        'go for a run',
-        'lunch with a friend',
-        'dinner with family',
-        'go to a house party',
-        'go to a concert',
+        {
+          value: 0,
+          label: '',
+        },
+        {
+          value: 1,
+          label: 'go for a walk',
+        },
+        {
+          value: 2,
+          label: '& buy groceries',
+        },
+        {
+          value: 3,
+          label: '& go for a run',
+        },
+        {
+          value: 4,
+          label: '& lunch with a friend',
+        },
+        {
+          value: 5,
+          label: '& dinner with family',
+        },
+        {
+          value: 6,
+          label: '& go to a house party',
+        },
+        {
+          value: 7,
+          label: '& go to a concert',
+        },
       ],
     }
   },
@@ -107,6 +108,15 @@ export default {
 
 <style lang="scss" scoped>
 #decideArea {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid $gray;
+  background: rgba(255, 255, 255, 0.9);
+  text-align: center;
 }
 
 .header {
@@ -174,10 +184,10 @@ export default {
 }
 
 .decideBtn {
-  margin-top: 4rem;
   background-color: $red;
   color: #fff;
   padding: 1rem 2rem;
+  margin: 2rem 0;
   border: none;
   border-radius: 5px;
   box-shadow: 0 5px #d23658;
@@ -196,7 +206,7 @@ export default {
   flex-direction: column;
   .labels {
     margin: 0 auto;
-    max-width: 900px;
+    max-width: 780px;
     justify-content: flex-start;
     width: 100%;
     display: grid;
