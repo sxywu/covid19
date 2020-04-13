@@ -1,6 +1,12 @@
 <template>
   <div id="app">
-    <GamePlay v-bind="$data" />
+    <GamePlay
+      v-bind="$data"
+      :style="{
+        display: currentPage === 'landing' ? 'none' : 'block',
+        visibility: currentPage === 'landing' ? 'hidden' : 'visible',
+      }"
+    />
     <LandingPage v-if="currentPage === 'landing'" />
     <EndPage v-if="currentPage === 'end'" />
     <FailedPage v-if="currentPage === 'failed'" />
@@ -24,19 +30,19 @@ export default {
   data() {
     return {
       ageGroups: {
-        '0': 'Under 19',
-        '20': '20 to 39',
-        '40': '40 to 59',
-        '60': '60 to 79',
-        '80': 'Over 80',
+        '0': this.$t('ageGroups.0'),
+        '20': this.$t('ageGroups.20'),
+        '40': this.$t('ageGroups.40'),
+        '60': this.$t('ageGroups.60'),
+        '80': this.$t('ageGroups.80'),
       },
       healthStatus: [
-        'Healthy',
-        'Recovered',
-        'Infected, asymptomatic',
-        'Mild symptoms',
-        'Severe symptoms',
-        'Deceased',
+        this.$t('healthStatus.healthy'),
+        this.$t('healthStatus.recovered'),
+        this.$t('healthStatus.infectedAsymptomatic'),
+        this.$t('healthStatus.mildSymptoms'),
+        this.$t('healthStatus.severeSymptoms'),
+        this.$t('healthStatus.deceased'),
       ],
       colorsByHealth: [
         '#e1e0ed',
@@ -73,8 +79,6 @@ export default {
   align-items: center;
   justify-content: center;
   color: $text;
-  padding: 2rem;
-  padding-bottom: 5rem;
   background-color: $gray;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
     Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;

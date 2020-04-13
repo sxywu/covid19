@@ -1,0 +1,65 @@
+{
+  "title": "The Game Title",
+  "subtitle": "Lorem Ipsum Dolor Sit",
+  "or": "or",
+  "urban": "Urban",
+  "suburban": "Suburban",
+  "rural": "Rural",
+  "food": "Food",
+  "exercise": "Exercise",
+  "week": "{count} week | {count} weeks",
+  "day": "day",
+  "outOf": "out of",
+  "available": "available",
+  "ageGroups": {
+    "0": "under 19",
+    "20": "20 to 39",
+    "40": "40 to 59",
+    "60": "60 to 79",
+    "80": "over 80"
+  },
+  "healthStatus": {
+    "healthy": "Healthy",
+    "recovered": "Recovered",
+    "infectedAsymptomatic": "Asymptomatic",
+    "mildSymptoms": "Mild Symptoms",
+    "severeSymptoms": "Severe Symptoms",
+    "deceased": "Deceased"
+  },
+  "landing": {
+    "explanation": "The first few cases of a new infectious disease that has caused a global pandemic has also arrived in your backyard. You have twelve weeks to save as many lives as you can in your community.",
+    "instruction": "First, enter your ZIP code. We’ll find out how densely populated your community is, and how many available hospital beds are in your area. Or choose a community size that resembles area you live in:",
+    "enterZip": "Enter Your ZIP Code",
+    "chooseCommunity": "Choose Community Size",
+    "gameInstruction1": "Each week you’ll have to decide how many times to go out.",
+    "gameInstruction2": "Because this virus spreads before people show symptoms, physical distancing is crucial to slowing down its spread. But you can’t do it alone, your whole community needs to be involved. Thankfully, you have the help of all the people that have visited the site before you. These 20 players each represent 5% of your local population.",
+    "gameInstruction3": "Their decisions and yours will determine how many lives are lost or saved in your community.",
+    "buttonCta": "Start Playing →"
+  },
+  "header": {
+    "stayedHome": "Stayed Home",
+    "hospitalCapacity": "Hospital Capacity"
+  },
+  "decide": {
+    "h1": "You've been fighting the virus for ",
+    "passedAway": "infected people have passed away",
+    "bedsOutOf": "beds are filled out of",
+    "h2Question": "How many times will you go out this week?",
+    "sliderExplanation": "(1) go for a walk AND (2) buy groceries AND (3) go for a run AND (4) lunch with a friend AND (5) dinner with family AND (6) go to a house party AND (7) go to a concert",
+    "cta": "Start Next Week →"
+  },
+  "communityStats": {
+    "total": "total cases",
+    "avoided": "avoided cases"
+  },
+  "barChart": {
+    "label": "Infected cases by age group"
+  },
+  "areaChart": {
+    "label": "Infected cases by day"
+  },
+  "hospital": {
+    "filledOf": "filled of",
+    "totalBeds": "total beds"
+  }
+}

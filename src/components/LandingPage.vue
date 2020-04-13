@@ -1,27 +1,109 @@
 <template>
   <div id="landing">
-    <form class="content" @submit="startPlay">
-      <label class="zipInput">
-        <strong>
-          Enter Your ZIP Code
-        </strong>
-        <input
-          type="number"
-          v-model="zipCode"
-          placeholder="For example: 94203"
-          pattern="/(^\d{5}$)|(^\d{5}-\d{4}$)/"
-        />
-        <div v-if="errors['zipCode']" class="zipCodeError">
-          {{ errors['zipCode'] }}
-        </div>
-      </label>
-      <button type="submit" class="playNowBtn">Start Playing →</button>
-    </form>
+    <div class="bg" />
+    <div class="container">
+      <header>
+        <h1>{{ $t('title') }}</h1>
+        <h2>{{ $t('subtitle') }}</h2>
+        <hr />
+      </header>
+      <div class="content">
+        <p>{{ $t('landing.explanation') }}</p>
+        <p>{{ $t('landing.instruction') }}</p>
+        <form @submit="startPlay">
+          <div class="inputs">
+            <div class="zipCode">
+              <label for="zip">{{ $t('landing.enterZip') }}</label>
+              <input
+                type="number"
+                class="zip"
+                id="zip"
+                v-model="zipCode"
+                placeholder="For example: 00603"
+                pattern="/(^\d{5}$)|(^\d{5}-\d{4}$)/"
+              />
+            </div>
+            <span>{{ $t('or') }}</span>
+            <fieldset>
+              <legend>{{ $t('landing.chooseCommunity') }}</legend>
+              <div class="communitySize">
+                <div class="radioWrapper">
+                  <input
+                    type="radio"
+                    id="urban"
+                    name="communitySize"
+                    value="Urban"
+                  />
+                  <label for="urban">{{ $t('urban') }}</label>
+                </div>
+                <div class="radioWrapper">
+                  <input
+                    type="radio"
+                    id="suburban"
+                    name="communitySize"
+                    value="Suburban"
+                  />
+                  <label for="suburban">{{ $t('suburban') }}</label>
+                </div>
+                <div class="radioWrapper">
+                  <input
+                    type="radio"
+                    id="rural"
+                    name="communitySize"
+                    value="Rural"
+                  />
+                  <label for="rural">{{ $t('rural') }}</label>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+          <div v-if="errors['zipCode']" class="zipCodeError">
+            {{ errors['zipCode'] }}
+          </div>
+          <p>{{ $t('landing.gameInstruction1') }}</p>
+          <p>
+            {{ $t('landing.gameInstruction2') }}
+          </p>
+          <div class="people">
+            <img src="../assets/person-2.svg" />
+            <img src="../assets/person-1.svg" />
+            <img src="../assets/person-2.svg" />
+            <img src="../assets/person-1.svg" />
+            <img src="../assets/person-1.svg" />
+            <img src="../assets/person-2.svg" />
+            <img src="../assets/person-1.svg" />
+            <img src="../assets/person-2.svg" />
+            <img src="../assets/person-1.svg" />
+            <img src="../assets/person-1.svg" />
+            <img src="../assets/person-2.svg" />
+            <img src="../assets/person-1.svg" />
+            <img src="../assets/person-1.svg" />
+            <img src="../assets/person-2.svg" />
+            <img src="../assets/person-2.svg" />
+            <img src="../assets/person-1.svg" />
+            <img src="../assets/person-1.svg" />
+            <img src="../assets/person-2.svg" />
+            <img src="../assets/person-1.svg" />
+            <img src="../assets/person-2.svg" />
+          </div>
+          <p style="margin: 2.5rem auto; text-align: center; max-width: 380px;">
+            {{ $t('landing.gameInstruction3') }}
+          </p>
+          <button type="submit" class="playNowBtn">
+            {{ $t('landing.buttonCta') }}
+          </button>
+          <div v-if="errors['zipCode']" class="zipCodeError">
+            {{ errors['zipCode'] }}
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 import _ from 'lodash'
+
 export default {
   name: 'LandingPage',
   data() {
@@ -56,7 +138,7 @@ export default {
         event: e,
         condition: !validZip.test(this.zipCode),
         fieldName: 'zipCode',
-        errorMessage: 'zipcode is invalid',
+        errorMessage: 'Invalid ZIP code',
       })
 
       if (_.isEmpty(this.errors.zipCode)) {
@@ -64,7 +146,7 @@ export default {
           event: e,
           condition: !_.includes(this.zips, this.zipCode),
           fieldName: 'zipCode',
-          errorMessage: 'zipcode not found, please try another',
+          errorMessage: 'ZIP code not found, please try a different one',
         })
       }
 
@@ -75,28 +157,186 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 #landing {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(255, 255, 255, 0.95);
-}
-
-.content {
-  margin-left: 50%;
-  margin-top: 50%;
-  transform: translate(-50%, -50%);
+  width: 100%;
+  min-height: 100vh;
   display: flex;
-  justify-content: space-around;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5rem 2rem;
+  background: linear-gradient(#fff 50%, $gray);
+  @include respond-to('small') {
+    padding: 2rem;
+  }
 }
-
+form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 1.25rem;
+  }
+  .inputs {
+    padding: 1.5rem 0;
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 0.15fr 1fr;
+    grid-gap: 1rem;
+    align-items: center;
+  }
+  .zipCode {
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    input[type='number'] {
+      -moz-appearance: textfield;
+    }
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    label {
+      padding: 0;
+      margin: 0;
+      margin-bottom: 0.5rem;
+      font-weight: bold;
+      text-align: center;
+    }
+    input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
+      border: 1px solid rgba(0, 0, 0, 0.3);
+      border-radius: 5px;
+    }
+  }
+  fieldset {
+    padding: 0;
+    border: none;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  legend {
+    margin: 0 auto;
+    padding: 0;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+  }
+  .communitySize {
+    width: 100%;
+    display: grid;
+    font-size: 1rem;
+    grid-template-columns: 1fr 1fr 1fr;
+    align-items: center;
+    text-align: center;
+    border-radius: 5px;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+  }
+  label {
+    width: 100%;
+    height: 100%;
+    padding: 0.75rem 0;
+  }
+  .radioWrapper {
+    width: 100%;
+    display: flex;
+    &:not(:last-of-type) {
+      border-right: 1px solid rgba(0, 0, 0, 0.3);
+    }
+  }
+  input[type='radio'] {
+    opacity: 0;
+    position: absolute;
+  }
+  input[type='radio'] + label {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+  }
+  input[type='radio']:focus + label {
+    outline: 1px dotted $aqua;
+    outline: 5px auto -webkit-focus-ring-color;
+  }
+  input[type='radio']:checked + label {
+    background: $text;
+    color: white;
+  }
+}
+header {
+  padding: 4rem 4rem 0 4rem;
+  text-align: center;
+  h1 {
+    font-size: 3.75rem;
+    margin-bottom: 0;
+  }
+  h2 {
+    margin-top: 0.5rem;
+    font-size: 1.75rem;
+    font-weight: normal;
+    opacity: 0.7;
+  }
+  hr {
+    border: none;
+    height: 3px;
+    width: 32px;
+    background: $primary;
+    margin-top: 3rem;
+    opacity: 0.7;
+  }
+  @include respond-to('small') {
+    padding: 2rem 2rem 0 2rem;
+    h1 {
+      font-size: 2.75rem;
+    }
+    h2 {
+      font-size: 1.5rem;
+    }
+    hr {
+      margin-top: 2rem;
+    }
+  }
+}
+.container {
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+  position: relative;
+  padding-bottom: 4rem;
+  z-index: 10;
+  box-shadow: 0 2.8px 2.2px rgba(0, 0, 0, 0.008),
+    0 6.7px 5.3px rgba(0, 0, 0, 0.012), 0 12.5px 10px rgba(0, 0, 0, 0.015),
+    0 22.3px 17.9px rgba(0, 0, 0, 0.018), 0 41.8px 33.4px rgba(0, 0, 0, 0.022),
+    0 100px 80px rgba(0, 0, 0, 0.03);
+}
+.content {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  padding: 2rem 4rem 4rem 4rem;
+  p {
+    width: 100%;
+    font-size: 1.15rem;
+    line-height: 1.55;
+    opacity: 0.85;
+    max-width: 640px;
+  }
+  @include respond-to('medium') {
+    padding: 1rem 2rem 2rem 2rem;
+  }
+}
 .zipInput {
   display: flex;
   flex-direction: column;
-
   strong {
     margin-bottom: 5px;
   }
@@ -106,17 +346,48 @@ export default {
     border-radius: 5px;
   }
 }
-
 .zipCodeError {
-  color: red;
+  padding-top: 0.5rem;
+  color: $red;
   text-align: justify;
 }
-
 .playNowBtn {
-  background-color: #393939;
+  background-color: $red;
   color: #fff;
-  padding: 10px 30px;
+  padding: 1rem 2rem;
+  margin: 1rem 0;
   border: none;
   border-radius: 5px;
+  box-shadow: 0 5px #d23658;
+  &:hover {
+    filter: brightness(0.9) contrast(1.2) saturate(0.9);
+  }
+}
+.bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  min-height: 640px;
+  overflow: hidden;
+  z-index: 0;
+  background-image: url('../assets/bg.png');
+  background-repeat: repeat-x;
+  background-position: 0 -60px;
+  background-size: 1040px;
+}
+.people {
+  margin-top: 1.5rem;
+  width: 100%;
+  display: grid;
+  grid-gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(45px, 1fr));
+  grid-template-rows: 1fr 1fr;
+  img {
+    width: 100%;
+  }
+  @include respond-to('small') {
+    grid-template-columns: repeat(auto-fill, minmax(35px, 1fr));
+  }
 }
 </style>
