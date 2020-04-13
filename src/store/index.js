@@ -271,22 +271,7 @@ export default new Vuex.Store({
 
       return {people, houses, destinations, numGroups: numDestGroups}
     },
-    weeklyDecisions({allDecisions}, {week}) {
-      return _.map(allDecisions, decisions => {
-        const numTimes = decisions[week - 1]
-        const player = _.chain(7)
-          .times(i => +(i <numTimes))
-          .shuffle()
-          .value()
-        return {
-          player,
-          // for best alternate, have everyone go out the same amount in week 1
-          // and after week 1, only go out once a week
-          bestAlternate: week === 1 ? player : _.shuffle([1, 0, 0, 0, 0, 0, 0]),
-        }
-      })
-    },
-    infected({day}, {community, weeklyDecisions, totalAvailableBeds}) {
+    infected({day, allDecisions}, {week, community, totalAvailableBeds}) {
       if (!community) return
       const {people, houses, destinations} = community
 
@@ -326,7 +311,30 @@ export default new Vuex.Store({
           daysSinceInfection,
           worstAlternate: prevWorstAlternate,
           bestAlternate: prevBestAlternate,
+          weeklyDecision,
         } = prevInfected[i]
+
+        const dayOfWeek = (day - 1) % 7
+        // if this is first day of week
+        if (dayOfWeek === 0) {
+          const numTimes = allDecisions[i % totalPlayers][week - 1]
+          let player
+          if (numTimes === 7) {
+            player = [1, 1, 1, 1, 1, 1, 1]
+          } else {
+            // TODO: OPTIMIZE PERFORMANCE
+            player = _.chain(7)
+              .times(i => +(i <numTimes))
+              .shuffle()
+              .value()
+          }
+          weeklyDecision = {
+            player,
+            // for best alternate, have everyone go out the same amount in week 1
+            // and after week 1, only go out once a week
+            bestAlternate: week === 1 ? player : _.shuffle([1, 0, 0, 0, 0, 0, 0]),
+          }
+        }
 
         // calculate everyone's new health/infectiousness for current day
         daysSinceInfection += !!daysSinceInfection // if days = 0, don't add any, if >0 then add 1
@@ -336,7 +344,7 @@ export default new Vuex.Store({
           daysSinceInfection,
           prevInfectious,
           prevInHospital,
-          weeklyDecisions[i % totalPlayers].player[(day - 1) % 7],
+          weeklyDecision.player[dayOfWeek],
           infectedDestinations,
           infectedHouses,
         )
@@ -376,7 +384,7 @@ export default new Vuex.Store({
             prevBestAlternate.daysSinceInfection,
             prevBestAlternate.infectious,
             prevBestAlternate.inHospital,
-            weeklyDecisions[i % totalPlayers].bestAlternate[(day - 1) % 7],
+            weeklyDecision.bestAlternate[dayOfWeek],
             bestAlternateDestinations,
             bestAlternateHouses
           ),
@@ -397,6 +405,7 @@ export default new Vuex.Store({
           inHospital,
           worstAlternate,
           bestAlternate,
+          weeklyDecision,
         }
       })
 
