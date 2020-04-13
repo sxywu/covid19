@@ -1,5 +1,5 @@
 <template>
-  <div id="header">
+  <div id="header" :style="{height: `${height}px`}">
     <div class="item">
       <svg xmlns="http://www.w3.org/2000/svg" width="23" height="22" viewBox="0 0 23 22">
         <path
@@ -63,6 +63,7 @@ export default {
   components: {
     ProgressBar,
   },
+  props: ['height'],
   computed: {
     day() {
       return this.$store.state.day
@@ -96,7 +97,6 @@ export default {
 #header {
   display: grid;
   grid-template-columns: 1fr 1fr 80px 80px 1fr 1fr;
-  height: 100%;
 
   h3,
   h4 {

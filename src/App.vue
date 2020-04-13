@@ -28,7 +28,7 @@ export default {
         '80': 'Over 80',
       },
       healthStatus: [
-        'Healthy',
+        'Uninfected',
         'Recovered',
         'Infected, asymptomatic',
         'Mild symptoms',

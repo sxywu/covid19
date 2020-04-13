@@ -59,7 +59,8 @@ export default {
     'colorsByHealth',
     'width',
     'height',
-    'rightWidth',
+    'top',
+    'left',
     'tl',
     'phases',
     'playTimeline',
@@ -83,7 +84,7 @@ export default {
       return this.$store.getters.infected
     },
     center() {
-      return { x: (this.width - this.rightWidth) / 2, y: this.height / 2 }
+      return { x: this.width / 2, y: this.height / 2 + this.top }
     }
   },
   mounted() {
