@@ -2,11 +2,11 @@
   <div id="communityStats">
     <header>
       <div>
-        <h3 class="label">total cases</h3>
+        <h3 class="label">{{ $t('communityStats.total') }}</h3>
         <h4>{{ formatNumber(total) }}</h4>
       </div>
       <div>
-        <h3 class="label">avoided cases</h3>
+        <h3 class="label">{{ $t('communityStats.avoided') }}</h3>
         <h4>{{ formatNumber(avoided) }}</h4>
       </div>
     </header>
@@ -42,7 +42,36 @@ export default {
     return {
       total: 0,
       avoided: 0,
-      items: _.map([4, 5, 1], num => {
+      items: [],
+    }
+  },
+  computed: {
+    day() {
+      return this.$store.state.day
+    },
+    duration() {
+      return _.sum(this.phases)
+    },
+    stats() {
+      return _.last(this.$store.getters.dailyHealthStatus)
+    },
+  },
+  watch: {
+    day() {
+      if (this.day === 1) {
+        this.resetNumbers()
+      }
+    },
+    stats() {
+      this.animateNumbers()
+    },
+  },
+  methods: {
+    resetNumbers() {
+      this.total = 0
+      this.avoided = 0
+
+      this.items = _.map([4, 5, 1], num => {
         return {
           color: this.colorsByHealth[num],
           label: this.healthStatus[num],
@@ -50,54 +79,25 @@ export default {
           maxValue: 0,
           num,
         }
-      }),
-    }
-  },
-  computed: {
-    day() {
-      return this.$store.state.day
-    },
-    infected() {
-      return this.$store.getters.infected
-    },
-    duration() {
-      return _.sum(this.phases)
-    },
-  },
-  watch: {
-    infected() {
-      this.calculateNumbers()
-      this.animateNumbers()
-    },
-  },
-  methods: {
-    calculateNumbers() {
-      const current = _.countBy(this.infected, 'health')
-      this.current = {
-        total: _.sumBy([1, 2, 3, 4, 5], d => current[d] || 0),
-        ...current,
-      }
-      const worstAlternate = _.chain(this.infected)
-        .map(d => d.worstAlternate.health)
-        .countBy()
-        .value()
-      this.worstAlternate = {
-        total: _.sumBy([1, 2, 3, 4, 5], d => worstAlternate[d] || 0),
-        ...worstAlternate,
-      }
+      })
     },
     animateNumbers() {
+      if (!this.stats) return
+      const {player, worstAlternate} = this.stats
+
       this.tl.to(this.$data, {
-        total: this.current.total,
-        avoided: Math.max(this.worstAlternate.total - this.current.total, 0),
+        total: player.total,
+        avoided: Math.max(worstAlternate.total - player.total, 0),
         duration: this.duration,
       }, `day${this.day}`)
 
       this.tl.to(this.items, {
-        value: (i, {num}) => this.current[num] || 0,
-        maxValue: this.current.total,
+        value: (i, {num}) => player[num] || 0,
+        maxValue: player.total,
         duration: this.duration,
       }, `day${this.day}`)
+
+      this.playTimeline('stats')
     },
     formatNumber(number) {
       return d3.format(',')(Math.round(number))

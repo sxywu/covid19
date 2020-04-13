@@ -19,8 +19,6 @@ export default {
 
 <style lang="scss" scoped>
 #legend {
-  min-width: 180px;
-
   ul,
   li {
     list-style-type: none;
