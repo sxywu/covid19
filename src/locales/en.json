@@ -34,7 +34,11 @@
     "gameInstruction1": "Each week you’ll have to decide how many times to go out.",
     "gameInstruction2": "Because this virus spreads before people show symptoms, physical distancing is crucial to slowing down its spread. But you can’t do it alone, your whole community needs to be involved. Thankfully, you have the help of all the people that have visited the site before you. These 20 players each represent 5% of your local population.",
     "gameInstruction3": "Their decisions and yours will determine how many lives are lost or saved in your community.",
-    "buttonCta": "Start Playing →"
+    "buttonCta": "Start Playing →",
+    "errors": {
+      "invalidZip": "Invalid ZIP code",
+      "zipNotFound": "ZIP code not found, please try a different one"
+    }
   },
   "header": {
     "stayedHome": "Stayed Home",

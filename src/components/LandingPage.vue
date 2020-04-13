@@ -138,7 +138,7 @@ export default {
         event: e,
         condition: !validZip.test(this.zipCode),
         fieldName: 'zipCode',
-        errorMessage: 'Invalid ZIP code',
+        errorMessage: this.$t('landing.errors.invalidZip'),
       })
 
       if (_.isEmpty(this.errors.zipCode)) {
@@ -146,7 +146,7 @@ export default {
           event: e,
           condition: !_.includes(this.zips, this.zipCode),
           fieldName: 'zipCode',
-          errorMessage: 'ZIP code not found, please try a different one',
+          errorMessage: this.$t('landing.errors.zipNotFound'),
         })
       }
 
