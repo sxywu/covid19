@@ -49,18 +49,8 @@ export default {
     }
   },
   computed: {
-    dataLoaded() {
-      return this.$store.state.dataLoaded
-    },
     currentPage() {
       return this.$store.state.currentPage
-    },
-  },
-  watch: {
-    dataLoaded(dataLoaded) {
-      if (dataLoaded) {
-        this.$store.dispatch('storeGame')
-      }
     },
   },
   created() {

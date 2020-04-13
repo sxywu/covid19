@@ -587,14 +587,14 @@ export default new Vuex.Store({
       })
     },
     storeGame({
-      state: {decisions, zipCode, gameId},
+      state: {allDecisions, zipCode, gameId},
       getters: {dailyInfectious, dailyHealthStatus},
     }) {
       apiService.setGameById(gameId, {
         dailyInfectious,
-        gameId,
+        id: gameId,
         dailyHealthStatus,
-        decisions,
+        decisions: _.get(allDecisions, '[0]', []),
         zipCode,
       })
     },

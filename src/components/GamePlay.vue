@@ -187,7 +187,7 @@ export default {
     },
     updateDecision(numTimes) {
       this.showDecision = false
-      this.$store.commit('setDecision', numTimes)
+      this.$store.commit('setDecision', _.toInteger(numTimes))
       this.updateDay()
       this.$store.dispatch('storeGame')
     },
