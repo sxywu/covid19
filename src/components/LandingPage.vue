@@ -13,11 +13,11 @@
         <p>{{ $t('landing.explanation3') }}</p>
         <div class="people">
           <!-- randomly choose a person image -->
-          <img v-for="i in 20" :src="peopleImages[Math.round(Math.random())]" />
+          <img v-for="i in 20" :src="peopleImages[Math.round(Math.random())]" v-bind:key="i" />
         </div>
         <p>{{ $t('landing.explanation4') }}</p>
         <hr />
-        <p style="text-align: center;" v-html="$t('landing.instruction1')"></p>
+        <h2 class="instructions" v-html="$t('landing.instruction1')"></h2>
         <form @submit="startPlay">
           <div class="inputs">
             <div class="zipCode">
@@ -26,52 +26,32 @@
                 class="zip"
                 id="zip"
                 v-model="zipCode"
-                placeholder="For example: 00603"
+                placeholder="Enter your zip code (e.g. 00603)"
                 pattern="/(^\d{5}$)|(^\d{5}-\d{4}$)/"
+                :style="{border-color: errors['zipCode'] ? red; : blue;}"
               />
             </div>
             <span>{{ $t('or') }}</span>
             <fieldset>
               <div class="communitySize">
                 <div class="radioWrapper">
-                  <input
-                    type="radio"
-                    id="urban"
-                    name="communitySize"
-                    value="Urban"
-                  />
+                  <input type="radio" id="urban" name="communitySize" value="Urban" />
                   <label for="urban">{{ $t('urban') }}</label>
                 </div>
                 <div class="radioWrapper">
-                  <input
-                    type="radio"
-                    id="suburban"
-                    name="communitySize"
-                    value="Suburban"
-                  />
+                  <input type="radio" id="suburban" name="communitySize" value="Suburban" />
                   <label for="suburban">{{ $t('suburban') }}</label>
                 </div>
                 <div class="radioWrapper">
-                  <input
-                    type="radio"
-                    id="rural"
-                    name="communitySize"
-                    value="Rural"
-                  />
+                  <input type="radio" id="rural" name="communitySize" value="Rural" />
                   <label for="rural">{{ $t('rural') }}</label>
                 </div>
               </div>
             </fieldset>
           </div>
-          <p style="text-align: center; max-width: 380px;">
-            {{ $t('landing.instruction2') }}
-          </p>
-          <button type="submit" class="playNowBtn">
-            {{ $t('landing.buttonCta') }}
-          </button>
-          <div v-if="errors['zipCode']" class="zipCodeError">
-            {{ errors['zipCode'] }}
-          </div>
+          <p style="text-align: center; max-width: 380px;">{{ $t('landing.instruction2') }}</p>
+          <button type="submit" class="playNowBtn">{{ $t('landing.buttonCta') }}</button>
+          <div v-if="errors['zipCode']" class="zipCodeError">{{ errors['zipCode'] }}</div>
         </form>
       </div>
     </div>
@@ -87,7 +67,10 @@ export default {
     return {
       errors: {},
       zipCode: '',
-      peopleImages: [require('../assets/person-1.svg'), require('../assets/person-2.svg')],
+      peopleImages: [
+        require('../assets/person-1.svg'),
+        require('../assets/person-2.svg'),
+      ],
     }
   },
   computed: {
@@ -102,7 +85,7 @@ export default {
         this.$store.commit('setCurrentPage', 'game')
       }
     },
-    createFormError({condition, event, fieldName, errorMessage}) {
+    createFormError({ condition, event, fieldName, errorMessage }) {
       if (condition) {
         this.errors[fieldName] = errorMessage
         event.preventDefault()
@@ -149,7 +132,14 @@ export default {
     padding: 2rem;
   }
 }
+
+.instructions {
+  text-align: center;
+  font-weight: normal;
+}
+
 form {
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -158,7 +148,6 @@ form {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding-top: 1.25rem;
   }
   .inputs {
     padding: 1.5rem 0;
@@ -167,6 +156,10 @@ form {
     grid-template-columns: 1fr 0.15fr 1fr;
     grid-gap: 1rem;
     align-items: center;
+    @include respond-to('small') {
+      grid-template-columns: 1fr;
+      grid-template-rows: 1fr 0.5fr 1fr;
+    }
   }
   .zipCode {
     input::-webkit-outer-spin-button,
@@ -296,7 +289,6 @@ header {
     0 22.3px 17.9px rgba(0, 0, 0, 0.018), 0 41.8px 33.4px rgba(0, 0, 0, 0.022),
     0 100px 80px rgba(0, 0, 0, 0.03);
 
-
   hr {
     border: none;
     height: 3px;
@@ -310,13 +302,13 @@ header {
   display: flex;
   align-items: center;
   flex-direction: column;
-  padding: 2rem 4rem 4rem 4rem;
+  padding: 2rem 6rem 6rem 6rem;
   p {
     width: 100%;
     font-size: 1.15rem;
     line-height: 1.55;
     opacity: 0.85;
-    max-width: 640px;
+    // max-width: 640px;
   }
   @include respond-to('medium') {
     padding: 1rem 2rem 2rem 2rem;
@@ -369,7 +361,7 @@ header {
   width: 100%;
   display: grid;
   grid-gap: 1rem;
-  grid-template-columns: repeat(auto-fill, minmax(45px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
   grid-template-rows: 1fr 1fr;
   img {
     width: 100%;
