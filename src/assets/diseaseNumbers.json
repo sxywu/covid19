@@ -1,0 +1,44 @@
+{
+    "ageGroups": {
+        "0": {
+            "susceptibility": 0.005,
+            "symptomaticIfInfected": 0.70,
+            "hospitalIfSymptomatic": 0.03,
+            "ICUIfSymptomatic": 0.001,
+            "dieIfSymptomatic": 0.0001,
+            "dieIfNotHospitalized": 0.1
+        },
+        "20": {
+            "susceptibility": 0.010,
+            "symptomaticIfInfected": 0.75,
+            "hospitalIfSymptomatic": 0.20,
+            "ICUIfSymptomatic": 0.040,
+            "dieIfSymptomatic": 0.0020,
+            "dieIfNotHospitalized": 0.1
+        },
+        "40": {
+            "susceptibility": 0.025,
+            "symptomaticIfInfected": 0.80,
+            "hospitalIfSymptomatic": 0.30,
+            "ICUIfSymptomatic": 0.100,
+            "dieIfSymptomatic": 0.0200,
+            "dieIfNotHospitalized": 0.1
+        },
+        "60": {
+            "susceptibility": 0.035,
+            "symptomaticIfInfected": 0.85,
+            "hospitalIfSymptomatic": 0.50,
+            "ICUIfSymptomatic": 0.200,
+            "dieIfSymptomatic": 0.1200,
+            "dieIfNotHospitalized": 0.1
+        },
+        "80": {
+            "susceptibility": 0.035,
+            "symptomaticIfInfected": 0.85,
+            "hospitalIfSymptomatic": 0.50,
+            "ICUIfSymptomatic": 0.200,
+            "dieIfSymptomatic": 0.1200,
+            "dieIfNotHospitalized": 0.1
+        }
+    }
+}

@@ -9,11 +9,14 @@
 
 <script>
 import GamePlay from './components/GamePlay'
+import LandingPage from './components/LandingPage'
+import EndPage from './components/EndPage'
+import FailedPage from './components/FailedPage'
 
 export default {
   name: 'App',
   components: {
-    GamePlay,
+    GamePlay, LandingPage, EndPage, FailedPage,
   },
   data() {
     return {
@@ -25,7 +28,7 @@ export default {
         '80': 'Over 80',
       },
       healthStatus: [
-        'Healthy',
+        'Uninfected',
         'Recovered',
         'Infected, asymptomatic',
         'Mild symptoms',
@@ -42,9 +45,13 @@ export default {
       ],
     }
   },
+  computed: {
+    currentPage() {
+      return this.$store.state.currentPage
+    },
+  },
   created() {
     this.$store.dispatch('getRawData')
-    this.$store.commit('setZipCode', '94110')
   },
 }
 </script>

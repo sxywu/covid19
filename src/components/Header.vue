@@ -1,13 +1,5 @@
 <template>
-  <div id="header">
-    <div id="date">
-      <h3 class="label">week</h3>
-      <h4>{{ week }}</h4>
-    </div>
-    <div id="date">
-      <h3 class="label">day</h3>
-      <h4>{{ day }}</h4>
-    </div>
+  <div id="header" :style="{height: `${height}px`}">
     <div class="item">
       <svg xmlns="http://www.w3.org/2000/svg" width="23" height="22" viewBox="0 0 23 22">
         <path
@@ -29,6 +21,14 @@
         <h3 class="label">Exercise</h3>
         <ProgressBar v-bind="exerciseStatus" />
       </div>
+    </div>
+    <div id="date">
+      <h3 class="label">week</h3>
+      <h4>{{ week }}</h4>
+    </div>
+    <div id="date">
+      <h3 class="label">day</h3>
+      <h4>{{ day }}</h4>
     </div>
     <div class="item">
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="22" viewBox="0 0 24 22">
@@ -63,6 +63,7 @@ export default {
   components: {
     ProgressBar,
   },
+  props: ['height'],
   computed: {
     day() {
       return this.$store.state.day
@@ -95,8 +96,7 @@ export default {
 <style lang="scss" scoped>
 #header {
   display: grid;
-  grid-template-columns: 80px 80px 1fr 1fr 1fr 1fr;
-  height: 100%;
+  grid-template-columns: 1fr 1fr 80px 80px 1fr 1fr;
 
   h3,
   h4 {

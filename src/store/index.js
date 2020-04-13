@@ -5,21 +5,28 @@ import _ from 'lodash'
 
 Vue.use(Vuex)
 
+import diseaseNumbers from '../assets/diseaseNumbers.json'
+
 let populationsByZip = []
 let hospitalsByZip = []
-let prevPlayers = []
 let prevInfected = []
+let dailyHealthStatus = []
+let dailyInfectious = []
+const totalPlayers = 20
+const foodStatus = {value: 18, maxValue: 18}
+const exerciseStatus = {value: 7, maxValue: 7}
 
-function assignHealth(person, daysSinceInfection) {
+function assignHealth(person, daysSinceInfection, prevInHospital) {
   // health statuses: 0 = healthy, 1 = recovered, 2 = infected+asymptomatic,
   // 3 = infected+ symptomatic, 4 = hospitalized from infection, 5 = died from infection
   // Option to add additional for infected+presymptomatic; and/or to include infectious here rather than as a separate variable
   let newHealth = 0
   let newInfectious = 0
   if (daysSinceInfection >= 14) {
-    newHealth = person.dieIfInfected ? 5 : 1 // dead or recovered
+    const dies = prevInHospital ? person.dieIfSymptomatic : person.dieIfNotHospitalized
+    newHealth = dies ? 5 : 1 // dead or recovered
     newInfectious = 0
-  } else if (daysSinceInfection >= 7 && person.hospitalIfInfected) {
+  } else if (daysSinceInfection >= 7 && person.hospitalIfSymptomatic) {
     newHealth = 4 // hospitalized
     newInfectious = 1
   } else if (daysSinceInfection >= 6) {
@@ -40,11 +47,16 @@ function healthAndDestination(
   houses,
   daysSinceInfection,
   prevInfectious,
+  prevInHospital,
   playerGoesOut,
   infectedDestinations,
-  infectedHouses
+  infectedHouses,
 ) {
-  const {health, infectious} = assignHealth(person, daysSinceInfection)
+  const {health, infectious} = assignHealth(
+    person,
+    daysSinceInfection,
+    prevInHospital,
+  )
 
   let destination = -1 // default to home
   if (health < 3 && playerGoesOut) {
@@ -77,14 +89,15 @@ function infectPerson(
   destination,
   susceptibility,
   infectedDestinations,
-  infectedHouses
+  infectedHouses,
 ) {
   const timesExposed =
     (infectedDestinations[destination] || 0) + (infectedHouses[house] || 0)
   // if didn't get exposed, don't need to update
   if (!timesExposed) return
   // ( 1 - ( ( 1 - susceptibility ) ^ number of exposures ) ) > random number from 0-1
-  const infected = 1 - Math.pow( 1 - susceptibility, timesExposed ) > Math.random()
+  const infected =
+    1 - Math.pow(1 - susceptibility, timesExposed) > Math.random()
   if (!infected) return
 
   Object.assign(obj, {
@@ -96,18 +109,23 @@ function infectPerson(
 
 export default new Vuex.Store({
   state: {
+    currentPage: 'landing',
     day: 0,
     zipCode: '',
     dataLoaded: false,
     bedOccupancyRate: 0.66,
-    decisions: [],
+    allDecisions: [],
     totalDays: 8 * 7,
-    foodStatus: {value: 18, maxValue: 18},
-    exerciseStatus: {value: 7, maxValue: 7},
+    foodStatus: {},
+    exerciseStatus: {},
   },
   getters: {
     week({day}) {
       return Math.ceil(day / 7)
+    },
+    allZips({dataLoaded}) {
+      if (!dataLoaded) return
+      return _.map(populationsByZip, d => d.zip)
     },
     population({zipCode, dataLoaded}) {
       if (!zipCode || !dataLoaded) return
@@ -133,8 +151,8 @@ export default new Vuex.Store({
     },
     filledBeds(state, {infected, totalAvailableBeds}) {
       return Math.min(
-        _.sumBy(infected, ({ health }) => health === 4), // hospitalized
-        totalAvailableBeds
+        _.sumBy(infected, ({health}) => health === 4), // hospitalized
+        totalAvailableBeds,
       )
     },
     community(state, {population}) {
@@ -193,16 +211,30 @@ export default new Vuex.Store({
             }
           }
 
+          // set susceptibility and other numbers based on their age group
+          let {
+            susceptibility,
+            symptomaticIfInfected,
+            hospitalIfSymptomatic,
+            dieIfSymptomatic,
+            dieIfNotHospitalized,
+          } = diseaseNumbers['ageGroups'][ageGroup]
+          symptomaticIfInfected = +(Math.random() < symptomaticIfInfected)
+          hospitalIfSymptomatic = +(symptomaticIfInfected && Math.random() < hospitalIfSymptomatic)
+          dieIfSymptomatic = +(hospitalIfSymptomatic && Math.random() < dieIfSymptomatic)
+          dieIfNotHospitalized = +(hospitalIfSymptomatic && Math.random() < dieIfNotHospitalized)
+
           people.push({
             index: personIndex + i,
             id: `person${personIndex + i}`,
             houseIndex, // reference house person lives in
             age,
             ageGroup,
-            susceptibility: 0.03, // TODO: UPDATE
-            symptomaticIfInfected: _.random(99) < 80 ? 1 : 0, // TODO: updated based on age
-            hospitalIfInfected: _.random(99) < 20 ? 1 : 0, // TODO: updated based on age
-            dieIfInfected: _.random(99) < 3 ? 1 : 0, // TODO: updated based on age
+            susceptibility, // TODO: UPDATE
+            symptomaticIfInfected, // TODO: updated based on age
+            hospitalIfSymptomatic, // TODO: updated based on age
+            dieIfSymptomatic, // TODO: updated based on age
+            dieIfNotHospitalized, // TODO: update based on age
           })
         })
 
@@ -215,16 +247,16 @@ export default new Vuex.Store({
       _.times(numDestGroups, groupIndex => {
         const housesIndicesInGroup = _.range(
           groupIndex * housesPerGroup,
-          (groupIndex + 1) * housesPerGroup
+          (groupIndex + 1) * housesPerGroup,
         )
         const destIndicesInGroup = _.union(
           _.range(groupIndex * destPerGroup, (groupIndex + 1) * destPerGroup),
           _.times(3, i =>
             _.random(
               (groupIndex + 2) * destPerGroup,
-              (groupIndex + 4) * destPerGroup
-            )
-          )
+              (groupIndex + 4) * destPerGroup,
+            ),
+          ),
         )
         _.each(
           housesIndicesInGroup,
@@ -233,19 +265,13 @@ export default new Vuex.Store({
             Object.assign(houses[i], {
               groupIndex,
               destinations: destIndicesInGroup,
-            })
+            }),
         )
-      })
-
-      // add previous players' info to people
-      const peopleRatio = Math.floor(totalPopulation / prevPlayers.length)
-      _.each(prevPlayers, ({decisions}, i) => {
-        Object.assign(people[i * peopleRatio], {decisions})
       })
 
       return {people, houses, destinations, numGroups: numDestGroups}
     },
-    infected({day}, {community, totalBeds}) {
+    infected({day, allDecisions}, {week, community, totalAvailableBeds}) {
       if (!community) return
       const {people, houses, destinations} = community
 
@@ -254,7 +280,7 @@ export default new Vuex.Store({
         prevInfected = _.map(people, (person, i) => {
           // And then assign days for those randomly between 1 and 6.
           // We'll probably want to change this, but it gives us something to work with.
-          let daysSinceInfection = i % 500 ? 0 : _.random(1, 4);
+          let daysSinceInfection = i % 1000 ? 0 : _.random(1, 4)
           let {health, infectious} = assignHealth(person, daysSinceInfection)
 
           return {
@@ -262,22 +288,53 @@ export default new Vuex.Store({
             daysSinceInfection,
             health,
             infectious,
-            alternate: {health, infectious, daysSinceInfection},
+            worstAlternate: {health, infectious, daysSinceInfection},
+            bestAlternate: {health, infectious, daysSinceInfection},
           }
         })
       }
 
       const infectedHouses = []
       const infectedDestinations = []
-      const alternateHouses = [] // same as infectedHouses, but for alternate scenario
-      const alternateDestinations = []
+      const worstAlternateHouses = [] // same as infectedHouses, but for worstAlternate scenario
+      const worstAlternateDestinations = []
+      const bestAlternateHouses = [] // same as infectedHouses, but for worstAlternate scenario
+      const bestAlternateDestinations = []
+      let numSevere = 0
+      let numWorstAlternateSevere = 0
+      let numBestAlternateSevere = 0
       const infected = _.map(people, (person, i) => {
         let {
           health: prevHealth,
           infectious: prevInfectious,
+          inHospital: prevInHospital,
           daysSinceInfection,
-          alternate: prevAlternate,
+          worstAlternate: prevWorstAlternate,
+          bestAlternate: prevBestAlternate,
+          weeklyDecision,
         } = prevInfected[i]
+
+        const dayOfWeek = (day - 1) % 7
+        // if this is first day of week
+        if (dayOfWeek === 0) {
+          const numTimes = allDecisions[i % totalPlayers][week - 1]
+          let player
+          if (numTimes === 7) {
+            player = [1, 1, 1, 1, 1, 1, 1]
+          } else {
+            // TODO: OPTIMIZE PERFORMANCE
+            player = _.chain(7)
+              .times(i => +(i <numTimes))
+              .shuffle()
+              .value()
+          }
+          weeklyDecision = {
+            player,
+            // for best alternate, have everyone go out the same amount in week 1
+            // and after week 1, only go out once a week
+            bestAlternate: week === 1 ? player : _.shuffle([1, 0, 0, 0, 0, 0, 0]),
+          }
+        }
 
         // calculate everyone's new health/infectiousness for current day
         daysSinceInfection += !!daysSinceInfection // if days = 0, don't add any, if >0 then add 1
@@ -286,24 +343,57 @@ export default new Vuex.Store({
           houses,
           daysSinceInfection,
           prevInfectious,
-          !person.decisions || person.decisions[day],
+          prevInHospital,
+          weeklyDecision.player[dayOfWeek],
           infectedDestinations,
-          infectedHouses
+          infectedHouses,
         )
-        // now calculate for an alternate scenario
-        prevAlternate.daysSinceInfection += !!prevAlternate.daysSinceInfection
-        const alternate = Object.assign(
+        let inHospital = prevInHospital
+        if (health === 4) {
+          // if the person is in severe condition
+          numSevere += 1
+          inHospital = numSevere <= totalAvailableBeds
+        }
+
+        // now calculate for an worstAlternate scenario
+        prevWorstAlternate.daysSinceInfection += !!prevWorstAlternate.daysSinceInfection
+        const worstAlternate = Object.assign(
           healthAndDestination(
             person,
             houses,
-            prevAlternate.daysSinceInfection,
-            prevAlternate.infectious,
+            prevWorstAlternate.daysSinceInfection,
+            prevWorstAlternate.infectious,
+            prevWorstAlternate.inHospital,
             true,
-            alternateDestinations,
-            alternateHouses
+            worstAlternateDestinations,
+            worstAlternateHouses
           ),
-          {daysSinceInfection: prevAlternate.daysSinceInfection}
+          {daysSinceInfection: prevWorstAlternate.daysSinceInfection}
         )
+        if (worstAlternate.health === 4) {
+          numWorstAlternateSevere += 1
+          worstAlternate.inHospital = numWorstAlternateSevere <= totalAvailableBeds
+        }
+
+        // and best case scenario
+        prevBestAlternate.daysSinceInfection += !!prevBestAlternate.daysSinceInfection
+        const bestAlternate = Object.assign(
+          healthAndDestination(
+            person,
+            houses,
+            prevBestAlternate.daysSinceInfection,
+            prevBestAlternate.infectious,
+            prevBestAlternate.inHospital,
+            weeklyDecision.bestAlternate[dayOfWeek],
+            bestAlternateDestinations,
+            bestAlternateHouses
+          ),
+          {daysSinceInfection: prevBestAlternate.daysSinceInfection}
+        )
+        if (bestAlternate.health === 4) {
+          numWorstAlternateSevere += 1
+          bestAlternate.inHospital = numWorstAlternateSevere <= totalAvailableBeds
+        }
 
         return {
           index: i,
@@ -312,7 +402,10 @@ export default new Vuex.Store({
           health,
           infectious,
           destination,
-          alternate,
+          inHospital,
+          worstAlternate,
+          bestAlternate,
+          weeklyDecision,
         }
       })
 
@@ -327,19 +420,30 @@ export default new Vuex.Store({
             destination,
             people[index].susceptibility,
             infectedDestinations,
-            infectedHouses
+            infectedHouses,
           )
         }
-        if (person.alternate.health === 0) {
-          // if in alternate simulation they're healthy
+        if (person.worstAlternate.health === 0) {
+          // if in worstAlternate simulation they're healthy
           // calculate whether they get infected there
           infectPerson(
-            person.alternate,
+            person.worstAlternate,
             house,
-            person.alternate.destination,
+            person.worstAlternate.destination,
             people[index].susceptibility,
-            alternateDestinations,
-            alternateHouses
+            worstAlternateDestinations,
+            worstAlternateHouses
+          )
+        }
+        if (person.bestAlternate.health === 0) {
+          // and like-wise for best alternate
+          infectPerson(
+            person.bestAlternate,
+            house,
+            person.bestAlternate.destination,
+            people[index].susceptibility,
+            bestAlternateDestinations,
+            bestAlternateHouses
           )
         }
       })
@@ -348,23 +452,93 @@ export default new Vuex.Store({
 
       return infected
     },
+    dailyHealthStatus({day}, {infected}) {
+      if (!infected) return
+      // keeps track of all cumulative numbers for every scenario daily
+      const player = _.countBy(infected, 'health')
+      const worstAlternate = _.chain(infected).map(d => d.worstAlternate.health).countBy().value()
+      const bestAlternate = _.chain(infected).map(d => d.bestAlternate.health).countBy().value()
+      const totalHealthStatus = [1, 2, 3, 4, 5]
+      dailyHealthStatus.push({
+        day,
+        player: Object.assign(player, {
+          total: _.sumBy(totalHealthStatus, d => player[d] || 0),
+        }),
+        worstAlternate: Object.assign(worstAlternate, {
+          total: _.sumBy(totalHealthStatus, d => worstAlternate[d] || 0),
+        }),
+        bestAlternate: Object.assign(bestAlternate, {
+          total: _.sumBy(totalHealthStatus, d => bestAlternate[d] || 0),
+        }),
+      })
+
+      return dailyHealthStatus
+    },
+    dailyInfectious({day}, {infected}) {
+      if (!infected) return
+      dailyInfectious.push({
+        day,
+        player: _.countBy(infected, 'infectious'),
+        worstAlternate: _.chain(infected).map(d => d.worstAlternate.infectious).countBy().value(),
+        bestAlternate: _.chain(infected).map(d => d.bestAlternate.infectious).countBy().value(),
+      })
+
+      return dailyInfectious
+    },
   },
   mutations: {
+    setCurrentPage(state, currentPage) {
+      state.currentPage = currentPage
+    },
     setDay(state, day) {
       state.day = day
       state.foodStatus.value -= 1 // for every day they don't get groceries
       if (day % 3 === 0) {
         state.exerciseStatus.value -= 1 // for every 3 days they don't go out
       }
+
+      if (!state.foodStatus.value || !state.exerciseStatus) {
+        state.currentPage = 'failed'
+      }
     },
     setZipCode(state, zipCode) {
-      state.zipCode = zipCode
+      state.zipCode = '' + zipCode // stringify just in case
     },
     setDataLoaded(state, dataLoaded) {
       state.dataLoaded = dataLoaded
     },
+    setAllDecisions(state, allDecisions) {
+      state.allDecisions = allDecisions
+    },
     setDecision(state, decision) {
-      state.decisions.push(decision)
+      if (decision > 0) {
+        // if go out more than once, then they did exercise
+        state.exerciseStatus.value = Math.min(
+          state.exerciseStatus.value + 1,
+          state.exerciseStatus.maxValue
+        )
+      }
+      if (decision > 1) {
+        // if they go out twice, 2 weeks of groceries are taken care of
+        state.foodStatus.value = Math.min(
+          state.foodStatus.value + 14,
+          state.foodStatus.maxValue
+        )
+      }
+      if (decision > 2) {
+        // if they go out three times
+        state.exerciseStatus.value = Math.min(
+          state.exerciseStatus.value + 3,
+          state.exerciseStatus.maxValue
+        )
+      }
+      state.allDecisions[0].push(decision) // update decision for current player
+    },
+    setFoodStatus(state, foodStatus) {
+      state.foodStatus = _.clone(foodStatus)
+    },
+    setExerciseStatus(state, exerciseStatus) {
+      state.exerciseStatus = _.clone(exerciseStatus)
     },
   },
   actions: {
@@ -379,14 +553,30 @@ export default new Vuex.Store({
       ]).then(([populations, hospitals]) => {
         populationsByZip = populations
         hospitalsByZip = hospitals
-        // prevPlayers = _.times(35000, i => {
-        //   return {
-        //     decisions: _.times(state.totalDays, i => _.random(1)),
-        //   }
-        // })
+        const allDecisions = _.times(totalPlayers - 1, i =>
+          _.times(state.totalDays / 7, i => (i ? _.random(7) : 7)),
+        )
+        allDecisions.unshift([7]) // add this player's decision at beginning, assume they go out every day
 
         commit('setDataLoaded', true)
+        commit('setAllDecisions', allDecisions)
+        commit('setFoodStatus', foodStatus)
+        commit('setExerciseStatus', exerciseStatus)
       })
+    },
+    resetGame({commit, state}) {
+      // reset prevInfected
+      prevInfected = []
+      dailyHealthStatus = []
+      dailyInfectious = []
+
+      const allDecisions = _.clone(state.allDecisions) // to avoid mutating?
+      allDecisions[0] = [7]
+      commit('setAllDecisions', allDecisions)
+      commit('setDay', 0)
+      commit('setFoodStatus', foodStatus)
+      commit('setExerciseStatus', exerciseStatus)
+      commit('setCurrentPage', 'game')
     },
   },
 })

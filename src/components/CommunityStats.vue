@@ -3,7 +3,7 @@
     <header>
       <div>
         <h3 class="label">total cases</h3>
-        <h4>{{ formatNumber(current.total) }}</h4>
+        <h4>{{ formatNumber(total) }}</h4>
       </div>
       <div>
         <h3 class="label">avoided cases</h3>
@@ -11,11 +11,11 @@
       </div>
     </header>
     <div class="bars">
-      <div class="item" v-for="num in [4, 5, 1]" v-bind:key="num">
-        <h3 class="label">{{ healthStatus[num] }}</h3>
+      <div class="item" v-for="({label, value, maxValue, color}) in items" v-bind:key="label">
+        <h3 class="label">{{ label }}</h3>
         <div class="value">
-          <h4 style="margin-right: 10px;">{{ formatNumber(current[num] || 0) }}</h4>
-          <ProgressBar v-bind="{value: current[num], maxValue: current.total}" />
+          <h4 style="margin-right: 10px;">{{ formatNumber(value) }}</h4>
+          <ProgressBar v-bind="{value, maxValue, color}" />
         </div>
       </div>
     </div>
@@ -31,35 +31,76 @@ export default {
   components: {
     ProgressBar,
   },
-  props: ['healthStatus'],
+  props: [
+    'colorsByHealth',
+    'healthStatus',
+    'tl',
+    'phases',
+    'playTimeline',
+  ],
+  data() {
+    return {
+      total: 0,
+      avoided: 0,
+      items: [],
+    }
+  },
   computed: {
-    infected() {
-      return this.$store.getters.infected
+    day() {
+      return this.$store.state.day
     },
-    current() {
-      const current = _.countBy(this.infected, 'health')
-      return {
-        total: _.sumBy([1, 2, 3, 4, 5], d => current[d] || 0),
-        ...current,
+    duration() {
+      return _.sum(this.phases)
+    },
+    stats() {
+      return _.last(this.$store.getters.dailyHealthStatus)
+    },
+  },
+  watch: {
+    day() {
+      if (this.day === 1) {
+        this.resetNumbers()
       }
     },
-    alternate() {
-      const alternate = _.chain(this.infected)
-        .map(d => d.alternate.health)
-        .countBy()
-        .value()
-      return {
-        total: _.sumBy([1, 2, 3, 4, 5], d => alternate[d] || 0),
-        ...alternate,
-      }
-    },
-    avoided() {
-      return Math.max(this.alternate.total - this.current.total, 0)
+    stats() {
+      this.animateNumbers()
     },
   },
   methods: {
+    resetNumbers() {
+      this.total = 0
+      this.avoided = 0
+
+      this.items = _.map([4, 5, 1], num => {
+        return {
+          color: this.colorsByHealth[num],
+          label: this.healthStatus[num],
+          value: 0,
+          maxValue: 0,
+          num,
+        }
+      })
+    },
+    animateNumbers() {
+      if (!this.stats) return
+      const {player, worstAlternate} = this.stats
+
+      this.tl.to(this.$data, {
+        total: player.total,
+        avoided: Math.max(worstAlternate.total - player.total, 0),
+        duration: this.duration,
+      }, `day${this.day}`)
+
+      this.tl.to(this.items, {
+        value: (i, {num}) => player[num] || 0,
+        maxValue: player.total,
+        duration: this.duration,
+      }, `day${this.day}`)
+
+      this.playTimeline('stats')
+    },
     formatNumber(number) {
-      return d3.format(',')(number)
+      return d3.format(',')(Math.round(number))
     },
   },
 }
@@ -85,6 +126,7 @@ header {
   h4 {
     margin: 0;
     font-size: 1.75rem;
+    font-variant-numeric: tabular-nums;
   }
   h3 {
     margin-top: 0.25rem;
@@ -96,8 +138,6 @@ header {
 }
 .item {
   padding: 0.5rem 1rem;
-  // display: grid;
-  // grid-gap: 1rem;
   display: flex;
   align-items: flex-start;
   justify-content: center;
@@ -112,6 +152,7 @@ header {
   h4 {
     margin: 0;
     padding: 0;
+    font-variant-numeric: tabular-nums;
   }
   h3 {
     margin-bottom: 5px;
