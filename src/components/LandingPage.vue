@@ -23,12 +23,11 @@
             <div class="zipCode">
               <input
                 type="number"
-                class="zip"
+                v-bind:class="{'zip-error': errors['zipCode'] }"
                 id="zip"
                 v-model="zipCode"
                 placeholder="Enter your zip code (e.g. 00603)"
                 pattern="/(^\d{5}$)|(^\d{5}-\d{4}$)/"
-                :style="{border-color: errors['zipCode'] ? red; : blue;}"
               />
             </div>
             <span>{{ $t('or') }}</span>
@@ -186,6 +185,9 @@ form {
       font-size: 1rem;
       border: 1px solid rgba(0, 0, 0, 0.3);
       border-radius: 5px;
+    }
+    .zip-error {
+      border: 1px solid $red;
     }
   }
   fieldset {
