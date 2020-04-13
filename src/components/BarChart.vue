@@ -1,7 +1,7 @@
 <template>
   <div id="barChart">
     <svg :width="width" :height="height">
-      <text class="header label" dy="1em">Infected cases by age group</text>
+      <text class="header label" dy="1em">{{ $t('barChart.label') }}</text>
       <g class="label axis" ref="yAxis" :transform="`translate(${margin.left}, 0)`" />
       <g v-for="d in bars" v-if="d.height" :key="d.id" :transform='`translate(${d.x}, ${d.y})`'>
         <rect :width="barWidth" :height="d.height" :fill="d.color" opacity="0.75" />
@@ -150,12 +150,12 @@ export default {
       this.tl.to(
         this.bars,
         {
-          x: (i, { id }) => nextBarsById[id].x,
-          y: (i, { id }) => nextBarsById[id].y,
-          height: (i, { id }) => nextBarsById[id].height,
+          x: (i, {id}) => nextBarsById[id].x,
+          y: (i, {id}) => nextBarsById[id].y,
+          height: (i, {id}) => nextBarsById[id].height,
           duration: this.phases[1] / 2,
         },
-        `day${this.day}-1`
+        `day${this.day}-1`,
       )
       // and at same time update scales
       this.tl.add(() => {

@@ -3,17 +3,17 @@
     <div class="bg" />
     <div class="container">
       <header>
-        <h1>The Game Title</h1>
-        <h2>Lorem Ipsum Dolor Sit</h2>
+        <h1>{{ $t('title') }}</h1>
+        <h2>{{ $t('subtitle') }}</h2>
         <hr />
       </header>
       <div class="content">
-        <p>The first few cases of a new infectious disease that has caused a global pandemic has also arrived in your backyard. You have twelve weeks to save as many lives as you can in your community.</p>
-        <p>First, enter your ZIP code. We’ll find out how densely populated your community is, and how many avaliable hospital beds are in your area. Or choose a community size that resembles area you live in:</p>
+        <p>{{ $t('landing.explanation') }}</p>
+        <p>{{ $t('landing.instruction') }}</p>
         <form @submit="startPlay">
           <div class="inputs">
             <div class="zipCode">
-              <label for="zip">Enter Your ZIP Code</label>
+              <label for="zip">{{ $t('landing.enterZip') }}</label>
               <input
                 type="number"
                 class="zip"
@@ -23,30 +23,46 @@
                 pattern="/(^\d{5}$)|(^\d{5}-\d{4}$)/"
               />
             </div>
-            <span>or</span>
+            <span>{{ $t('or') }}</span>
             <fieldset>
-              <legend>Choose Community Size</legend>
+              <legend>{{ $t('landing.chooseCommunity') }}</legend>
               <div class="communitySize">
                 <div class="radioWrapper">
-                  <input type="radio" id="urban" name="communitySize" value="Urban" />
-                  <label for="urban">Urban</label>
+                  <input
+                    type="radio"
+                    id="urban"
+                    name="communitySize"
+                    value="Urban"
+                  />
+                  <label for="urban">{{ $t('urban') }}</label>
                 </div>
                 <div class="radioWrapper">
-                  <input type="radio" id="suburban" name="communitySize" value="Suburban" />
-                  <label for="suburban">Suburban</label>
+                  <input
+                    type="radio"
+                    id="suburban"
+                    name="communitySize"
+                    value="Suburban"
+                  />
+                  <label for="suburban">{{ $t('suburban') }}</label>
                 </div>
                 <div class="radioWrapper">
-                  <input type="radio" id="rural" name="communitySize" value="Rural" />
-                  <label for="rural">Rural</label>
+                  <input
+                    type="radio"
+                    id="rural"
+                    name="communitySize"
+                    value="Rural"
+                  />
+                  <label for="rural">{{ $t('rural') }}</label>
                 </div>
               </div>
             </fieldset>
           </div>
-          <div v-if="errors['zipCode']" class="zipCodeError">{{ errors['zipCode'] }}</div>
-          <p>Each week you’ll have to decide how many times to go out.</p>
+          <div v-if="errors['zipCode']" class="zipCodeError">
+            {{ errors['zipCode'] }}
+          </div>
+          <p>{{ $t('landing.gameInstruction1') }}</p>
           <p>
-            Because this virus spreads before people show symptoms, physical distancing is crucial to slowing down its spread. But you can’t do it alone, your whole community needs to be involved.
-            Thankfully, you have the help of all the people that have visited the site before you. These 20 players each represent 5% of your local population.
+            {{ $t('landing.gameInstruction2') }}
           </p>
           <div class="people">
             <img src="../assets/person-2.svg" />
@@ -70,11 +86,15 @@
             <img src="../assets/person-1.svg" />
             <img src="../assets/person-2.svg" />
           </div>
-          <p
-            style="margin: 2.5rem auto; text-align: center; max-width: 380px;"
-          >Their decisions and yours will determine how many lives are lost or saved in your community.</p>
-          <button type="submit" class="playNowBtn">Start Playing →</button>
-          <div v-if="errors['zipCode']" class="zipCodeError">{{ errors['zipCode'] }}</div>
+          <p style="margin: 2.5rem auto; text-align: center; max-width: 380px;">
+            {{ $t('landing.gameInstruction3') }}
+          </p>
+          <button type="submit" class="playNowBtn">
+            {{ $t('landing.buttonCta') }}
+          </button>
+          <div v-if="errors['zipCode']" class="zipCodeError">
+            {{ errors['zipCode'] }}
+          </div>
         </form>
       </div>
     </div>
@@ -83,7 +103,6 @@
 
 <script>
 import _ from 'lodash'
-const personImage = require('../assets/person-1.svg')
 
 export default {
   name: 'LandingPage',
@@ -105,7 +124,7 @@ export default {
         this.$store.commit('setCurrentPage', 'game')
       }
     },
-    createFormError({ condition, event, fieldName, errorMessage }) {
+    createFormError({condition, event, fieldName, errorMessage}) {
       if (condition) {
         this.errors[fieldName] = errorMessage
         event.preventDefault()

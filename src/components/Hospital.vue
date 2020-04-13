@@ -3,12 +3,14 @@
     <h3 class="label">{{ hospital && hospital.name }}</h3>
     <div class="stats label">
       <div>
-        {{ filledBeds }} filled / {{ totalAvailableBeds }} available ({{ totalBeds }} total beds)
+        {{ filledBeds }} {{ $t('hospital.filledOf') }}  / {{ totalAvailableBeds }} {{ $t('available') }} ({{ totalBeds }} {{ $t('hospital.totalBeds') }})
       </div>
     </div>
     <svg ref="svg">
       <clipPath id="bedClip">
-        <path d="M17.72,116.38,130.36,55.75,186,87.22v15.24L78,163.75,17.39,128.3Z" />
+        <path
+          d="M17.72,116.38,130.36,55.75,186,87.22v15.24L78,163.75,17.39,128.3Z"
+        />
       </clipPath>
       <g v-for="d in beds" :transform="`translate(${d.x}, ${d.y})scale(${scale})`">
         <image :href="bedImage" />
@@ -150,7 +152,7 @@ export default {
           r: i => (i < this.filledBeds ? 100 : 0),
           duration: this.phases[1],
         },
-        `day${this.day}-1`
+        `day${this.day}-1`,
       )
 
       this.playTimeline('hospital')
