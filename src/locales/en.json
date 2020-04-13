@@ -19,7 +19,7 @@
     "80": "over 80"
   },
   "healthStatus": {
-    "healthy": "Healthy",
+    "healthy": "Uninfected",
     "recovered": "Recovered",
     "infectedAsymptomatic": "Asymptomatic",
     "mildSymptoms": "Mild Symptoms",
@@ -44,11 +44,18 @@
     "hospitalCapacity": "Hospital Capacity"
   },
   "decide": {
-    "h1": "You've been fighting the virus for ",
-    "passedAway": "infected people have passed away",
-    "bedsOutOf": "beds are filled out of",
+    "h1": "You've been fighting the virus for one week | You've been fighting the virus for {count} weeks",
     "h2Question": "How many times will you go out this week?",
-    "sliderExplanation": "(1) go for a walk AND (2) buy groceries AND (3) go for a run AND (4) lunch with a friend AND (5) dinner with family AND (6) go to a house party AND (7) go to a concert",
+    "range": {
+      "0": "",
+      "1": "Go for a walk",
+      "2": "Buy groceries",
+      "3": "Go for a run",
+      "4": "Lunch with a friend",
+      "5": "Dinner with family",
+      "6": "Go to a house party",
+      "7": "Go to a concert"
+    },
     "cta": "Start Next Week →"
   },
   "communityStats": {
