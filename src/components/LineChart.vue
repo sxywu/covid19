@@ -1,12 +1,21 @@
 <template>
   <div id="lineChart">
     <svg :width="width" :height="height">
-      <text :x="margin.right" dy="1em" class="label">Total Cases Daily Growth Rate</text>
-      <g class="axis" ref="yAxis" :transform="`translate(${margin.left}, 0)`" />
+      <text class="header label" dy="1em">Total Cases Daily Growth Rate</text>
+      <!-- WEEK -->
+      <rect v-if="week > 1" :x="rect.x" :y="rect.y" :width="rect.width" :height="rect.height" />
+      <!-- Y-AXIS -->
+      <g class="axis label" ref="yAxis" :transform="`translate(${margin.left}, 0)`" />
       <path v-for="d in paths" :key="d.type" :d="d.path" fill="none"
         :stroke="pathColor" stroke-width="2"
         stroke-linecap="round" :stroke-dasharray="d.strokeDasharray" />
-      <g class="axis" ref="xAxis" :transform="`translate(0, ${height - margin.bottom})`" />
+      <!-- X-AXIS -->
+      <g class="axis label" ref="xAxis" :transform="`translate(0, ${height - margin.bottom})`" />
+      <!-- HOSPITAL CAPACITY LINE -->
+      <g class="label hospital" v-if="line.x" :transform="`translate(${line.x}, ${margin.top})`">
+        <line :y2="height - margin.top - margin.bottom" :stroke="colorsByHealth[4]" />
+        <text text-anchor="middle" dy="-2" :fill="colorsByHealth[4]">Hospital Capacity Hit</text>
+      </g>
     </svg>
     <ul class="legend">
       <li v-for="({label, count, strokeDasharray}) in legend">
@@ -19,6 +28,10 @@
         </div>
         <div class="label">{{ label }}</div>
       </li>
+      <li v-if="week > 1">
+        <span class="week"></span>
+        <span class="label">  Current Week</span>
+      </li>
     </ul>
   </div>
 </template>
@@ -28,7 +41,7 @@ import * as d3 from 'd3'
 import _ from 'lodash'
 
 const types = ['worstAlternate', 'player', 'bestAlternate']
-const margin = {top: 30, right: 20, bottom: 20, left: 30}
+const margin = {top: 30, right: 20, bottom: 20, left: 20}
 export default {
   name: 'LineChart',
   props: [
@@ -46,6 +59,8 @@ export default {
       pathColor: this.colorsByHealth[2],
       margin,
       paths: [],
+      rect: {},
+      line: {},
       yAxis: [],
     }
   },
@@ -73,8 +88,18 @@ export default {
     day() {
       return this.$store.state.day
     },
+    week() {
+      return this.$store.getters.week
+    },
     dailyHealthStatus() {
       return this.$store.getters.dailyHealthStatus
+    },
+    totalAvailableBeds() {
+      return this.$store.getters.totalAvailableBeds
+    },
+    firstHospitalOverDay() {
+      const firstDay = _.find(this.dailyHealthStatus, d => d.player[4] >= this.totalAvailableBeds)
+      return firstDay && firstDay.day
     },
     legend() {
       const latest = _.last(this.dailyHealthStatus)
@@ -110,21 +135,47 @@ export default {
           strokeDasharray: type === 'player' ? 0 : (type === 'worstAlternate' ? '2 4' : '12'),
         }
       })
+      this.rect = {
+        x: this.width - margin.right, y: margin.top,
+        width: 0, height: this.height - margin.top - margin.bottom,
+      }
+      this.line = {}
     },
     updateLineChart() {
-      this.xScale.domain([1, Math.max(this.day, 7)])
+      this.xScale.domain([1, this.week * 7])
 
       const allNumbers = _.chain(this.dailyHealthStatus)
         .map(d => _.map(types, type => d[type].total))
         .flatten().value()
       const [min, max] = d3.extent(allNumbers, d => d)
-      this.yScale.domain([_.floor(min, -1), _.ceil(max, -1)])
+      this.yScale.domain([_.floor(min, -1) || 1, _.ceil(max, -1)])
 
+      if (this.day % 7 === 1) {
+        // if first day of week update rect and x axis right away
+        const firstDay = (this.week - 1) * 7
+        Object.assign(this.rect, {
+          x: this.xScale(firstDay),
+          width: this.xScale(firstDay + 7) - this.xScale(firstDay)
+        })
+        d3.select(this.$refs.xAxis).call(this.xAxis)
+
+        // and then recalculate all path points with new scale
+        _.each(this.paths, d => {
+          d.points = _.map(d.points, ([x, y], i) => {
+            return [_.round(this.xScale(i + 1), 2), y]
+          })
+        })
+      }
+
+      if (this.firstHospitalOverDay) {
+        this.line.x = this.xScale(this.firstHospitalOverDay)
+      }
+
+      // calculate next point
       _.each(this.paths, d => {
         const nextPoints = _.map(this.dailyHealthStatus, o => {
-          return [this.xScale(o.day), this.yScale(o[d.type].total)]
+          return [_.round(this.xScale(o.day), 2), _.round(this.yScale(o[d.type].total), 0)]
         })
-        // debugger
         // for sake of animation make previous path have same number of points as next set
         const lastPoint = d.points.length ? _.last(d.points) : nextPoints[0]
         _.times(this.dailyHealthStatus.length - d.points.length, i => d.points.push(lastPoint))
@@ -136,16 +187,14 @@ export default {
         })
       })
 
+      // else animate paths and y axis
+      const duration = this.phases[1]
       this.tl.to(this.paths, {
-        duration: this.phases[1],
+        duration,
         path: (i, d) => d.nextPath,
       }, `day${this.day}-1`)
-
-      // and at same time update scales
+      // y scale
       this.tl.add(() => {
-        d3.select(this.$refs.xAxis)
-          .transition()
-          .call(this.xAxis)
         d3.select(this.$refs.yAxis)
           .transition()
           .on('start', this.formatYAxis)
@@ -183,8 +232,24 @@ export default {
 svg {
   overflow: visible;
 
-  .axis line {
-    stroke: $gray;
+  .header {
+    font-weight: 700;
+  }
+
+  rect {
+    fill: $gray;
+  }
+
+  .axis {
+    font-size: 10px;
+
+    line {
+      stroke: $gray;
+    }
+  }
+
+  .hospital {
+    font-size: 10px;
   }
 }
 
@@ -205,6 +270,15 @@ li {
 
   .label {
     white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .week {
+    width: 30px;
+    height: 0.75rem;
+    display: inline-block;
+    background-color: $gray;
+    vertical-align: middle;
   }
 }
 </style>
