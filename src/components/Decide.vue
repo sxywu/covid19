@@ -1,55 +1,27 @@
 <template>
-  <div id="decideArea" class="mt85">
-    <h1 class="header">{{ $t('decide.h1') }} {{ $tc('week', week) }}</h1>
-    <div class="flex info mx justify-between">
-      <div class="flex w100 mr1 virus-info">
-        <img :src="virusImage" class="virus mr1" />
-        <div class="flex w100 flex-column align-justify">
-          <ProgressBar v-bind="{value: current[5], maxValue: current.total}" />
-          <div class="mt2">
-            <strong>{{ formatNumber(current[5] || 0) }}</strong>
-            {{ $t('outOf') }}
-            <strong>{{ formatNumber(current.total) }}</strong>
-            {{ $t('decide.passedAway') }}
+  <div id="decideArea">
+    <div>
+      <h1 class="header">{{ $t('decide.h1') }} {{ $tc('week', week) }}</h1>
+      <div class="mt3">
+        <h2>{{ $t('decide.h2Question') }}</h2>
+        <div class="numTimes">
+          <div class="labels">
+            <div v-for="({value}) in range" v-bind:key="value">
+              <label for="range" v-if="value === +numTimes" style="font-weight: bold;">{{ value }}</label>
+              <label for="range" v-if="value !== +numTimes">{{ value }}</label>
+            </div>
+          </div>
+          <input type="range" min="0" max="7" v-model="numTimes" />
+          <div class="labels">
+            <div v-for="({value, label}) in range" v-bind:key="value">
+              <label for="range" v-if="value <= numTimes" style="font-weight: bold;">{{ label }}</label>
+              <label for="range" v-if="value > numTimes">{{ label }}</label>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="flex w100 bed-info">
-        <img :src="bedImage" class="virus" />
-        <div class="flex w100 flex-column align-justify">
-          <ProgressBar
-            v-bind="{value: filledBeds, maxValue: totalAvailableBeds}"
-          />
-          <div class="mt2">
-            <strong>{{ formatNumber(filledBeds) }}</strong>
-            {{ $t('decide.bedsOutOf') }}
-            <strong>{{ formatNumber(totalAvailableBeds) }}</strong>
-            {{ $t('available') }}
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="mt3">
-      <h2>{{ $t('decide.h2Question') }}</h2>
-      <div class="numTimes">
-        <div class="labels">
-          <div v-for="({value}) in range" v-bind:key="value">
-            <label for="range" v-if="value === +numTimes" style="font-weight: bold;">{{ value }}</label>
-            <label for="range" v-if="value !== +numTimes">{{ value }}</label>
-          </div>
-        </div>
-        <input type="range" min="0" max="7" v-model="numTimes" />
-        <div class="labels">
-          <div v-for="({value, label}) in range" v-bind:key="value">
-            <label for="range" v-if="value <= numTimes" style="font-weight: bold;">{{ label }}</label>
-            <label for="range" v-if="value > numTimes">{{ label }}</label>
-          </div>
-        </div>
-      </div>
 
-      <button @click="onUpdate(numTimes)" class="decideBtn mt3">
-        {{ $t('decide.cta') }}
-      </button>
+        <button @click="onUpdate(numTimes)" class="decideBtn mt3">{{ $t('decide.cta') }}</button>
+      </div>
     </div>
   </div>
 </template>
