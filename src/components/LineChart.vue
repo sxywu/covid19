@@ -107,10 +107,7 @@ export default {
         return {
           strokeDasharray: type === 'player' ? 0 : (type === 'worstAlternate' ? '2 4' : '12'),
           count: latest && latest[type].total,
-          label: type === "worstAlternate" ?
-            this.$t('lineChart.legend.types.worstAlternate') : type === "player" ?
-            this.$t('lineChart.legend.types.player') :
-            this.$t('lineChart.legend.types.bestAlternate'),
+          label: this.$t(`lineChart.legend.types.${type}`),
         }
       })
     },
