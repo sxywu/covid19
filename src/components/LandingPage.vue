@@ -8,12 +8,37 @@
         <hr />
       </header>
       <div class="content">
-        <p>{{ $t('landing.explanation') }}</p>
-        <p>{{ $t('landing.instruction') }}</p>
+        <p>{{ $t('landing.explanation1') }}</p>
+        <p>{{ $t('landing.explanation2') }}</p>
+        <p>{{ $t('landing.explanation3') }}</p>
+        <div class="people">
+          <img src="../assets/person-2.svg" />
+          <img src="../assets/person-1.svg" />
+          <img src="../assets/person-2.svg" />
+          <img src="../assets/person-1.svg" />
+          <img src="../assets/person-1.svg" />
+          <img src="../assets/person-2.svg" />
+          <img src="../assets/person-1.svg" />
+          <img src="../assets/person-2.svg" />
+          <img src="../assets/person-1.svg" />
+          <img src="../assets/person-1.svg" />
+          <img src="../assets/person-2.svg" />
+          <img src="../assets/person-1.svg" />
+          <img src="../assets/person-1.svg" />
+          <img src="../assets/person-2.svg" />
+          <img src="../assets/person-2.svg" />
+          <img src="../assets/person-1.svg" />
+          <img src="../assets/person-1.svg" />
+          <img src="../assets/person-2.svg" />
+          <img src="../assets/person-1.svg" />
+          <img src="../assets/person-2.svg" />
+        </div>
+        <p>{{ $t('landing.explanation4') }}</p>
+        <hr />
+        <p style="text-align: center;" v-html="$t('landing.instruction1')"></p>
         <form @submit="startPlay">
           <div class="inputs">
             <div class="zipCode">
-              <label for="zip">{{ $t('landing.enterZip') }}</label>
               <input
                 type="number"
                 class="zip"
@@ -25,7 +50,6 @@
             </div>
             <span>{{ $t('or') }}</span>
             <fieldset>
-              <legend>{{ $t('landing.chooseCommunity') }}</legend>
               <div class="communitySize">
                 <div class="radioWrapper">
                   <input
@@ -57,37 +81,8 @@
               </div>
             </fieldset>
           </div>
-          <div v-if="errors['zipCode']" class="zipCodeError">
-            {{ errors['zipCode'] }}
-          </div>
-          <p>{{ $t('landing.gameInstruction1') }}</p>
-          <p>
-            {{ $t('landing.gameInstruction2') }}
-          </p>
-          <div class="people">
-            <img src="../assets/person-2.svg" />
-            <img src="../assets/person-1.svg" />
-            <img src="../assets/person-2.svg" />
-            <img src="../assets/person-1.svg" />
-            <img src="../assets/person-1.svg" />
-            <img src="../assets/person-2.svg" />
-            <img src="../assets/person-1.svg" />
-            <img src="../assets/person-2.svg" />
-            <img src="../assets/person-1.svg" />
-            <img src="../assets/person-1.svg" />
-            <img src="../assets/person-2.svg" />
-            <img src="../assets/person-1.svg" />
-            <img src="../assets/person-1.svg" />
-            <img src="../assets/person-2.svg" />
-            <img src="../assets/person-2.svg" />
-            <img src="../assets/person-1.svg" />
-            <img src="../assets/person-1.svg" />
-            <img src="../assets/person-2.svg" />
-            <img src="../assets/person-1.svg" />
-            <img src="../assets/person-2.svg" />
-          </div>
-          <p style="margin: 2.5rem auto; text-align: center; max-width: 380px;">
-            {{ $t('landing.gameInstruction3') }}
+          <p style="text-align: center; max-width: 380px;">
+            {{ $t('landing.instruction2') }}
           </p>
           <button type="submit" class="playNowBtn">
             {{ $t('landing.buttonCta') }}
@@ -317,6 +312,16 @@ header {
     0 6.7px 5.3px rgba(0, 0, 0, 0.012), 0 12.5px 10px rgba(0, 0, 0, 0.015),
     0 22.3px 17.9px rgba(0, 0, 0, 0.018), 0 41.8px 33.4px rgba(0, 0, 0, 0.022),
     0 100px 80px rgba(0, 0, 0, 0.03);
+
+
+  hr {
+    border: none;
+    height: 3px;
+    width: 32px;
+    background: $primary;
+    margin-top: 3rem;
+    opacity: 0.7;
+  }
 }
 .content {
   display: flex;
