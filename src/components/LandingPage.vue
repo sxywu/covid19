@@ -12,26 +12,8 @@
         <p>{{ $t('landing.explanation2') }}</p>
         <p>{{ $t('landing.explanation3') }}</p>
         <div class="people">
-          <img src="../assets/person-2.svg" />
-          <img src="../assets/person-1.svg" />
-          <img src="../assets/person-2.svg" />
-          <img src="../assets/person-1.svg" />
-          <img src="../assets/person-1.svg" />
-          <img src="../assets/person-2.svg" />
-          <img src="../assets/person-1.svg" />
-          <img src="../assets/person-2.svg" />
-          <img src="../assets/person-1.svg" />
-          <img src="../assets/person-1.svg" />
-          <img src="../assets/person-2.svg" />
-          <img src="../assets/person-1.svg" />
-          <img src="../assets/person-1.svg" />
-          <img src="../assets/person-2.svg" />
-          <img src="../assets/person-2.svg" />
-          <img src="../assets/person-1.svg" />
-          <img src="../assets/person-1.svg" />
-          <img src="../assets/person-2.svg" />
-          <img src="../assets/person-1.svg" />
-          <img src="../assets/person-2.svg" />
+          <!-- randomly choose a person image -->
+          <img v-for="i in 20" :src="peopleImages[Math.round(Math.random())]" />
         </div>
         <p>{{ $t('landing.explanation4') }}</p>
         <hr />
@@ -105,6 +87,7 @@ export default {
     return {
       errors: {},
       zipCode: '',
+      peopleImages: [require('../assets/person-1.svg'), require('../assets/person-2.svg')],
     }
   },
   computed: {
