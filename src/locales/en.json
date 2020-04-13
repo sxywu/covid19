@@ -7,7 +7,7 @@
   "rural": "Rural",
   "food": "Food",
   "exercise": "Exercise",
-  "week": "{count} week | {count} weeks",
+  "week": "week",
   "day": "day",
   "outOf": "out of",
   "available": "available",
@@ -72,7 +72,6 @@
     }
   },
   "hospital": {
-    "filledOf": "filled of",
-    "totalBeds": "total beds"
+    "beds": "{filledBeds} Filled / {totalAvailableBeds} Available ({totalBeds} Total Beds)"
   }
 }
