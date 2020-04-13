@@ -2,20 +2,21 @@
   <div id="decideArea">
     <div>
       <h1 class="header">{{ $tc('decide.h1', week) }}</h1>
-      <div class="mt3">
+      <div class="decide">
         <h2>{{ $t('decide.h2Question') }}</h2>
         <div class="numTimes">
+        <div class="times">
+          <label v-for="({value}) in range" for="range" :key="value"
+            :style="{fontWeight: value === +numTimes ? 'bold' : ''}">
+            {{ value }}
+          </label>
+        </div>
+          <range-slider class="slider" min="0" max="7" v-model="numTimes" />
           <div class="labels">
-            <div v-for="({value}) in range" v-bind:key="value">
-              <label for="range" v-if="value === +numTimes" style="font-weight: bold;">{{ value }}</label>
-              <label for="range" v-if="value !== +numTimes">{{ value }}</label>
-            </div>
-          </div>
-          <input type="range" min="0" max="7" v-model="numTimes" />
-          <div class="labels">
-            <div v-for="({value, label}) in range" v-bind:key="value">
-              <label for="range" v-if="value <= numTimes" style="font-weight: bold;">{{ label }}</label>
-              <label for="range" v-if="value > numTimes">{{ label }}</label>
+            <div v-for="({value, label}) in range" :key="value">
+              <label for="range" :style="{fontWeight: value <= +numTimes ? 'bold' : ''}">
+                {{ label }}
+              </label>
             </div>
           </div>
         </div>
@@ -30,6 +31,8 @@
 import * as d3 from 'd3'
 import _ from 'lodash'
 import ProgressBar from './ProgressBar'
+import RangeSlider from 'vue-range-slider'
+import '../styles/slider.scss'
 const virusImage = require('../assets/virus.png')
 const bedImage = require('../assets/bed.png')
 
@@ -38,6 +41,7 @@ export default {
   props: ['onUpdate'],
   components: {
     ProgressBar,
+    RangeSlider,
   },
   data() {
     return {
@@ -82,8 +86,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '../styles/range';
-
 #decideArea {
   position: absolute;
   width: 100%;
@@ -92,7 +94,7 @@ export default {
   align-items: center;
   justify-content: center;
   border: 1px solid $gray;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.95);
   text-align: center;
 }
 
@@ -102,66 +104,8 @@ export default {
   margin-left: auto;
 }
 
-.info {
-  max-width: 800px;
-}
-
-.virus-info {
-  max-width: 350px;
-}
-
-.bed-info {
-  max-width: 350px;
-}
-
-.virus {
-  width: auto;
-  height: 50px;
-}
-
-.mx {
-  margin: auto;
-}
-
-.mr1 {
-  margin-right: 10px;
-}
-
-.mt85 {
-  margin-top: 85px;
-}
-
-.mt2 {
-  margin-top: 20px;
-}
-
-.mt3 {
-  margin-top: 30px;
-}
-
-.flex {
-  display: flex;
-  flex-direction: row;
-}
-
-.flex-column {
-  flex-direction: column;
-}
-
-.justify-between {
-  justify-content: space-between;
-}
-
-.w100 {
-  width: 100%;
-}
-
-.mw500 {
-  max-width: 500px;
-}
-
-.mw600 {
-  max-width: 600px;
+.decide {
+  margin: 4rem 0;
 }
 
 .decideBtn {
@@ -185,13 +129,48 @@ export default {
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  .labels {
+
+
+  .times, .labels {
     margin: 0 auto;
-    max-width: 780px;
+    max-width: 900px;
     justify-content: flex-start;
     width: 100%;
     display: grid;
-    grid-template-columns: repeat(8, 12.5%);
+    grid-template-columns: repeat(8, 1fr);
+    grid-gap: 15px;
+    position: relative;
+    grid-template-columns: repeat(8, 1fr);
+  }
+
+  .labels {
+    label {
+      font-weight: 500;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      margin-top: 0.5rem;
+    }
+    label::before {
+      content: '';
+      position: absolute;
+      border: 2px solid white;
+      width: 14px;
+      height: 14px;
+      top: -17px;
+      border-radius: 50%;
+      background: $primary;
+      pointer-events: none;
+    }
+    :not(:last-of-type) {
+      label::after {
+        content: '&';
+        position: absolute;
+        top: 8px;
+        padding-left: 7.5rem;
+      }
+    }
   }
 }
 </style>
