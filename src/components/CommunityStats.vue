@@ -11,15 +11,11 @@
       </div>
     </header>
     <div class="bars">
-      <div
-        class="item"
-        v-for="{label, value, maxValue} in items"
-        v-bind:key="label"
-      >
+      <div class="item" v-for="({label, value, maxValue, color}) in items" v-bind:key="label">
         <h3 class="label">{{ label }}</h3>
         <div class="value">
           <h4 style="margin-right: 10px;">{{ formatNumber(value) }}</h4>
-          <ProgressBar v-bind="{value, maxValue}" />
+          <ProgressBar v-bind="{value, maxValue, color}" />
         </div>
       </div>
     </div>
@@ -35,74 +31,73 @@ export default {
   components: {
     ProgressBar,
   },
-  props: ['healthStatus', 'tl', 'phases', 'playTimeline'],
+  props: [
+    'colorsByHealth',
+    'healthStatus',
+    'tl',
+    'phases',
+    'playTimeline',
+  ],
   data() {
     return {
       total: 0,
       avoided: 0,
-      items: _.map([4, 5, 1], num => {
-        return {
-          label: this.healthStatus[num],
-          value: 0,
-          maxValue: 0,
-          num,
-        }
-      }),
+      items: [],
     }
   },
   computed: {
     day() {
       return this.$store.state.day
     },
-    infected() {
-      return this.$store.getters.infected
-    },
     duration() {
       return _.sum(this.phases)
     },
+    stats() {
+      return _.last(this.$store.getters.dailyHealthStatus)
+    },
   },
   watch: {
-    infected() {
-      this.calculateNumbers()
+    day() {
+      if (this.day === 1) {
+        this.resetNumbers()
+      }
+    },
+    stats() {
       this.animateNumbers()
     },
   },
   methods: {
-    calculateNumbers() {
-      const current = _.countBy(this.infected, 'health')
-      this.current = {
-        total: _.sumBy([1, 2, 3, 4, 5], d => current[d] || 0),
-        ...current,
-      }
-      const alternate = _.chain(this.infected)
-        .map(d => d.alternate.health)
-        .countBy()
-        .value()
-      this.alternate = {
-        total: _.sumBy([1, 2, 3, 4, 5], d => alternate[d] || 0),
-        ...alternate,
-      }
+    resetNumbers() {
+      this.total = 0
+      this.avoided = 0
+
+      this.items = _.map([4, 5, 1], num => {
+        return {
+          color: this.colorsByHealth[num],
+          label: this.healthStatus[num],
+          value: 0,
+          maxValue: 0,
+          num,
+        }
+      })
     },
     animateNumbers() {
-      this.tl.to(
-        this.$data,
-        {
-          total: this.current.total,
-          avoided: Math.max(this.alternate.total - this.current.total, 0),
-          duration: this.duration,
-        },
-        `day${this.day}`,
-      )
+      if (!this.stats) return
+      const {player, worstAlternate} = this.stats
 
-      this.tl.to(
-        this.items,
-        {
-          value: (i, {num}) => this.current[num] || 0,
-          maxValue: this.current.total,
-          duration: this.duration,
-        },
-        `day${this.day}`,
-      )
+      this.tl.to(this.$data, {
+        total: player.total,
+        avoided: Math.max(worstAlternate.total - player.total, 0),
+        duration: this.duration,
+      }, `day${this.day}`)
+
+      this.tl.to(this.items, {
+        value: (i, {num}) => player[num] || 0,
+        maxValue: player.total,
+        duration: this.duration,
+      }, `day${this.day}`)
+
+      this.playTimeline('stats')
     },
     formatNumber(number) {
       return d3.format(',')(Math.round(number))
@@ -131,6 +126,7 @@ header {
   h4 {
     margin: 0;
     font-size: 1.75rem;
+    font-variant-numeric: tabular-nums;
   }
   h3 {
     margin-top: 0.25rem;
@@ -156,6 +152,7 @@ header {
   h4 {
     margin: 0;
     padding: 0;
+    font-variant-numeric: tabular-nums;
   }
   h3 {
     margin-bottom: 5px;

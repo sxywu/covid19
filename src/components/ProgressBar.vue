@@ -12,6 +12,7 @@ export default {
   props: {
     value: { default: 0 },
     maxValue: { default: 100 },
+    color: { default: '#cfcfcf' }, // put in a random default color, please change!
   },
 }
 </script>
@@ -44,4 +45,3 @@ progress[value]::-moz-progress-bar {
   border-radius: 2px;
 }
 </style>
-
