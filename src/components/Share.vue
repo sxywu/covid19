@@ -6,7 +6,6 @@
         :value="siteUrl"
         v-on:focus="$event.target.select()"
         v-on:click="$event.target.select()"
-        aria-label="copy game url"
         readonly
       />
       <button
