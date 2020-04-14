@@ -17,6 +17,9 @@ let dailyInfectious = []
 const totalPlayers = 20
 const foodStatus = {value: 18, maxValue: 18}
 const exerciseStatus = {value: 7, maxValue: 7}
+const numTimesOut = _.times(8, numTimes => {
+  return _.times(7, i => +(i < numTimes))
+})
 
 function assignHealth(person, daysSinceInfection, prevInHospital) {
   // health statuses: 0 = healthy, 1 = recovered, 2 = infected+asymptomatic,
@@ -330,21 +333,18 @@ export default new Vuex.Store({
         // if this is first day of week
         if (dayOfWeek === 0) {
           const numTimes = allDecisions[i % totalPlayers][week - 1]
-          let player
-          if (numTimes === 7) {
-            player = [1, 1, 1, 1, 1, 1, 1]
-          } else {
-            // TODO: OPTIMIZE PERFORMANCE
-            player = _.chain(7)
-              .times(i => +(i <numTimes))
-              .shuffle()
-              .value()
+          let player = numTimesOut[7]
+          let bestAlternate = numTimesOut[7]
+          if (numTimes < 7) {
+            player = _.shuffle(numTimesOut[numTimes])
           }
-          weeklyDecision = {
-            player,
+          if (week > 1) {
             // for best alternate, have everyone go out the same amount in week 1
             // and after week 1, only go out once a week
-            bestAlternate: week === 1 ? player : _.shuffle([1, 0, 0, 0, 0, 0, 0]),
+            bestAlternate = _.shuffle(numTimesOut[1])
+          }
+          weeklyDecision = {
+            player, bestAlternate,
           }
         }
 
