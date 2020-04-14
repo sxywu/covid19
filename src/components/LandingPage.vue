@@ -13,7 +13,7 @@
         <p>{{ $t('landing.explanation3') }}</p>
         <div class="people">
           <!-- randomly choose a person image -->
-          <img v-for="i in 20" :src="peopleImages[Math.round(Math.random())]" v-bind:key="i" />
+          <img v-for="i in 20" :src="peopleImages[Math.round(Math.random())]" :key="i" />
         </div>
         <p>{{ $t('landing.explanation4') }}</p>
         <hr />
@@ -23,10 +23,10 @@
             <div class="zipCode">
               <input
                 type="number"
-                v-bind:class="{'zip-error': errors['zipCode'] }"
+                :class="{'zip-error': errors['zipCode'] }"
                 id="zip"
                 v-model="zipCode"
-                placeholder="Enter your zip code (e.g. 00603)"
+                :placeholder="$t('landing.zipCodePlaceholder')"
                 pattern="/(^\d{5}$)|(^\d{5}-\d{4}$)/"
               />
             </div>
