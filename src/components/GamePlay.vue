@@ -66,9 +66,12 @@
         />
       </div>
       <!-- DECISION SCREEN -->
-      <Decide v-if="showDecision" v-bind="{
+      <Decide
+        v-if="showDecision"
+        v-bind="{
           onUpdate: updateDecision,
-        }" />
+        }"
+      />
     </div>
     <div class="zipCode">
       ZIP CODE:
@@ -119,7 +122,7 @@ export default {
       topHeight: 75,
       rightWidth: 320,
       bottomHeight: 180,
-      tl: new gsap.timeline({ paused: true }),
+      tl: new gsap.timeline({paused: true}),
       phases: [0.5, 0.75, 0.75],
       groups: [],
       showDecision: false,
@@ -187,7 +190,8 @@ export default {
     },
     updateDecision(numTimes) {
       this.showDecision = false
-      this.$store.commit('setDecision', numTimes)
+      this.$store.commit('setDecision', +numTimes)
+      this.$store.dispatch('storeGame')
       this.updateDay()
     },
     updateDay() {
