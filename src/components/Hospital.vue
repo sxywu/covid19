@@ -3,7 +3,7 @@
     <h3 class="label">{{ hospital && hospital.name }}</h3>
     <div class="stats label">
       <div>
-        {{ filledBeds }} {{ $t('hospital.filledOf') }}  / {{ totalAvailableBeds }} {{ $t('available') }} ({{ totalBeds }} {{ $t('hospital.totalBeds') }})
+        {{ $t('hospital.beds', {filledBeds, totalAvailableBeds, totalBeds}) }}
       </div>
     </div>
     <svg ref="svg">
