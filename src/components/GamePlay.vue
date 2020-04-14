@@ -190,9 +190,9 @@ export default {
     },
     updateDecision(numTimes) {
       this.showDecision = false
-      this.$store.commit('setDecision', _.toInteger(numTimes))
-      this.updateDay()
+      this.$store.commit('setDecision', +numTimes)
       this.$store.dispatch('storeGame')
+      this.updateDay()
     },
     updateDay() {
       this.setupDone = []

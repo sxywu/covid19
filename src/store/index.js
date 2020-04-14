@@ -120,10 +120,10 @@ export default new Vuex.Store({
     bedOccupancyRate: 0.66,
     totalDays: 8 * 7,
     allDecisions: [],
+    pastPlayerIDs: [],
     foodStatus: {},
     exerciseStatus: {},
     gameId: '',
-    zipCodeHistory: [],
   },
   getters: {
     week({day}) {
@@ -284,7 +284,7 @@ export default new Vuex.Store({
       return {people, houses, destinations, numGroups: numDestGroups}
     },
     infected({day, allDecisions}, {week, community, totalAvailableBeds}) {
-      if (!community) return
+      if (!community || !allDecisions.length) return
       const {people, houses} = community
 
       if (!prevInfected.length) {
@@ -533,6 +533,9 @@ export default new Vuex.Store({
     setDataLoaded(state, dataLoaded) {
       state.dataLoaded = dataLoaded
     },
+    setPastPlayerIDs(state, pastPlayerIDs) {
+      state.pastPlayerIDs = pastPlayerIDs
+    },
     setAllDecisions(state, allDecisions) {
       state.allDecisions = allDecisions
     },
@@ -569,12 +572,9 @@ export default new Vuex.Store({
     setGameId(state) {
       state.gameId = uuidv4()
     },
-    setZipCodeHistory(state, zipCodeHistory) {
-      state.zipCodeHistory = zipCodeHistory
-    },
   },
   actions: {
-    getRawData({commit, state, dispatch}) {
+    getRawData({commit, dispatch}) {
       function formatData(obj) {
         const zip = obj.zip // make sure zip doesn't get turned into integers
         return Object.assign(d3.autoType(obj), {zip}) // but everything else is formatted correctly
@@ -586,33 +586,48 @@ export default new Vuex.Store({
         populationsByZip = populations
         hospitalsByZip = hospitals
 
-        dispatch('getZipCodeGameHistory')
-        const allDecisions = _.times(totalPlayers - 1, i =>
-          _.times(state.totalDays / 7, i => (i ? _.random(7) : 7)),
-        )
-        allDecisions.unshift([7]) // add this player's decision at beginning, assume they go out every day
-
         commit('setDataLoaded', true)
-        commit('setAllDecisions', allDecisions)
         commit('setFoodStatus', foodStatus)
         commit('setExerciseStatus', exerciseStatus)
       })
     },
-    getZipCodeGameHistory({state: {zipCode = 'Any'}, commit}) {
+    getPastGames({commit, dispatch}, zipCode) {
+      const numPastPlayers = totalPlayers - 1
       apiService.getFilteredGames({
         filters: {zipCode},
-        cb: data => commit('setZipCodeHistory', data),
+        limit: numPastPlayers,
+        cb: data => {
+          if (zipCode !== 'Any' && data.length < numPastPlayers) {
+            // if there aren't enough past games in zip code, take from any zip code
+            dispatch('getPastGames', 'Any')
+            return
+          }
+          const allDecisions = _.chain(data).map('decisions').filter().value()
+          // if there still aren't enough, then add in the rest assuming they go out every day
+          _.times(numPastPlayers - allDecisions.length, i => {
+            allDecisions.push([7, 7, 7, 7, 7, 7, 7, 7])
+          })
+          // add this player's decision at beginning, assume they go out every day
+          allDecisions.unshift([7])
+
+          commit('setAllDecisions', allDecisions)
+          commit('setPastPlayerIDs', _.map(data, 'id'))
+        },
       })
     },
     storeGame({
-      state: {allDecisions, zipCode, gameId},
+      state: {allDecisions, zipCode, gameId, pastPlayerIDs},
       getters: {dailyInfectious, dailyHealthStatus},
     }) {
+      const decisions = _.get(allDecisions, '[0]', [])
       apiService.setGameById(gameId, {
         dailyInfectious,
         id: gameId,
         dailyHealthStatus,
-        decisions: _.get(allDecisions, '[0]', []),
+        decisions,
+        // use this in db to filter by those that have gone through all 8 weeks
+        numDecisions: decisions.length,
+        pastPlayerIDs,
         zipCode,
       })
     },

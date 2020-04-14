@@ -55,8 +55,6 @@ export default {
   },
   created() {
     this.$store.dispatch('getRawData')
-
-    this.$store.commit('setGameId')
   },
 }
 </script>
