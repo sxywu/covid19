@@ -64,8 +64,8 @@
 
     <div v-else>
       <h1 class="header">{{ $tc('decide.h1.numTimes', numTimes, {count: numTimes}) }}.</h1>
-      <p>{{ $t('decide.rest') }}</p>
-      <Histogram />
+      <p class="body">{{ $t('decide.rest') }}</p>
+      <Histogram v-bind="{type: 'weekly'}" />
       <button class="decideBtn mt3" @click="onUpdate(numTimes)" >{{ $t('decide.start') }}</button>
     </div>
   </div>
@@ -250,5 +250,9 @@ export default {
       }
     }
   }
+}
+
+h1, .body {
+  z-index: 1000;
 }
 </style>

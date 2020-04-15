@@ -25,9 +25,10 @@ const images = [
   require('../assets/person-2.svg'),
 ]
 const imageRatio = 94 / 52
-const margin = {top: 30, right: 20, bottom: 40, left: 20}
+const margin = {top: 20, right: 20, bottom: 40, left: 20}
 export default {
   name: 'Histogram',
+  props: ['type'],
   data() {
     return {
       width: 800,
@@ -67,12 +68,13 @@ export default {
       if (!this.allDecisions) return
 
       const groupedPeople = _.chain(this.allDecisions)
-        .map(this.week)
+        .map(d => this.type === 'all' ? _.round(d3.mean(d), 1) : d[this.week])
         .countBy()
         .value()
       const maxLength = _.max(_.values(groupedPeople))
-      this.imageHeight = Math.max(Math.floor(this.height / maxLength), 40)
+      this.imageHeight = _.clamp(Math.floor(this.height / maxLength), 40, 80)
       this.imageWidth = this.imageHeight / imageRatio
+      this.height = Math.min(this.height, this.imageHeight * maxLength + margin.top + margin.bottom)
       this.people = _.chain(groupedPeople)
         .map((length, numTimes) => {
           if (numTimes === 'undefined') return
