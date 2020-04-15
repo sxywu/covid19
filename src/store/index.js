@@ -136,6 +136,15 @@ export default new Vuex.Store({
       if (!dataLoaded) return
       return _.map(populationsByZip, d => d.zip)
     },
+    zipsByCommunitySize({dataLoaded}) {
+      if (!dataLoaded) return
+      return _.groupBy(populationsByZip, d => {
+        if (d.total > 50000) return 'urban'
+        if (d.total > 10000) return 'suburban'
+        if (d.total > 5000) return 'rural'
+        return 'others'
+      })
+    },
     population({zipCode, dataLoaded}) {
       if (!zipCode || !dataLoaded) return
       return _.find(populationsByZip, d => d.zip === zipCode)

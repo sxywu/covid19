@@ -33,17 +33,10 @@
             <span>{{ $t('or') }}</span>
             <fieldset>
               <div class="communitySize">
-                <div class="radioWrapper">
-                  <input type="radio" id="urban" name="communitySize" value="Urban" />
-                  <label for="urban">{{ $t('urban') }}</label>
-                </div>
-                <div class="radioWrapper">
-                  <input type="radio" id="suburban" name="communitySize" value="Suburban" />
-                  <label for="suburban">{{ $t('suburban') }}</label>
-                </div>
-                <div class="radioWrapper">
-                  <input type="radio" id="rural" name="communitySize" value="Rural" />
-                  <label for="rural">{{ $t('rural') }}</label>
+                <div v-for="({id, value}) in communitySizes" class="radioWrapper">
+                  <input type="radio" :id="id" name="communitySize" :value="value"
+                    v-model="communitySize" @change="selectCommunitySize" />
+                  <label :for="id">{{ $t(id) }}</label>
                 </div>
               </div>
             </fieldset>
@@ -66,6 +59,12 @@ export default {
     return {
       errors: {},
       zipCode: '',
+      communitySize: '',
+      communitySizes: [
+        {id: 'urban', value: 'Urban'},
+        {id: 'suburban', value: 'Suburban'},
+        {id: 'rural', value: 'Rural'},
+      ],
       peopleImages: [
         require('../assets/person-1.svg'),
         require('../assets/person-2.svg'),
@@ -76,8 +75,15 @@ export default {
     zips() {
       return this.$store.getters.allZips
     },
+    zipsByCommunitySize() {
+      return this.$store.getters.zipsByCommunitySize
+    },
   },
   methods: {
+    selectCommunitySize() {
+      if (!this.zipsByCommunitySize) return
+      this.zipCode = _.sample(this.zipsByCommunitySize[this.communitySize.toLowerCase()]).zip
+    },
     startPlay(e) {
       if (this.checkFormValid(e)) {
         this.$store.commit('setGameId')
