@@ -34,8 +34,8 @@
             <fieldset>
               <div class="communitySize">
                 <div v-for="({id, value}) in communitySizes" class="radioWrapper">
-                  <input type="radio" :id="id" name="communitySize" :value="value"
-                    v-model="communitySize" @change="selectCommunitySize" />
+                  <input type="radio" :id="id" name="communitySize"
+                    :value="value" v-model="communitySize" :disabled='!!zipCode' />
                   <label :for="id">{{ $t(id) }}</label>
                 </div>
               </div>
@@ -80,11 +80,10 @@ export default {
     },
   },
   methods: {
-    selectCommunitySize() {
-      if (!this.zipsByCommunitySize) return
-      this.zipCode = _.sample(this.zipsByCommunitySize[this.communitySize.toLowerCase()]).zip
-    },
     startPlay(e) {
+      if (!this.zipCode && this.communitySize) {
+        this.zipCode = _.sample(this.zipsByCommunitySize[this.communitySize.toLowerCase()]).zip
+      }
       if (this.checkFormValid(e)) {
         this.$store.commit('setGameId')
         this.$store.dispatch('getPastGames', {zipCode: this.zipCode})
@@ -252,6 +251,11 @@ form {
   input[type='radio']:checked + label {
     background: $text;
     color: white;
+  }
+  input[type='radio']:disabled + label {
+    background: $gray;
+    color: rgba(0, 0, 0, 0.3);
+    cursor: not-allowed;
   }
 }
 header {
