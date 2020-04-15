@@ -11,6 +11,7 @@ import diseaseNumbers from '../assets/diseaseNumbers.json'
 
 let populationsByZip = []
 let hospitalsByZip = []
+let citiesByZip = []
 let prevInfected = []
 let dailyHealthStatus = []
 let dailyInfectious = []
@@ -149,20 +150,27 @@ export default new Vuex.Store({
       if (!zipCode || !dataLoaded) return
       return _.find(populationsByZip, d => d.zip === zipCode)
     },
-    zipsInCounty(state, {population}) {
-      if (!population) return
-      return _.filter(populationsByZip, d => d.county === population.county)
+    cityCounty({zipCode, dataLoaded}) {
+      if (!zipCode || !dataLoaded) return
+      return _.find(citiesByZip, d => d.zip === zipCode)
+    },
+    zipsInCounty(state, {cityCounty}) {
+      if (!cityCounty) return
+      return _.chain(citiesByZip)
+        .filter(d => d.county === cityCounty.county)
+        .map('zip')
+        .value()
     },
     hospitals(state, {zipsInCounty}) {
       if (!zipsInCounty) return
-      const zips = _.map(zipsInCounty, 'zip')
-      return _.filter(hospitalsByZip, d => _.includes(zips, d.zip))
+      return _.filter(hospitalsByZip, d => _.includes(zipsInCounty, d.zip))
     },
     totalBeds(state, {hospitals, population, zipsInCounty}) {
       if (!population || !hospitals || !zipsInCounty) return
-      const countyPopulation = _.sumBy(zipsInCounty, 'total')
-      const bedsPerPerson = _.sumBy(hospitals, 'beds') / countyPopulation
-      return Math.floor(population.total * bedsPerPerson)
+      const countyPopulation = _.sumBy(populationsByZip, d =>
+        _.includes(zipsInCounty, d.zip) ? d.total : 0)
+      const totalCountyBeds = _.sumBy(hospitals, d => d.beds > 0 ? d.beds : 0)
+      return Math.floor(population.total * (totalCountyBeds / countyPopulation))
     },
     totalAvailableBeds({bedOccupancyRate}, {totalBeds}) {
       return Math.floor((1 - bedOccupancyRate) * totalBeds)
@@ -585,15 +593,23 @@ export default new Vuex.Store({
   actions: {
     getRawData({commit, dispatch}) {
       function formatData(obj) {
-        const zip = obj.zip // make sure zip doesn't get turned into integers
+        let zip = obj.zip // make sure zip doesn't get turned into integers
+        if (zip.length === 3) {
+          zip = '00' + zip
+        }
+        if (zip.length === 4) {
+          zip = '0' + zip
+        }
         return Object.assign(d3.autoType(obj), {zip}) // but everything else is formatted correctly
       }
       Promise.all([
         d3.csv('./population-by-zip-code.csv', formatData),
         d3.csv('./hospitals-by-zip-code.csv', formatData),
-      ]).then(([populations, hospitals]) => {
+        d3.csv('./zip-to-city-county.csv', formatData),
+      ]).then(([populations, hospitals, cities]) => {
         populationsByZip = populations
         hospitalsByZip = hospitals
+        citiesByZip = cities
 
         commit('setDataLoaded', true)
         commit('setFoodStatus', foodStatus)
