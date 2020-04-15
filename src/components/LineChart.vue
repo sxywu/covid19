@@ -106,7 +106,7 @@ export default {
       return _.map(types, type => {
         return {
           strokeDasharray: type === 'player' ? 0 : (type === 'worstAlternate' ? '2 4' : '12'),
-          count: latest && latest[type].total,
+          count: latest && this.formatNumber(latest[type].total),
           label: this.$t(`lineChart.legend.types.${type}`),
         }
       })

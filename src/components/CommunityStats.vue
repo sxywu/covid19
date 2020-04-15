@@ -147,7 +147,7 @@ header {
     width: 100%;
     display: grid;
     align-items: center;
-    grid-template-columns: 20% auto;
+    grid-template-columns: 25% auto;
   }
   h4 {
     margin: 0;
