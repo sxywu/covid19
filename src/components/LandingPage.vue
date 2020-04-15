@@ -13,7 +13,12 @@
         <p>{{ $t('landing.explanation3') }}</p>
         <div class="people">
           <!-- randomly choose a person image -->
-          <img v-for="i in 20" :src="peopleImages[Math.round(Math.random())]" :key="i" />
+          <img
+            v-for="i in 20"
+            :src="randomPersonImage[i]"
+            :key="i"
+            alt="illustration of random person"
+          />
         </div>
         <p>{{ $t('landing.explanation4') }}</p>
         <hr />
@@ -83,6 +88,11 @@ export default {
     },
     zipsByCommunitySize() {
       return this.$store.getters.zipsByCommunitySize
+    },
+    randomPersonImage() {
+      return Array(21)
+        .fill()
+        .map(() => this.peopleImages[Math.round(Math.random())])
     },
   },
   methods: {
