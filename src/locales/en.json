@@ -56,7 +56,7 @@
     "bothLow": "Be careful!  You're running out of food and haven't exercised in a while.",
     "h2Question": "How many times will you go out this week?",
     "range": {
-      "0": "",
+      "0": "Stay home",
       "1": "Go for a walk",
       "2": "Buy groceries",
       "3": "Go for a run",

@@ -1,9 +1,9 @@
 .range-slider {
   display: inline-block;
   padding: 0 10px;
-  height: 20px;
+  height: 16px;
   width: 100%;
-  max-width: 800px;
+  max-width: 900px;
   margin: 0 auto;
 }
 
@@ -24,20 +24,22 @@
   position: absolute;
   top: 50%;
   left: 0;
-  height: 4px;
-  border-radius: 2px;
+  height: 16px;
   -webkit-transform: translateY(-50%);
   -ms-transform: translateY(-50%);
   transform: translateY(-50%);
+  border-radius: 8px;
 }
 
 .range-slider-rail {
   width: 100%;
   background-color: #e2e2e2;
+  border-radius: 8px;
 }
 
 .range-slider-fill {
   background-color: $red;
+  border-radius: 8px;
 }
 
 .range-slider-knob {
