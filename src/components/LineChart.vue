@@ -280,6 +280,8 @@ li {
 }
 
 .legend {
+  text-align: left;
+
   svg {
     vertical-align: middle;
   }

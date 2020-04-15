@@ -2,6 +2,43 @@
   <div id="decideArea">
     <div>
       <h1 class="header">{{ $tc('decide.h1', week) }}</h1>
+      <div class="content">
+        <p v-if="foodStatus.value < 7 && exerciseStatus.value < 2">
+          {{ $t('decide.bothLow') }}
+        </p>
+        <p v-else-if="foodStatus.value < 7">{{ $t('decide.foodLow') }}</p>
+        <p v-else-if="exerciseStatus.value < 2">{{ $t('decide.exerciseLow') }}</p>
+        <div class="statusBars">
+          <!-- STATUS BARS -->
+          <div class="item">
+            <img src="../assets/food.svg" />
+            <div class="item-content">
+              <h3 class="label">{{ $t('food') }}</h3>
+              <ProgressBar v-bind="foodStatus" />
+            </div>
+          </div>
+          <div class="item">
+            <img src="../assets/exercise.svg" />
+            <div class="item-content">
+              <h3 class="label">{{ $t('exercise') }}</h3>
+              <ProgressBar v-bind="exerciseStatus" />
+            </div>
+          </div>
+        </div>
+        <!-- LINE CHART -->
+        <p v-if='newCases'>
+          <span v-html="$t('decide.newCasesTotal', {count: formatNumber(newCases.total)})" />{{ newCases.avoided ? "," : "."}}
+          <span v-if="newCases.avoided" v-html="$t('decide.newCasesAvoided', {count: formatNumber(newCases.avoided)})" />
+        </p>
+        <LineChart
+          v-bind="{
+            height: 200,
+            ageGroups,
+            colorsByHealth,
+          }"
+        />
+      </div>
+
       <div class="decide">
         <h2>{{ $t('decide.h2Question') }}</h2>
         <div class="numTimes">
@@ -30,23 +67,21 @@
 <script>
 import * as d3 from 'd3'
 import _ from 'lodash'
+import LineChart from './LineChart'
 import ProgressBar from './ProgressBar'
 import RangeSlider from 'vue-range-slider'
 import '../styles/slider.scss'
-const virusImage = require('../assets/virus.png')
-const bedImage = require('../assets/bed.png')
 
 export default {
   name: 'DecideArea',
-  props: ['onUpdate'],
+  props: ['onUpdate', 'ageGroups', 'colorsByHealth'],
   components: {
+    LineChart,
     ProgressBar,
     RangeSlider,
   },
   data() {
     return {
-      virusImage,
-      bedImage,
       numTimes: 0,
       range: _.times(8, i => {
         return {
@@ -57,23 +92,28 @@ export default {
     }
   },
   computed: {
+    day() {
+      return this.$store.state.day
+    },
     week() {
       return this.$store.getters.week
     },
-    totalAvailableBeds() {
-      return this.$store.getters.totalAvailableBeds
+    foodStatus() {
+      return this.$store.state.foodStatus
     },
-    filledBeds() {
-      return this.$store.getters.filledBeds
+    exerciseStatus() {
+      return this.$store.state.exerciseStatus
     },
-    infected() {
-      return this.$store.getters.infected
+    dailyHealthStatus() {
+      return this.$store.getters.dailyHealthStatus
     },
-    current() {
-      const current = _.countBy(this.infected, 'health')
+    newCases() {
+      if (!this.dailyHealthStatus) return
+      const today = this.dailyHealthStatus[this.day - 1]
+      const lastWeek = this.dailyHealthStatus[this.day - 7]
       return {
-        total: _.sumBy([1, 2, 3, 4, 5], d => current[d] || 0),
-        ...current,
+        total: today.player.total - lastWeek.player.total,
+        avoided: today.worstAlternate.total - lastWeek.worstAlternate.total,
       }
     },
   },
@@ -121,8 +161,36 @@ export default {
   }
 }
 
-.align-justify {
-  text-align: justify;
+.content {
+  width: 600px;
+  margin: auto;
+}
+
+.statusBars {
+  text-align: center;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.item {
+  padding: 1rem;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+.item-content {
+  margin-left: 0.75rem;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  flex-direction: column;
+  width: 100%;
+  h3 {
+    padding-bottom: 3px;
+  }
+  progress {
+    margin-top: 4px;
+  }
 }
 
 .numTimes {

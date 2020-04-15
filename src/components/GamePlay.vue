@@ -77,6 +77,8 @@
       <!-- DECISION SCREEN -->
       <Decide v-if="showDecision" v-bind="{
           onUpdate: updateDecision,
+          ageGroups,
+          colorsByHealth,
         }" />
     </div>
   </div>

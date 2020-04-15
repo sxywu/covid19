@@ -46,6 +46,11 @@
   },
   "decide": {
     "h1": "You've been fighting the virus for one week | You've been fighting the virus for {count} weeks",
+    "newCasesTotal": "In the previous week, your community had <strong>{count}</strong> new cases",
+    "newCasesAvoided": "but you were also able to avoid <strong>{count}</strong> new cases.",
+    "foodLow": "Be careful! Your food is running low.",
+    "exerciseLow": "Be careful!  You haven't exercised in a while.",
+    "bothLow": "Be careful!  You're running out of food and haven't exercised in a while.",
     "h2Question": "How many times will you go out this week?",
     "range": {
       "0": "",
@@ -57,7 +62,7 @@
       "6": "Go to a house party",
       "7": "Go to a concert"
     },
-    "cta": "Start Next Week →"
+    "cta": "Decide"
   },
   "communityStats": {
     "total": "total cases",
