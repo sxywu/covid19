@@ -2,12 +2,18 @@
   <div id="decideArea">
     <div v-if="!decided">
       <h1 class="header">{{ $tc('decide.h1.week', week) }}</h1>
+      <p v-if="foodStatus.value < 7 && exerciseStatus.value < 2">{{ $t('decide.bothLow') }}</p>
+      <p v-else-if="foodStatus.value < 7">{{ $t('decide.foodLow') }}</p>
+      <p v-else-if="exerciseStatus.value < 2">{{ $t('decide.exerciseLow') }}</p>
+      <p v-if="newCases">
+        <span v-html="$t('decide.newCasesTotal', {count: formatNumber(newCases.total)})" />
+        {{ newCases.avoided ? "," : "." }}
+        <span
+          v-if="newCases.avoided"
+          v-html="$t('decide.newCasesAvoided', {count: formatNumber(newCases.avoided)})"
+        />
+      </p>
       <div class="content">
-        <p v-if="foodStatus.value < 7 && exerciseStatus.value < 2">
-          {{ $t('decide.bothLow') }}
-        </p>
-        <p v-else-if="foodStatus.value < 7">{{ $t('decide.foodLow') }}</p>
-        <p v-else-if="exerciseStatus.value < 2">{{ $t('decide.exerciseLow') }}</p>
         <div class="statusBars">
           <!-- STATUS BARS -->
           <div class="item">
@@ -26,10 +32,6 @@
           </div>
         </div>
         <!-- LINE CHART -->
-        <p v-if='newCases'>
-          <span v-html="$t('decide.newCasesTotal', {count: formatNumber(newCases.total)})" />{{ newCases.avoided ? "," : "."}}
-          <span v-if="newCases.avoided" v-html="$t('decide.newCasesAvoided', {count: formatNumber(newCases.avoided)})" />
-        </p>
         <LineChart
           v-bind="{
             height: 200,
@@ -83,8 +85,8 @@
     <div v-else>
       <h1 class="header">{{ $tc('decide.h1.numTimes', numTimes, {count: numTimes}) }}.</h1>
       <p class="body">{{ $t('decide.rest') }}</p>
-      <Histogram v-bind="{type: 'weekly'}" />
-      <button class="decideBtn mt3" @click="onUpdate(numTimes)" >{{ $t('decide.start') }}</button>
+      <Histogram v-bind="{type: 'weekly', numTimes: numTimes}" />
+      <button class="decideBtn mt3" @click="onUpdate(numTimes)">{{ $t('decide.start') }}</button>
     </div>
   </div>
 </template>
@@ -172,8 +174,11 @@ export default {
   margin-left: auto;
 }
 
+p {
+  font-size: 18px;
+}
+
 .decide {
-  margin: 4rem 0;
 }
 
 .decideBtn {
@@ -190,14 +195,21 @@ export default {
 }
 
 .content {
-  width: 600px;
-  margin: auto;
+  display: grid;
+  grid-template-columns: 0.8fr 1fr;
+  align-items: center;
+  grid-gap: 2rem;
+  justify-content: center;
+  margin: 2rem auto;
 }
 
 .statusBars {
+  width: 100%;
+  // max-width: 400px;
   text-align: center;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr 1fr;
 }
 
 .item {
@@ -271,7 +283,9 @@ h2 {
   }
 }
 
-h1, .body {
+h1,
+.body {
+  position: relative;
   z-index: 1000;
 }
 </style>
