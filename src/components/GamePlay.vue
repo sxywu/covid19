@@ -31,9 +31,7 @@
         </div>
         <!-- POPULATION  -->
         <div class="label" id="populationContainer">
-          <h3 v-if="cityCounty">
-            {{ cityCounty.city }}, {{ cityCounty.state }} {{ cityCounty.zip }}
-          </h3>
+          <h3 v-if="cityCounty">{{ cityCounty.city }}, {{ cityCounty.state }} {{ cityCounty.zip }}</h3>
           <div v-if="population">Population: {{ formatNumber(population.total) }}</div>
         </div>
       </div>
@@ -75,11 +73,14 @@
         />
       </div>
       <!-- DECISION SCREEN -->
-      <Decide v-if="showDecision" v-bind="{
+      <Decide
+        v-if="showDecision"
+        v-bind="{
           onUpdate: updateDecision,
           ageGroups,
           colorsByHealth,
-        }" />
+        }"
+      />
     </div>
   </div>
 </template>
@@ -237,15 +238,10 @@ export default {
 
 <style lang="scss" scoped>
 #gameplay {
-  // max-width: 1320px;
-  // max-height: 840px;
   background: white;
   border-radius: 6px;
   overflow: hidden;
-  box-shadow: 0 2.8px 2.2px rgba(0, 0, 0, 0.008),
-    0 6.7px 5.3px rgba(0, 0, 0, 0.012), 0 12.5px 10px rgba(0, 0, 0, 0.015),
-    0 22.3px 17.9px rgba(0, 0, 0, 0.018), 0 41.8px 33.4px rgba(0, 0, 0, 0.022),
-    0 100px 80px rgba(0, 0, 0, 0.03);
+  @include shadow;
 }
 
 .gameContainer {
@@ -297,7 +293,6 @@ export default {
   margin-left: auto;
   padding: 1rem;
 }
-
 
 #populationContainer {
   position: absolute;

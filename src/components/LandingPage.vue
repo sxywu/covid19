@@ -34,8 +34,14 @@
             <fieldset>
               <div class="communitySize">
                 <div v-for="({id, value}) in communitySizes" class="radioWrapper">
-                  <input type="radio" :id="id" name="communitySize"
-                    :value="value" v-model="communitySize" :disabled='!!zipCode' />
+                  <input
+                    type="radio"
+                    :id="id"
+                    name="communitySize"
+                    :value="value"
+                    v-model="communitySize"
+                    :disabled="!!zipCode"
+                  />
                   <label :for="id">{{ $t(id) }}</label>
                 </div>
               </div>
@@ -61,9 +67,9 @@ export default {
       zipCode: '',
       communitySize: '',
       communitySizes: [
-        {id: 'urban', value: 'Urban'},
-        {id: 'suburban', value: 'Suburban'},
-        {id: 'rural', value: 'Rural'},
+        { id: 'urban', value: 'Urban' },
+        { id: 'suburban', value: 'Suburban' },
+        { id: 'rural', value: 'Rural' },
       ],
       peopleImages: [
         require('../assets/person-1.svg'),
@@ -82,11 +88,13 @@ export default {
   methods: {
     startPlay(e) {
       if (!this.zipCode && this.communitySize) {
-        this.zipCode = _.sample(this.zipsByCommunitySize[this.communitySize.toLowerCase()]).zip
+        this.zipCode = _.sample(
+          this.zipsByCommunitySize[this.communitySize.toLowerCase()]
+        ).zip
       }
       if (this.checkFormValid(e)) {
         this.$store.commit('setGameId')
-        this.$store.dispatch('getPastGames', {zipCode: this.zipCode})
+        this.$store.dispatch('getPastGames', { zipCode: this.zipCode })
         this.$store.commit('setZipCode', this.zipCode)
         this.$store.commit('setCurrentPage', 'game')
       }
@@ -298,10 +306,7 @@ header {
   position: relative;
   padding-bottom: 4rem;
   z-index: 10;
-  box-shadow: 0 2.8px 2.2px rgba(0, 0, 0, 0.008),
-    0 6.7px 5.3px rgba(0, 0, 0, 0.012), 0 12.5px 10px rgba(0, 0, 0, 0.015),
-    0 22.3px 17.9px rgba(0, 0, 0, 0.018), 0 41.8px 33.4px rgba(0, 0, 0, 0.022),
-    0 100px 80px rgba(0, 0, 0, 0.03);
+  @include shadow;
 
   hr {
     border: none;
@@ -316,7 +321,7 @@ header {
   display: flex;
   align-items: center;
   flex-direction: column;
-  padding: 2rem 6rem 6rem 6rem;
+  padding: 2rem 6rem;
   p {
     width: 100%;
     font-size: 1.15rem;
