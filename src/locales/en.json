@@ -45,7 +45,10 @@
     "hospitalCapacity": "Hospital Capacity"
   },
   "decide": {
-    "h1": "You've been fighting the virus for one week | You've been fighting the virus for {count} weeks",
+    "h1": {
+      "week": "You've been fighting the virus for one week | You've been fighting the virus for {count} weeks",
+      "numTimes": "You decided not to go out this week | You decided to go out once this week | You decided to go out {count} times this week"
+    },
     "newCasesTotal": "In the previous week, your community had <strong>{count}</strong> new cases",
     "newCasesAvoided": "but you were also able to avoid <strong>{count}</strong> new cases.",
     "foodLow": "Be careful! Your food is running low.",
@@ -62,7 +65,9 @@
       "6": "Go to a house party",
       "7": "Go to a concert"
     },
-    "cta": "Decide"
+    "cta": "Decide",
+    "rest": "Here's what the rest of your community decided to do:",
+    "start": "Start Next Week →"
   },
   "communityStats": {
     "total": "total cases",

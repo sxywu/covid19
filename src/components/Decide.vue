@@ -1,7 +1,7 @@
 <template>
   <div id="decideArea">
-    <div>
-      <h1 class="header">{{ $tc('decide.h1', week) }}</h1>
+    <div v-if="!decided">
+      <h1 class="header">{{ $tc('decide.h1.week', week) }}</h1>
       <div class="content">
         <p v-if="foodStatus.value < 7 && exerciseStatus.value < 2">
           {{ $t('decide.bothLow') }}
@@ -38,7 +38,7 @@
           }"
         />
       </div>
-
+      <!-- DECISION -->
       <div class="decide">
         <h2>{{ $t('decide.h2Question') }}</h2>
         <div class="numTimes">
@@ -58,8 +58,15 @@
           </div>
         </div>
 
-        <button @click="onUpdate(numTimes)" class="decideBtn mt3">{{ $t('decide.cta') }}</button>
+        <button class="decideBtn mt3" @click="decided = true">{{ $t('decide.cta') }}</button>
       </div>
+    </div>
+
+    <div v-else>
+      <h1 class="header">{{ $tc('decide.h1.numTimes', numTimes, {count: numTimes}) }}.</h1>
+      <p>{{ $t('decide.rest') }}</p>
+      <Histogram />
+      <button class="decideBtn mt3" @click="onUpdate(numTimes)" >{{ $t('decide.start') }}</button>
     </div>
   </div>
 </template>
@@ -68,6 +75,7 @@
 import * as d3 from 'd3'
 import _ from 'lodash'
 import LineChart from './LineChart'
+import Histogram from './Histogram'
 import ProgressBar from './ProgressBar'
 import RangeSlider from 'vue-range-slider'
 import '../styles/slider.scss'
@@ -77,6 +85,7 @@ export default {
   props: ['onUpdate', 'ageGroups', 'colorsByHealth'],
   components: {
     LineChart,
+    Histogram,
     ProgressBar,
     RangeSlider,
   },
@@ -89,6 +98,7 @@ export default {
           label: this.$t(`decide.range.${i}`),
         }
       }),
+      decided: false,
     }
   },
   computed: {
