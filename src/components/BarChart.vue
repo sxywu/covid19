@@ -62,6 +62,11 @@ export default {
       .tickSizeInner(-this.width + margin.left + margin.right)
       .tickFormat(d => (d >= 1000 ? `${_.round(d / 1000, 1)}k` : d))
   },
+  mounted() {
+    this.startBarChart()
+    this.updateBarChart()
+    this.animateBarChart()
+  },
   computed: {
     day() {
       return this.$store.state.day
@@ -89,6 +94,7 @@ export default {
     },
     infected() {
       this.updateBarChart()
+      this.animateBarChart()
     },
   },
   methods: {
@@ -115,6 +121,8 @@ export default {
         .value()
     },
     updateBarChart() {
+      if (!this.infected) return
+
       const healthByAge = _.chain(this.people)
         .groupBy('ageGroup')
         .map((people, age) => {
@@ -130,7 +138,7 @@ export default {
 
       const stacks = this.stackGenerator(healthByAge)
       this.yScale.domain([0, d3.max(_.flatten(stacks), d => d[1])])
-      const nextBarsById = _.chain(stacks)
+      this.nextBarsById = _.chain(stacks)
         .map(stack => {
           return _.map(stack, d => {
             let [y1, y2] = d
@@ -145,30 +153,44 @@ export default {
         .flatten()
         .keyBy('id')
         .value()
+    },
+    animateBarChart() {
+      if (!this.infected) return
 
-      // set up gsap animation
-      this.tl.to(
-        this.bars,
-        {
-          x: (i, {id}) => nextBarsById[id].x,
-          y: (i, {id}) => nextBarsById[id].y,
-          height: (i, {id}) => nextBarsById[id].height,
-          duration: this.phases[1] / 2,
-        },
-        `day${this.day}-1`,
-      )
-      // and at same time update scales
-      this.tl.add(() => {
-        d3.select(this.$refs.xAxis)
-          .transition()
-          .call(this.xAxis)
-        d3.select(this.$refs.yAxis)
-          .transition()
-          .on('start', this.formatYAxis)
-          .call(this.yAxis)
-      }, `day${this.day}-1`)
+      if (this.tl) {
+        // set up gsap animation
+        this.tl.to(
+          this.bars,
+          {
+            x: (i, {id}) => this.nextBarsById[id].x,
+            y: (i, {id}) => this.nextBarsById[id].y,
+            height: (i, {id}) => this.nextBarsById[id].height,
+            duration: this.phases[1] / 2,
+          },
+          `day${this.day}-1`,
+        )
+        // and at same time update scales
+        this.tl.add(() => {
+          d3.select(this.$refs.xAxis)
+            .transition()
+            .call(this.xAxis)
+          d3.select(this.$refs.yAxis)
+            .transition()
+            .on('start', this.formatYAxis)
+            .call(this.yAxis)
+        }, `day${this.day}-1`)
 
-      this.playTimeline('bar')
+        this.playTimeline('bar')
+      } else {
+        _.each(this.bars, d => Object.assign(d, {
+          x: this.nextBarsById[d.id].x,
+          y: this.nextBarsById[d.id].y,
+          height: this.nextBarsById[d.id].height,
+        }))
+        d3.select(this.$refs.xAxis).call(this.xAxis)
+        d3.select(this.$refs.yAxis).call(this.yAxis)
+        this.formatYAxis(null, null, [this.$refs.yAxis])
+      }
     },
     formatYAxis(d, i, nodes) {
       const container = d3.select(nodes[0])
