@@ -4,8 +4,8 @@
     <div class="container">
       <header>
         <h1>{{ $t('title') }}</h1>
-        <h2>{{ $t('subtitle') }}</h2>
-        <hr />
+        <!-- <h2>{{ $t('subtitle') }}</h2> -->
+        <!-- <hr /> -->
       </header>
       <div class="content">
         <p>{{ $t('landing.explanation1') }}</p>
