@@ -9,13 +9,13 @@
       <path v-for="d in paths" :key="d.type" :d="d.path" fill="none"
         :stroke="pathColor" stroke-width="2"
         stroke-linecap="round" :stroke-dasharray="d.strokeDasharray" />
-      <!-- X-AXIS -->
-      <g class="axis label" ref="xAxis" :transform="`translate(0, ${height - margin.bottom})`" />
       <!-- HOSPITAL CAPACITY LINE -->
       <g class="label hospital" v-if="line.x" :transform="`translate(${line.x}, ${margin.top})`">
         <line :y2="height - margin.top - margin.bottom" :stroke="colorsByHealth[4]" />
         <text text-anchor="middle" dy="-2" :fill="colorsByHealth[4]">{{ $t('lineChart.hospital') }}</text>
       </g>
+      <!-- X-AXIS -->
+      <g class="axis label" ref="xAxis" :transform="`translate(0, ${height - margin.bottom})`" />
     </svg>
     <ul class="legend">
       <li v-for="({label, count, strokeDasharray}) in legend">
@@ -39,6 +39,7 @@
 <script>
 import * as d3 from 'd3'
 import _ from 'lodash'
+import gsap from 'gsap'
 
 const types = ['worstAlternate', 'player', 'bestAlternate']
 const margin = {top: 30, right: 20, bottom: 20, left: 20}
@@ -61,28 +62,7 @@ export default {
       paths: [],
       rect: {},
       line: {},
-      yAxis: [],
     }
-  },
-  created() {
-    this.xScale = d3
-      .scaleLinear()
-      .range([margin.left, this.width - margin.right])
-    this.yScale = d3
-      .scaleLog()
-      .range([this.height - margin.bottom, margin.top])
-
-    this.lineGenerator = d3
-      .line()
-      .curve(d3.curveCatmullRom)
-
-    this.xAxis = d3.axisBottom().scale(this.xScale)
-      .ticks(7).tickSizeOuter(0)
-      .tickFormat((d, i) => (!i ? 'Day ' : '') + d)
-    this.yAxis = d3.axisLeft().scale(this.yScale)
-      .ticks(6, d3.format(",.1s"))
-      .tickSizeOuter(0)
-      .tickSizeInner(-this.width + margin.left + margin.right)
   },
   computed: {
     day() {
@@ -119,8 +99,34 @@ export default {
       }
     },
     dailyHealthStatus() {
-      this.updateLineChart()
+      this.calculateLineChart()
+      this.animateLineChart()
     },
+  },
+  created() {
+    this.xScale = d3
+      .scaleLinear()
+      .range([margin.left, this.width - margin.right])
+    this.yScale = d3
+      .scaleLog()
+      .range([this.height - margin.bottom, margin.top])
+
+    this.lineGenerator = d3
+      .line()
+      .curve(d3.curveCatmullRom)
+
+    this.xAxis = d3.axisBottom().scale(this.xScale)
+      .ticks(7).tickSizeOuter(0)
+      .tickFormat((d, i) => (!i ? 'Day ' : '') + d)
+    this.yAxis = d3.axisLeft().scale(this.yScale)
+      .ticks(6, d3.format(",.1s"))
+      .tickSizeOuter(0)
+      .tickSizeInner(-this.width + margin.left + margin.right)
+  },
+  mounted() {
+    this.startLineChart()
+    this.calculateLineChart()
+    this.animateLineChart()
   },
   methods: {
     startLineChart() {
@@ -138,7 +144,9 @@ export default {
       }
       this.line = {}
     },
-    updateLineChart() {
+    calculateLineChart() {
+      if (!this.dailyHealthStatus) return
+
       this.xScale.domain([1, this.week * 7])
 
       const allNumbers = _.chain(this.dailyHealthStatus)
@@ -147,8 +155,9 @@ export default {
       const [min, max] = d3.extent(allNumbers, d => d)
       this.yScale.domain([_.floor(min, -1) || 1, _.ceil(max, -1)])
 
-      if (this.day % 7 === 1) {
-        // if first day of week update rect and x axis right away
+      if (this.day % 7 === 1 || !this.tl) {
+        // if first day of week or isn't part of week animation
+        // update rect and x axis right away
         const firstDay = (this.week - 1) * 7
         Object.assign(this.rect, {
           x: this.xScale(firstDay),
@@ -183,22 +192,32 @@ export default {
           nextPath: this.lineGenerator(nextPoints),
         })
       })
+    },
+    animateLineChart() {
+      if (!this.dailyHealthStatus) return
 
-      // else animate paths and y axis
-      const duration = this.phases[1]
-      this.tl.to(this.paths, {
-        duration,
-        path: (i, d) => d.nextPath,
-      }, `day${this.day}-1`)
-      // y scale
-      this.tl.add(() => {
-        d3.select(this.$refs.yAxis)
-          .transition()
-          .on('start', this.formatYAxis)
-          .call(this.yAxis)
-      }, `day${this.day}-1`)
+      if (this.tl) {
+        // if this is part of the timeline
+        const duration = this.phases[1]
+        this.tl.to(this.paths, {
+          duration,
+          path: (i, d) => d.nextPath,
+        }, `day${this.day}-1`)
+        // y scale
+        this.tl.add(() => {
+          d3.select(this.$refs.yAxis)
+            .transition()
+            .on('start', this.formatYAxis)
+            .call(this.yAxis)
+        }, `day${this.day}-1`)
 
-      this.playTimeline('area')
+        this.playTimeline('area')
+      } else {
+        d3.select(this.$refs.yAxis).call(this.yAxis)
+        this.formatYAxis(null, null, [this.$refs.yAxis])
+        _.each(this.paths, d => Object.assign(d, {path: d.nextPath}))
+      }
+
     },
     formatYAxis(d, i, nodes) {
       const container = d3.select(nodes[0])
