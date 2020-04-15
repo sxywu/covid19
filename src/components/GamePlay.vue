@@ -29,6 +29,13 @@
             }"
           />
         </div>
+        <!-- POPULATION  -->
+        <div class="label" id="populationContainer">
+          <h3 v-if="cityCounty">
+            {{ cityCounty.city }}, {{ cityCounty.state }} {{ cityCounty.zip }}
+          </h3>
+          <div v-if="population">Population: {{ formatNumber(population.total) }}</div>
+        </div>
       </div>
       <!-- RIGHT PANEL -->
       <div id="rightPanel" :style="{width: `${rightWidth}px`}">
@@ -71,17 +78,12 @@
       <Decide v-if="showDecision" v-bind="{
           onUpdate: updateDecision,
         }" />
-      <div class="zipCode">
-        ZIP CODE:
-        <strong>{{ zipCode }}</strong>
-        ({{ population.total }}
-        residents)
-      </div>
     </div>
   </div>
 </template>
 
 <script>
+import * as d3 from 'd3'
 import gsap from 'gsap'
 
 import Community from './Community'
@@ -137,11 +139,14 @@ export default {
     totalDays() {
       return this.$store.state.totalDays
     },
-    zipCode() {
-      return this.$store.state.zipCode
-    },
     population() {
       return this.$store.getters.population || {}
+    },
+    cityCounty() {
+      return this.$store.getters.cityCounty
+    },
+    population() {
+      return this.$store.getters.population
     },
     communityDimensions() {
       return {
@@ -221,6 +226,9 @@ export default {
       }, `day${this.day}-3`)
       this.tl.play(`day${this.day}`)
     },
+    formatNumber(number) {
+      return d3.format(',')(Math.round(number))
+    },
   },
 }
 </script>
@@ -288,13 +296,23 @@ export default {
   padding: 1rem;
 }
 
-.panel {
+
+#populationContainer {
   position: absolute;
+  align-self: flex-start;
+  margin: 1rem;
+  margin-right: auto;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 5px;
+  border: 1px solid $gray;
+  border-radius: 3px;
+
+  h3 {
+    margin: 0;
+  }
 }
 
-.zipCode {
+.panel {
   position: absolute;
-  margin-bottom: -2rem;
-  bottom: 0;
 }
 </style>
