@@ -48,7 +48,7 @@
     "h1": "You've been fighting the virus for one week | You've been fighting the virus for {count} weeks",
     "h2Question": "How many times will you go out this week?",
     "range": {
-      "0": "",
+      "0": "Stay home",
       "1": "Go for a walk",
       "2": "Buy groceries",
       "3": "Go for a run",
