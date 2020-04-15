@@ -12,6 +12,17 @@
         </div>
       </li>
       <li>
+        <img src="../assets/avatars/sidney.jpg" alt="Sidney Bell profile photo" width="60" />
+        <h4>Sidney Bell</h4>
+        <p>Expert Consultant, PhD in Virus Evolution and Immunity</p>
+        <a href="https://twitter.com/sidneymbell">twitter</a>
+      </li>
+      <li>
+        <img src="../assets/avatars/stephen.png" alt="Stephen Osserman placeholder" width="60" />
+        <h4>Stephen Osserman</h4>
+        <p>Data Analysis & Simulation</p>
+      </li>
+      <li>
         <img src="../assets/avatars/maggie.jpg" alt="Maggie Appleton profile photo" width="60" />
         <h4>Maggie Appleton</h4>
         <p>Illustration & Visual Design</p>
@@ -32,13 +43,8 @@
         <p>UI Design & Development</p>
         <a href="https://vojta.io/">website</a>
       </li>
-      <li>
-        <img src="../assets/avatars/sidney.jpg" alt="Sidney Bell profile photo" width="60" />
-        <h4>Sidney Bell</h4>
-        <p>Expert Consultant, PhD in Virus Evolution and Immunity</p>
-        <a href="https://twitter.com/sidneymbell">twitter</a>
-      </li>
-      <li>
+
+      <li style="grid-column-start: 2;">
         <img src="../assets/eggo.svg" alt="egghead.io logomark" width="60" />
         <h4>egghead.io</h4>
         <p>
