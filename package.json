@@ -20,6 +20,7 @@
     "request": "^2.88.2",
     "uuid": "^7.0.3",
     "vue": "^2.6.11",
+    "vue-clipboard2": "^0.3.1",
     "vue-i18n": "^8.0.0",
     "vue-mq": "^1.0.1",
     "vue-range-slider": "^0.6.0",

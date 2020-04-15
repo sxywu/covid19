@@ -1,9 +1,9 @@
 <template>
   <div id="app">
-    <GamePlay v-bind="$data" v-show="currentPage === 'game'"  />
+    <GamePlay v-bind="$data" v-show="currentPage === 'game'" />
     <LandingPage v-if="currentPage === 'landing'" />
     <EndPage v-if="currentPage === 'end'" />
-    <FailedPage v-if="currentPage === 'failed'" />
+    <FailedPage v-bind="$data" v-if="currentPage === 'failed'" />
   </div>
 </template>
 
