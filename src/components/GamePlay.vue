@@ -32,13 +32,15 @@
       </div>
       <!-- RIGHT PANEL -->
       <div id="rightPanel" :style="{width: `${rightWidth}px`}">
-        <CommunityStats v-bind="{
+        <CommunityStats
+          v-bind="{
           healthStatus,
           colorsByHealth,
           tl,
           phases,
           playTimeline,
-        }" />
+        }"
+        />
         <Hospital v-bind="{colorsByHealth, tl, phases, playTimeline}" />
       </div>
       <!-- BOTTOM PANEL -->
@@ -66,18 +68,15 @@
         />
       </div>
       <!-- DECISION SCREEN -->
-      <Decide
-        v-if="showDecision"
-        v-bind="{
+      <Decide v-if="showDecision" v-bind="{
           onUpdate: updateDecision,
-        }"
-      />
-    </div>
-    <div class="zipCode">
-      ZIP CODE:
-      <strong>{{ zipCode }}</strong>
-      ({{ population.total }}
-      residents)
+        }" />
+      <div class="zipCode">
+        ZIP CODE:
+        <strong>{{ zipCode }}</strong>
+        ({{ population.total }}
+        residents)
+      </div>
     </div>
   </div>
 </template>
@@ -122,7 +121,7 @@ export default {
       topHeight: 75,
       rightWidth: 320,
       bottomHeight: 180,
-      tl: new gsap.timeline({paused: true}),
+      tl: new gsap.timeline({ paused: true }),
       phases: [0.5, 0.75, 0.75],
       groups: [],
       showDecision: false,
@@ -295,7 +294,7 @@ export default {
 
 .zipCode {
   position: absolute;
-  top: -20px;
-  right: 0px;
+  margin-bottom: -2rem;
+  bottom: 0;
 }
 </style>
