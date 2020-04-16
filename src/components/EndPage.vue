@@ -2,12 +2,12 @@
   <div id="end">
     <div class="content">
       <header>
-        <h1>You saved {{ formatNumber(saved) }} lives and were able to avoid {{ formatNumber(avoided) }} cases.</h1>
-        <p>This is a direct result of you and your community's efforts, who collectively went out an average of {{ average }} times per week:</p>
+        <h1>{{ $t('end.h1', {saved, avoided}) }}</h1>
+        <p>{{ $t('end.average', {average}) }}</p>
       </header>
       <Histogram v-bind="{type: 'all'}" />
 
-      <p>Here's a closer look at the numbers:</p>
+      <p>{{ $t('end.closerLook') }}</p>
       <div class="charts">
         <BarChart
           v-bind="{
@@ -25,11 +25,8 @@
         />
       </div>
 
-      <p>
-        During this game, you only had control over 5% of the population. This means that your actions may appear to have little influence. However, this doesn’t mean that your choices have no influence. When
-        <em>everyone</em> chooses to stay home as much as possible, the most infections are avoided. Slower infection rates mean that hospitals and first responders can better help the sickest members of our community.
-      </p>
-      <p>So, take a moment to share this game with your friends, family, and neighbors and work to flatten the curve, together.</p>
+      <p v-html="$t('end.influence')"></p>
+      <p v-html="$t('end.share')"></p>
       <Share />
       <hr />
       <button @click="playAgain" class="playBtn">{{ $t('failed.buttonCta') }}</button>
@@ -66,19 +63,21 @@ export default {
     },
     saved() {
       if (!this.lastHealthStatus) return
-      return Math.max(
+      const saved = Math.max(
         this.lastHealthStatus.worstAlternate[5] -
           this.lastHealthStatus.player[5] || 0,
         0
       )
+      return this.formatNumber(saved)
     },
     avoided() {
       if (!this.lastHealthStatus) return
-      return Math.max(
+      const avoided = Math.max(
         this.lastHealthStatus.worstAlternate.total -
           this.lastHealthStatus.player.total,
         0
       )
+      return this.formatNumber(avoided)
     },
     average() {
       const mean = _.chain(this.$store.state.allDecisions)
