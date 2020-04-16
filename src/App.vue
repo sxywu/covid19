@@ -87,4 +87,13 @@ button {
   text-transform: uppercase;
   margin: 0;
 }
+
+a {
+  text-decoration: none;
+  border-bottom: 1px solid;
+  color: inherit;
+}
+a:hover {
+  border-bottom: 1px dashed;
+}
 </style>
