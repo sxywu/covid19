@@ -3,10 +3,10 @@ import 'firebase/firestore'
 import isEmpty from 'lodash/isEmpty'
 let noop = () => {}
 let apiService = {
-  getAllGames:noop,
-  getFilteredGames:noop,
-  getGameById:noop,
-  setGameById:noop,
+  getAllGames: noop,
+  getFilteredGames: noop,
+  getGameById: noop,
+  setGameById: noop,
 }
 if (!isEmpty(App)) {
   let fireStore = App.firestore()
@@ -14,8 +14,11 @@ if (!isEmpty(App)) {
     getAllGames: () => {
       fireStore.collection('games')
     },
-    getFilteredGames: ({filters = {}, limit=100, cb = noop}) => {
-      let query = fireStore.collection('games').limit(limit).where('numDecisions', '==', 8)
+    getFilteredGames: ({filters = {}, limit = 100, cb = noop}) => {
+      let query = fireStore
+        .collection('games')
+        .limit(limit)
+        .where('numDecisions', '==', 8)
 
       if (filters.zipCode !== 'Any') {
         query = query.where('zipCode', '==', filters.zipCode)
@@ -44,6 +47,5 @@ if (!isEmpty(App)) {
 } else {
   console.warn('Firebase app not set up. This session will not be saved.')
 }
-
 
 export {apiService}

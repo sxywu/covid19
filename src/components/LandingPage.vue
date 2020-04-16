@@ -80,7 +80,7 @@ export default {
   methods: {
     startPlay(e) {
       if (this.checkFormValid(e)) {
-        this.$store.commit('setGameId')
+        this.$store.commit('setGameIdAndCreatedAt')
         this.$store.dispatch('getPastGames', {zipCode: this.zipCode})
         this.$store.commit('setZipCode', this.zipCode)
         this.$store.commit('setCurrentPage', 'game')
