@@ -127,6 +127,7 @@ export default new Vuex.Store({
     foodStatus: {},
     exerciseStatus: {},
     gameId: '',
+    createdAt: '',
   },
   getters: {
     week({day}) {
@@ -560,21 +561,21 @@ export default new Vuex.Store({
         // if go out more than once, then they did exercise
         state.exerciseStatus.value = Math.min(
           state.exerciseStatus.value + 1,
-          state.exerciseStatus.maxValue
+          state.exerciseStatus.maxValue,
         )
       }
       if (decision > 1) {
         // if they go out twice, 2 weeks of groceries are taken care of
         state.foodStatus.value = Math.min(
           state.foodStatus.value + 14,
-          state.foodStatus.maxValue
+          state.foodStatus.maxValue,
         )
       }
       if (decision > 2) {
         // if they go out three times
         state.exerciseStatus.value = Math.min(
           state.exerciseStatus.value + 3,
-          state.exerciseStatus.maxValue
+          state.exerciseStatus.maxValue,
         )
       }
       state.allDecisions[0].push(decision) // update decision for current player
@@ -585,8 +586,9 @@ export default new Vuex.Store({
     setExerciseStatus(state, exerciseStatus) {
       state.exerciseStatus = _.clone(exerciseStatus)
     },
-    setGameId(state) {
+    setGameIdAndCreatedAt(state) {
       state.gameId = uuidv4()
+      state.createdAt = new Date()
     },
   },
   actions: {
@@ -626,7 +628,10 @@ export default new Vuex.Store({
             dispatch('getPastGames', 'Any')
             return
           }
-          const allDecisions = _.chain(data).map('decisions').filter().value()
+          const allDecisions = _.chain(data)
+            .map('decisions')
+            .filter()
+            .value()
           // if there still aren't enough, then add in the rest assuming they go out every day
           _.times(numPastPlayers - allDecisions.length, i => {
             allDecisions.push([7, 7, 7, 7, 7, 7, 7, 7])
@@ -640,7 +645,7 @@ export default new Vuex.Store({
       })
     },
     storeGame({
-      state: {allDecisions, zipCode, gameId, pastPlayerIDs},
+      state: {allDecisions, zipCode, gameId, pastPlayerIDs, createdAt},
       getters: {dailyInfectious, dailyHealthStatus},
     }) {
       const decisions = _.get(allDecisions, '[0]', [])
@@ -653,6 +658,7 @@ export default new Vuex.Store({
         numDecisions: decisions.length,
         pastPlayerIDs,
         zipCode,
+        createdAt,
       })
     },
     resetGame({commit, state}) {
