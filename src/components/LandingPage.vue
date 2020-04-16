@@ -3,14 +3,19 @@
     <div class="bg" />
     <div class="container">
       <header>
-        <img class="title" src="../assets/pandemic-title.png" />
+        <img
+          alt="people of the pandemic"
+          class="title"
+          src="../assets/pandemic-title.png"
+        />
         <h2>{{ $t('subtitle') }}</h2>
         <hr />
       </header>
       <div class="content">
         <p>{{ $t('landing.explanation1') }}</p>
         <p>{{ $t('landing.explanation2') }}</p>
-        <p>{{ $t('landing.explanation3') }}</p>
+        <h2>{{ $t('landing.explanation3') }}</h2>
+        <p>{{ $t('landing.explanation4') }}</p>
         <div class="people">
           <!-- randomly choose a person image -->
           <img
