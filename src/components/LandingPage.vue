@@ -24,7 +24,7 @@
             :key="i"
           />
         </div>
-        <p>{{ $t('landing.explanation4') }}</p>
+        <p>{{ $t('landing.explanation5') }}</p>
         <hr />
         <h2 class="instructions" v-html="$t('landing.instruction1')"></h2>
         <form @submit="startPlay">
