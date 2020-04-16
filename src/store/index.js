@@ -69,8 +69,7 @@ function healthAndDestination(
   let destination = -1 // default to home
   if (health < 3 && playerGoesOut) {
     // if they're healthy, recovered, or asymptomatic
-    // if this isn't based on player decisions or
-    // the player decided to go out that day have them go to an establishment
+    // and the player decided to go out
     destination = _.sample(houses[person.houseIndex].destinations)
 
     if (infectious) {
@@ -209,7 +208,7 @@ export default new Vuex.Store({
       while (personIndex < totalPopulation) {
         // randomly assign number of people to a house
         // between 2 and 5 people
-        let numPeopleInHouse = _.random(2, 5)
+        let numPeopleInHouse = _.random(1, 5)
         // make sure it doesn't go over total population
         if (personIndex + numPeopleInHouse > totalPopulation) {
           numPeopleInHouse = totalPopulation - personIndex
@@ -262,11 +261,11 @@ export default new Vuex.Store({
             houseIndex, // reference house person lives in
             age,
             ageGroup,
-            susceptibility, // TODO: UPDATE
-            symptomaticIfInfected, // TODO: updated based on age
-            hospitalIfSymptomatic, // TODO: updated based on age
-            dieIfSymptomatic, // TODO: updated based on age
-            dieIfNotHospitalized, // TODO: update based on age
+            susceptibility,
+            symptomaticIfInfected,
+            hospitalIfSymptomatic,
+            dieIfSymptomatic,
+            dieIfNotHospitalized,
           })
         })
 

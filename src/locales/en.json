@@ -21,7 +21,7 @@
   "healthStatus": {
     "healthy": "Uninfected",
     "recovered": "Recovered",
-    "infectedAsymptomatic": "Asymptomatic",
+    "infectedAsymptomatic": "No Symptoms",
     "mildSymptoms": "Mild Symptoms",
     "severeSymptoms": "Severe Symptoms",
     "deceased": "Deceased"
@@ -32,7 +32,7 @@
     "explanation3": "This game uses the decisions of 20 players—you and 19 other people who have played before—to determine how frequently people in your community leave their homes over the next 8 weeks. Each player’s choices will influence how 5% of the population behaves.",
     "explanation4": "Their decisions and yours will determine how many lives are lost or saved.",
     "instruction1": "To start, enter your <strong>zip code</strong> or choose a <strong>community size</strong>.",
-    "instruction2": "We’ll pull real data to set up the game with your community’s actual population, density, and number of available hospital beds.",
+    "instruction2": "We’ll pull real data to set up the game with your community’s actual population and number of available hospital beds.",
     "zipCodePlaceholder": "Enter your zip code (e.g. 60617)",
     "buttonCta": "Start Playing →",
     "errors": {
