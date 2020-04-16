@@ -1,21 +1,21 @@
 <template>
-  <div id="header" :style="{height: `${height}px`}">
+  <div id="header" :style="{ height: `${height}px` }">
     <div class="item">
-      <img src="../assets/food.svg" />
+      <img src="../assets/food-icon.png" />
       <div class="item-content">
         <h3 class="label">{{ $t('food') }}</h3>
         <ProgressBar v-bind="foodStatus" />
       </div>
     </div>
     <div class="item">
-      <img src="../assets/exercise.svg" />
+      <img src="../assets/runner.png" />
       <div class="item-content">
         <h3 class="label">{{ $t('exercise') }}</h3>
         <ProgressBar v-bind="exerciseStatus" />
       </div>
     </div>
     <div id="date">
-      <h3 class="label">{{ $tc('week', 1, {count: ''}) }}</h3>
+      <h3 class="label">{{ $tc('week', 1, { count: '' }) }}</h3>
       <h4>{{ week }}</h4>
     </div>
     <div id="date">
@@ -36,7 +36,7 @@
       <div class="item-content">
         <h3 class="label">{{ $t('header.stayedHome') }}</h3>
         <ProgressBar
-          v-bind="{value: stayedHome.length, maxValue: infected.length}"
+          v-bind="{ value: stayedHome.length, maxValue: infected.length }"
         />
       </div>
     </div>
@@ -54,7 +54,7 @@
       <div class="item-content">
         <h3 class="label">{{ $t('header.hospitalCapacity') }}</h3>
         <ProgressBar
-          v-bind="{value: filledBeds, maxValue: totalAvailableBeds}"
+          v-bind="{ value: filledBeds, maxValue: totalAvailableBeds }"
         />
       </div>
     </div>
@@ -87,7 +87,7 @@ export default {
       return this.$store.getters.infected || []
     },
     stayedHome() {
-      return _.filter(this.infected, ({destination}) => destination === -1)
+      return _.filter(this.infected, ({ destination }) => destination === -1)
     },
     totalAvailableBeds() {
       return this.$store.getters.totalAvailableBeds
