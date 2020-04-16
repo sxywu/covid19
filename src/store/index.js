@@ -515,9 +515,6 @@ export default new Vuex.Store({
     },
   },
   mutations: {
-    recordCreatedAt(state) {
-      state.createdAt = new Date()
-    },
     setCurrentPage(state, currentPage) {
       state.currentPage = currentPage
     },
@@ -574,8 +571,9 @@ export default new Vuex.Store({
     setExerciseStatus(state, exerciseStatus) {
       state.exerciseStatus = _.clone(exerciseStatus)
     },
-    setGameId(state) {
+    setGameIdAndCreatedAt(state) {
       state.gameId = uuidv4()
+      state.createdAt = new Date()
     },
   },
   actions: {
