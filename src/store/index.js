@@ -14,7 +14,6 @@ let hospitalsByZip = []
 let citiesByZip = []
 let prevInfected = []
 let dailyHealthStatus = []
-let dailyInfectious = []
 const totalPlayers = 20
 const foodStatus = {value: 18, maxValue: 18}
 const exerciseStatus = {value: 7, maxValue: 7}
@@ -490,47 +489,34 @@ export default new Vuex.Store({
     dailyHealthStatus({day}, {infected}) {
       if (!infected) return
       // keeps track of all cumulative numbers for every scenario daily
-      const player = _.countBy(infected, 'health')
-      const worstAlternate = _.chain(infected)
-        .map(d => d.worstAlternate.health)
-        .countBy()
-        .value()
-      const bestAlternate = _.chain(infected)
-        .map(d => d.bestAlternate.health)
-        .countBy()
-        .value()
+      const status = {day}
+      const types = ['player', 'worstAlternate', 'bestAlternate']
       const totalHealthStatus = [1, 2, 3, 4, 5]
-      dailyHealthStatus.push({
-        day,
-        player: Object.assign(player, {
-          total: _.sumBy(totalHealthStatus, d => player[d] || 0),
-        }),
-        worstAlternate: Object.assign(worstAlternate, {
-          total: _.sumBy(totalHealthStatus, d => worstAlternate[d] || 0),
-        }),
-        bestAlternate: Object.assign(bestAlternate, {
-          total: _.sumBy(totalHealthStatus, d => bestAlternate[d] || 0),
-        }),
+      _.each(infected, d => {
+        _.each(types, type => {
+          if (!status[type]) {
+            status[type] = {total: 0, infectious: 0}
+          }
+
+          const infectious = type === 'player' ? d.infectious : d[type].infectious
+          if (infectious) {
+            status[type].infectious += 1
+          }
+
+          const health = type === 'player' ? d.health : d[type].health
+          if (!status[type][health]) {
+            status[type][health] = 0
+          }
+          status[type][health] += 1
+
+          if (_.includes(totalHealthStatus, health)) {
+            status[type].total += 1
+          }
+        })
       })
 
+      dailyHealthStatus.push(status)
       return dailyHealthStatus
-    },
-    dailyInfectious({day}, {infected}) {
-      if (!infected) return
-      dailyInfectious.push({
-        day,
-        player: _.countBy(infected, 'infectious'),
-        worstAlternate: _.chain(infected)
-          .map(d => d.worstAlternate.infectious)
-          .countBy()
-          .value(),
-        bestAlternate: _.chain(infected)
-          .map(d => d.bestAlternate.infectious)
-          .countBy()
-          .value(),
-      })
-
-      return dailyInfectious
     },
   },
   mutations: {
@@ -660,12 +646,13 @@ export default new Vuex.Store({
         communitySizeSelection,
         createdAt,
       },
-      getters: {dailyInfectious, dailyHealthStatus},
     }) {
       const decisions = _.get(allDecisions, '[0]', [])
       apiService.setGameById(gameId, {
-        dailyInfectious,
         id: gameId,
+        // don't get dailyHealthStatus from getter, which will trigger
+        // it (and thus `infected` that it relies on) to recalculate
+        // instead, use the global variable which give the same thing back
         dailyHealthStatus,
         decisions,
         // use this in db to filter by those that have gone through all 8 weeks
