@@ -77,6 +77,9 @@ export default {
     day() {
       return this.$store.state.day
     },
+    week() {
+      return this.$store.getters.week
+    },
     community() {
       return this.$store.getters.community
     },
@@ -269,6 +272,11 @@ export default {
       if (!this.community && !this.people) return
       if (this.day === 1) {
         _.each(this.people, d => d.color = this.colorsByHealth[0])
+      }
+      if (this.week === 1 || this.week === 8) {
+        this.simulation.velocityDecay(0.5)
+      } else {
+        this.simulation.velocityDecay(0.4)
       }
 
       const [duration1, duration2, duration3] = this.phases

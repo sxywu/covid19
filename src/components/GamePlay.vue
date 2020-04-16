@@ -127,7 +127,6 @@ export default {
       rightWidth: 320,
       bottomHeight: 180,
       tl: new gsap.timeline({ paused: true }),
-      phases: [0.5, 0.75, 0.75],
       groups: [],
       showDecision: false,
     }
@@ -138,6 +137,9 @@ export default {
     },
     day() {
       return this.$store.state.day
+    },
+    week() {
+      return this.$store.getters.week
     },
     totalDays() {
       return this.$store.state.totalDays
@@ -168,6 +170,10 @@ export default {
         height,
         y: this.height - this.bottomHeight - height - 10,
       }
+    },
+    phases() {
+      if (this.week === 1 || this.week === 8) return [1.5, 0.75, 1.5]
+      return [0.5, 0.75, 0.75]
     },
   },
   mounted() {
