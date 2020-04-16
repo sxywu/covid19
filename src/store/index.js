@@ -128,6 +128,7 @@ export default new Vuex.Store({
     foodStatus: {},
     exerciseStatus: {},
     gameId: '',
+    createdAt: '',
     communitySizeSelection: '',
   },
   getters: {
@@ -533,9 +534,6 @@ export default new Vuex.Store({
     },
   },
   mutations: {
-    setCommunitySizeSelection(state, communitySize) {
-      state.communitySizeSelection = communitySize
-    },
     setCurrentPage(state, currentPage) {
       state.currentPage = currentPage
     },
@@ -552,6 +550,9 @@ export default new Vuex.Store({
     },
     setZipCode(state, zipCode) {
       state.zipCode = '' + zipCode // stringify just in case
+    },
+    setCommunitySizeSelection(state, communitySize) {
+      state.communitySizeSelection = communitySize
     },
     setDataLoaded(state, dataLoaded) {
       state.dataLoaded = dataLoaded
@@ -592,8 +593,9 @@ export default new Vuex.Store({
     setExerciseStatus(state, exerciseStatus) {
       state.exerciseStatus = _.clone(exerciseStatus)
     },
-    setGameId(state) {
+    setGameIdAndCreatedAt(state) {
       state.gameId = uuidv4()
+      state.createdAt = new Date()
     },
   },
   actions: {
@@ -656,6 +658,7 @@ export default new Vuex.Store({
         gameId,
         pastPlayerIDs,
         communitySizeSelection,
+        createdAt,
       },
       getters: {dailyInfectious, dailyHealthStatus},
     }) {
@@ -670,6 +673,7 @@ export default new Vuex.Store({
         pastPlayerIDs,
         zipCode,
         communitySizeSelection,
+        createdAt,
       })
     },
     resetGame({commit, state}) {

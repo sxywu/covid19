@@ -6,7 +6,8 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "i18n:report": "vue-cli-service i18n:report --src './src/**/*.?(js|vue)' --locales './src/locales/**/*.json'"
+    "i18n:report": "vue-cli-service i18n:report --src './src/**/*.?(js|vue)' --locales './src/locales/**/*.json'",
+    "download:data": "firestore-export -a ./src/firebase/admin-credentials.json --backupFile ./data/fireStoreBackUp.json"
   },
   "dependencies": {
     "chroma-js": "^2.1.0",
@@ -16,6 +17,7 @@
     "firebase": "^7.13.1",
     "gsap": "^3.2.6",
     "lodash": "^4.17.15",
+    "node-firestore-import-export": "^0.14.1",
     "p5": "^1.0.0",
     "request": "^2.88.2",
     "uuid": "^7.0.3",
