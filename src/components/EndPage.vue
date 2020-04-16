@@ -32,9 +32,8 @@
       <button @click="playAgain" class="playBtn">{{ $t('failed.buttonCta') }}</button>
     </div>
 
-    <footer class="footnote">
-      <p>METHODOLOGY</p>
-      <Credits />
+    <footer id="footnote">
+      <Footnotes />
     </footer>
   </div>
 </template>
@@ -45,7 +44,7 @@ import Share from './Share'
 import BarChart from './BarChart'
 import LineChart from './LineChart'
 import Histogram from './Histogram'
-import Credits from './Credits'
+import Footnotes from './Footnotes'
 
 export default {
   name: 'EndPage',
@@ -55,7 +54,7 @@ export default {
     LineChart,
     Histogram,
     Share,
-    Credits,
+    Footnotes,
   },
   computed: {
     lastHealthStatus() {
@@ -157,9 +156,5 @@ hr {
   &:hover {
     filter: brightness(0.9) contrast(1.2) saturate(0.9);
   }
-}
-
-footer {
-  margin: 0 auto;
 }
 </style>
