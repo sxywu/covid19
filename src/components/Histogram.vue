@@ -12,8 +12,8 @@
         v-if="currentUser.x"
         :x="currentUser.x - imageWidth / 2"
         :height="imageHeight"
-        :y="height - imageHeight * 2"
-        href="../assets/person-red.svg"
+        :y="height - imageHeight * 1.8"
+        href="../assets/person-highlighted.svg"
       />
       <g
         class="label"
@@ -26,16 +26,25 @@
           :y="margin.bottom * 0.75 + 2"
           dy="1em"
           text-anchor="middle"
-        >average: {{ average.count }} times</text>
+          font-weight="bold"
+        >
+          average: {{ average.count }} times
+        </text>
       </g>
       <g
         class="label"
         v-if="currentUser.x"
         :transform="`translate(${currentUser.x}, ${height - margin.top})`"
       >
-        <text :y="-5" dy="1em" text-anchor="middle" fill="#fe476f">You</text>
+        <text :y="-5" dy="1em" text-anchor="middle">
+          You
+        </text>
       </g>
-      <g class="axis label" ref="xAxis" :transform="`translate(0, ${height - margin.bottom})`" />
+      <g
+        class="axis label"
+        ref="xAxis"
+        :transform="`translate(0, ${height - margin.bottom})`"
+      />
     </svg>
   </div>
 </template>

@@ -53,6 +53,7 @@
         <Legend v-bind="{healthStatus, colorsByHealth}" />
         <BarChart
           v-bind="{
+            width: 300,
             height: bottomHeight,
             ageGroups,
             colorsByHealth,
@@ -63,6 +64,7 @@
         />
         <LineChart
           v-bind="{
+            width: 320,
             height: bottomHeight,
             ageGroups,
             colorsByHealth,

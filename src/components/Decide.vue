@@ -2,15 +2,19 @@
   <div id="decideArea">
     <div v-if="!decided">
       <h1 class="header">{{ $tc('decide.h1.week', week) }}</h1>
-      <p v-if="foodStatus.value < 7 && exerciseStatus.value < 2">{{ $t('decide.bothLow') }}</p>
-      <p v-else-if="foodStatus.value < 7">{{ $t('decide.foodLow') }}</p>
-      <p v-else-if="exerciseStatus.value < 2">{{ $t('decide.exerciseLow') }}</p>
       <p v-if="newCases">
-        <span v-html="$t('decide.newCasesTotal', {count: formatNumber(newCases.total)})" />
-        {{ newCases.avoided ? "," : "." }}
+        <span
+          v-html="
+            $t('decide.newCasesTotal', { count: formatNumber(newCases.total) })
+          "
+        />{{ newCases.avoided ? ',' : '.' }}
         <span
           v-if="newCases.avoided"
-          v-html="$t('decide.newCasesAvoided', {count: formatNumber(newCases.avoided)})"
+          v-html="
+            $t('decide.newCasesAvoided', {
+              count: formatNumber(newCases.avoided),
+            })
+          "
         />
       </p>
       <div class="content">
@@ -20,25 +24,43 @@
             <img src="../assets/food.svg" />
             <div class="item-content">
               <h3 class="label">{{ $t('food') }}</h3>
-              <ProgressBar v-bind="foodStatus" />
+              <ProgressBar
+                v-bind="foodStatus"
+                v-bind:isLow="foodStatus.value < 7"
+              />
             </div>
           </div>
           <div class="item">
             <img src="../assets/exercise.svg" />
             <div class="item-content">
               <h3 class="label">{{ $t('exercise') }}</h3>
-              <ProgressBar v-bind="exerciseStatus" />
+              <ProgressBar
+                v-bind="exerciseStatus"
+                v-bind:isLow="exerciseStatus.value < 2"
+              />
             </div>
           </div>
         </div>
-        <!-- LINE CHART -->
-        <LineChart
-          v-bind="{
-            height: 200,
-            ageGroups,
-            colorsByHealth,
-          }"
-        />
+        <div class="charts">
+          <!-- BAR CHART -->
+          <BarChart
+            v-bind="{
+              width: 500,
+              height: 200,
+              ageGroups,
+              colorsByHealth,
+            }"
+          />
+          <!-- LINE CHART -->
+          <LineChart
+            v-bind="{
+              width: 400,
+              height: 200,
+              ageGroups,
+              colorsByHealth,
+            }"
+          />
+        </div>
       </div>
       <!-- DECISION -->
       <div class="decide">
@@ -46,12 +68,17 @@
         <div class="numTimes">
           <div class="times">
             <label
-              v-for="({value}) in range"
+              v-for="{ value } in range"
               for="range"
               :key="value"
-              :style="{fontWeight: value === +numTimes ? 'bold' : ''}"
+              :style="{ fontWeight: value === +numTimes ? 'bold' : '' }"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="32"
+                height="32"
+                viewBox="0 0 32 32"
+              >
                 <g fill="none" fill-rule="evenodd" transform="translate(4)">
                   <path
                     fill="#000"
@@ -61,7 +88,7 @@
                   <text
                     fill="#FFF"
                     font-size="15"
-                    :style="{fontWeight: value === +numTimes ? 'bold' : ''}"
+                    :style="{ fontWeight: value === +numTimes ? 'bold' : '' }"
                     letter-spacing="-.361"
                   >
                     <tspan x="7.5" y="18">{{ value }}</tspan>
@@ -72,21 +99,31 @@
           </div>
           <range-slider class="slider" min="0" max="7" v-model="numTimes" />
           <div class="labels">
-            <div v-for="({value, label}) in range" :key="value">
-              <label for="range" :style="{fontWeight: value <= +numTimes ? 'bold' : ''}">{{ label }}</label>
+            <div v-for="{ value, label } in range" :key="value">
+              <label
+                for="range"
+                :style="{ fontWeight: value <= +numTimes ? 'bold' : '' }"
+                >{{ label }}</label
+              >
             </div>
           </div>
         </div>
 
-        <button class="decideBtn mt3" @click="decided = true">{{ $t('decide.cta') }}</button>
+        <button class="decideBtn mt3" @click="decided = true">
+          {{ $t('decide.cta') }}
+        </button>
       </div>
     </div>
 
     <div v-else>
-      <h1 class="header">{{ $tc('decide.h1.numTimes', numTimes, {count: numTimes}) }}.</h1>
+      <h1 class="header">
+        {{ $tc('decide.h1.numTimes', numTimes, { count: numTimes }) }}.
+      </h1>
       <p class="body">{{ $t('decide.rest') }}</p>
-      <Histogram v-bind="{type: 'weekly', numTimes: numTimes}" />
-      <button class="decideBtn mt3" @click="onUpdate(numTimes)">{{ $t('decide.start') }}</button>
+      <Histogram v-bind="{ type: 'weekly', numTimes: numTimes }" />
+      <button class="decideBtn mt3" @click="onUpdate(numTimes)">
+        {{ $t('decide.start') }}
+      </button>
     </div>
   </div>
 </template>
@@ -95,6 +132,7 @@
 import * as d3 from 'd3'
 import _ from 'lodash'
 import LineChart from './LineChart'
+import BarChart from './BarChart'
 import Histogram from './Histogram'
 import ProgressBar from './ProgressBar'
 import RangeSlider from 'vue-range-slider'
@@ -105,6 +143,7 @@ export default {
   props: ['onUpdate', 'ageGroups', 'colorsByHealth'],
   components: {
     LineChart,
+    BarChart,
     Histogram,
     ProgressBar,
     RangeSlider,
@@ -178,9 +217,6 @@ p {
   font-size: 18px;
 }
 
-.decide {
-}
-
 .decideBtn {
   background-color: $red;
   color: #fff;
@@ -194,22 +230,21 @@ p {
   }
 }
 
-.content {
+.charts {
   display: grid;
-  grid-template-columns: 0.8fr 1fr;
+  grid-template-columns: 1fr 1fr;
   align-items: center;
   grid-gap: 2rem;
-  justify-content: center;
-  margin: 2rem auto;
+  margin-top: 2rem;
 }
 
 .statusBars {
   width: 100%;
-  // max-width: 400px;
+  max-width: 845px;
+  margin: 0 auto;
   text-align: center;
   display: grid;
-  grid-template-columns: 1fr;
-  grid-template-rows: 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
 }
 
 .item {
@@ -234,7 +269,7 @@ p {
 }
 
 h2 {
-  margin-bottom: 3rem;
+  margin: 2rem 0;
 }
 
 .numTimes {

@@ -21,6 +21,7 @@ const margin = { top: 30, right: 0, bottom: 20, left: 20 }
 export default {
   name: 'BarChart',
   props: [
+    'width',
     'height',
     'ageGroups',
     'colorsByHealth',
@@ -30,7 +31,6 @@ export default {
   ],
   data() {
     return {
-      width: 280,
       margin,
       bars: [],
       barWidth: 0,
