@@ -2,12 +2,18 @@
   <div id="decideArea">
     <div v-if="!decided">
       <h1 class="header">{{ $tc('decide.h1.week', week) }}</h1>
+      <p v-if="foodStatus.value < 7 && exerciseStatus.value < 2">{{ $t('decide.bothLow') }}</p>
+      <p v-else-if="foodStatus.value < 7">{{ $t('decide.foodLow') }}</p>
+      <p v-else-if="exerciseStatus.value < 2">{{ $t('decide.exerciseLow') }}</p>
+      <p v-if="newCases">
+        <span v-html="$t('decide.newCasesTotal', {count: formatNumber(newCases.total)})" />
+        {{ newCases.avoided ? "," : "." }}
+        <span
+          v-if="newCases.avoided"
+          v-html="$t('decide.newCasesAvoided', {count: formatNumber(newCases.avoided)})"
+        />
+      </p>
       <div class="content">
-        <p v-if="foodStatus.value < 7 && exerciseStatus.value < 2">
-          {{ $t('decide.bothLow') }}
-        </p>
-        <p v-else-if="foodStatus.value < 7">{{ $t('decide.foodLow') }}</p>
-        <p v-else-if="exerciseStatus.value < 2">{{ $t('decide.exerciseLow') }}</p>
         <div class="statusBars">
           <!-- STATUS BARS -->
           <div class="item">
@@ -26,10 +32,6 @@
           </div>
         </div>
         <!-- LINE CHART -->
-        <p v-if='newCases'>
-          <span v-html="$t('decide.newCasesTotal', {count: formatNumber(newCases.total)})" />{{ newCases.avoided ? "," : "."}}
-          <span v-if="newCases.avoided" v-html="$t('decide.newCasesAvoided', {count: formatNumber(newCases.avoided)})" />
-        </p>
         <LineChart
           v-bind="{
             height: 200,
@@ -42,18 +44,36 @@
       <div class="decide">
         <h2>{{ $t('decide.h2Question') }}</h2>
         <div class="numTimes">
-        <div class="times">
-          <label v-for="({value}) in range" for="range" :key="value"
-            :style="{fontWeight: value === +numTimes ? 'bold' : ''}">
-            {{ value }}
-          </label>
-        </div>
+          <div class="times">
+            <label
+              v-for="({value}) in range"
+              for="range"
+              :key="value"
+              :style="{fontWeight: value === +numTimes ? 'bold' : ''}"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+                <g fill="none" fill-rule="evenodd" transform="translate(4)">
+                  <path
+                    fill="#000"
+                    fill-rule="nonzero"
+                    d="M12,31.826087 C12.1383625,31.826087 12.2710473,31.7710692 12.3688696,31.6732174 C12.8436522,31.2 24,19.9513043 24,12.0521739 C24,4.50730435 17.8987826,0 12,0 C6.10121739,0 0,4.50730435 0,12.0521739 C0,19.9513043 11.1563478,31.2 11.6311304,31.6732174 C11.7289527,31.7710692 11.8616375,31.826087 12,31.826087 Z"
+                  />
+                  <text
+                    fill="#FFF"
+                    font-size="15"
+                    :style="{fontWeight: value === +numTimes ? 'bold' : ''}"
+                    letter-spacing="-.361"
+                  >
+                    <tspan x="7.5" y="18">{{ value }}</tspan>
+                  </text>
+                </g>
+              </svg>
+            </label>
+          </div>
           <range-slider class="slider" min="0" max="7" v-model="numTimes" />
           <div class="labels">
             <div v-for="({value, label}) in range" :key="value">
-              <label for="range" :style="{fontWeight: value <= +numTimes ? 'bold' : ''}">
-                {{ label }}
-              </label>
+              <label for="range" :style="{fontWeight: value <= +numTimes ? 'bold' : ''}">{{ label }}</label>
             </div>
           </div>
         </div>
@@ -65,8 +85,8 @@
     <div v-else>
       <h1 class="header">{{ $tc('decide.h1.numTimes', numTimes, {count: numTimes}) }}.</h1>
       <p class="body">{{ $t('decide.rest') }}</p>
-      <Histogram v-bind="{type: 'weekly'}" />
-      <button class="decideBtn mt3" @click="onUpdate(numTimes)" >{{ $t('decide.start') }}</button>
+      <Histogram v-bind="{type: 'weekly', numTimes: numTimes}" />
+      <button class="decideBtn mt3" @click="onUpdate(numTimes)">{{ $t('decide.start') }}</button>
     </div>
   </div>
 </template>
@@ -154,8 +174,11 @@ export default {
   margin-left: auto;
 }
 
+p {
+  font-size: 18px;
+}
+
 .decide {
-  margin: 4rem 0;
 }
 
 .decideBtn {
@@ -172,14 +195,21 @@ export default {
 }
 
 .content {
-  width: 600px;
-  margin: auto;
+  display: grid;
+  grid-template-columns: 0.8fr 1fr;
+  align-items: center;
+  grid-gap: 2rem;
+  justify-content: center;
+  margin: 2rem auto;
 }
 
 .statusBars {
+  width: 100%;
+  // max-width: 400px;
   text-align: center;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr 1fr;
 }
 
 .item {
@@ -203,22 +233,24 @@ export default {
   }
 }
 
+h2 {
+  margin-bottom: 3rem;
+}
+
 .numTimes {
-  margin: 0 auto;
+  margin: 0 auto 1rem auto;
   display: flex;
   flex-direction: column;
-
-
-  .times, .labels {
+  .times,
+  .labels {
     margin: 0 auto;
-    max-width: 900px;
+    max-width: 988px;
     justify-content: flex-start;
     width: 100%;
     display: grid;
     grid-template-columns: repeat(8, 1fr);
     grid-gap: 15px;
     position: relative;
-    grid-template-columns: repeat(8, 1fr);
   }
 
   .labels {
@@ -229,30 +261,31 @@ export default {
       align-items: center;
       text-align: center;
       margin-top: 0.5rem;
+      font-size: 14px;
+      position: relative;
     }
-    label::before {
-      content: '';
-      position: absolute;
-      border: 2px solid white;
-      width: 14px;
-      height: 14px;
-      top: -17px;
-      border-radius: 50%;
-      background: $primary;
-      pointer-events: none;
-    }
-    :not(:last-of-type) {
+    :not(:first-of-type):not(:last-of-type) {
+      label::before {
+        content: '';
+        position: absolute;
+        width: 2px;
+        height: 24px;
+        top: -24px;
+        pointer-events: none;
+        background: white;
+      }
       label::after {
         content: '&';
         position: absolute;
-        top: 8px;
         padding-left: 7.5rem;
       }
     }
   }
 }
 
-h1, .body {
+h1,
+.body {
+  position: relative;
   z-index: 1000;
 }
 </style>

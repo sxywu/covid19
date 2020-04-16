@@ -56,7 +56,7 @@
     "bothLow": "Be careful!  You're running out of food and haven't exercised in a while.",
     "h2Question": "How many times will you go out this week?",
     "range": {
-      "0": "",
+      "0": "Stay home",
       "1": "Go for a walk",
       "2": "Buy groceries",
       "3": "Go for a run",
@@ -91,6 +91,13 @@
   },
   "hospital": {
     "beds": "{filledBeds} Filled / {totalAvailableBeds} Available ({totalBeds} Total Beds)"
+  },
+  "end": {
+    "h1": "You saved {saved} lives and were able to avoid {avoided} cases.",
+    "average": "This is a direct result of you and your community's efforts, who collectively went out an average of {average} times per week:",
+    "closerLook": "Here's a closer look at the numbers:",
+    "influence": "During this game, you only had control over 5% of the population. This means that your actions may appear to have little influence. However, this doesn’t mean that your choices have no influence. When <em>everyone</em> chooses to stay home as much as possible, the most infections are avoided. Slower infection rates mean that hospitals and first responders can better help the sickest members of our community.",
+    "share": "So, take a moment to share this game with your friends, family, and neighbors and work to flatten the curve, together."
   },
   "failed": {
     "heading": {

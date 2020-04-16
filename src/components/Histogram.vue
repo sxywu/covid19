@@ -1,15 +1,39 @@
 <template>
   <div id="histogram">
     <svg :width="width" :height="height">
-      <image v-for="d in people" :x="d.x - imageWidth / 2" :y="d.y"
-        :height="imageHeight" :href="d.image" />
-      <g class="label" v-if="average.x"
-        :transform="`translate(${average.x}, ${height - margin.bottom})`">
+      <image
+        v-for="d in people"
+        :x="d.x - imageWidth / 2"
+        :y="currentUser.x === d.x ? d.y - imageHeight : d.y"
+        :height="imageHeight"
+        :href="d.image"
+      />
+      <image
+        v-if="currentUser.x"
+        :x="currentUser.x - imageWidth / 2"
+        :height="imageHeight"
+        :y="height - imageHeight * 2"
+        href="../assets/person-red.svg"
+      />
+      <g
+        class="label"
+        v-if="average.x"
+        :transform="`translate(${average.x}, ${height - margin.bottom})`"
+      >
         <line :y2="margin.bottom * 0.75" stroke="#333" />
         <circle r="3" />
-        <text :y="margin.bottom * 0.75 + 2" dy="1em" text-anchor="middle">
-          average: {{ average.count }} times
-        </text>
+        <text
+          :y="margin.bottom * 0.75 + 2"
+          dy="1em"
+          text-anchor="middle"
+        >average: {{ average.count }} times</text>
+      </g>
+      <g
+        class="label"
+        v-if="currentUser.x"
+        :transform="`translate(${currentUser.x}, ${height - margin.top})`"
+      >
+        <text :y="-5" dy="1em" text-anchor="middle" fill="#fe476f">You</text>
       </g>
       <g class="axis label" ref="xAxis" :transform="`translate(0, ${height - margin.bottom})`" />
     </svg>
@@ -25,10 +49,10 @@ const images = [
   require('../assets/person-2.svg'),
 ]
 const imageRatio = 94 / 52
-const margin = {top: 20, right: 20, bottom: 40, left: 20}
+const margin = { top: 20, right: 20, bottom: 40, left: 20 }
 export default {
   name: 'Histogram',
-  props: ['type'],
+  props: ['type', 'numTimes'],
   data() {
     return {
       width: 800,
@@ -38,6 +62,7 @@ export default {
       margin,
       people: [],
       average: {},
+      currentUser: {},
     }
   },
   computed: {
@@ -49,11 +74,16 @@ export default {
     },
   },
   created() {
-    this.xScale = d3.scaleLinear().domain([-0.5, 7.5])
+    this.xScale = d3
+      .scaleLinear()
+      .domain([-0.5, 7.5])
       .range([margin.left, this.width - margin.right])
 
-    this.xAxis = d3.axisBottom().scale(this.xScale)
-      .tickSize(0).tickFormat(d => _.isInteger(d) ? _.round(d) : '')
+    this.xAxis = d3
+      .axisBottom()
+      .scale(this.xScale)
+      .tickSize(0)
+      .tickFormat(d => (_.isInteger(d) ? _.round(d) : ''))
   },
   mounted() {
     this.calculatePeople()
@@ -68,13 +98,16 @@ export default {
       if (!this.allDecisions) return
 
       const groupedPeople = _.chain(this.allDecisions)
-        .map(d => this.type === 'all' ? _.round(d3.mean(d), 1) : d[this.week])
+        .map(d => (this.type === 'all' ? _.round(d3.mean(d), 1) : d[this.week]))
         .countBy()
         .value()
       const maxLength = _.max(_.values(groupedPeople))
       this.imageHeight = _.clamp(Math.floor(this.height / maxLength), 40, 80)
       this.imageWidth = this.imageHeight / imageRatio
-      this.height = Math.min(this.height, this.imageHeight * maxLength + margin.top + margin.bottom)
+      this.height = Math.min(
+        this.height,
+        this.imageHeight * maxLength + margin.top + margin.bottom
+      )
       this.people = _.chain(groupedPeople)
         .map((length, numTimes) => {
           if (numTimes === 'undefined') return
@@ -83,16 +116,24 @@ export default {
             y -= this.imageHeight
             return {
               x: this.xScale(numTimes),
-              y, image: images[_.random(1)],
+              y,
+              image: images[_.random(1)],
               numTimes,
             }
           })
-        }).filter().flatten().value()
+        })
+        .filter()
+        .flatten()
+        .value()
 
       const average = d3.mean(this.people, d => d.numTimes)
       this.average = {
         count: _.round(average, 2),
         x: this.xScale(average),
+      }
+
+      this.currentUser = {
+        x: this.xScale(this.numTimes),
       }
 
       d3.select(this.$refs.xAxis).call(this.xAxis)
@@ -104,6 +145,5 @@ export default {
 <style lang="scss" scoped>
 svg {
   overflow: visible;
-
 }
 </style>

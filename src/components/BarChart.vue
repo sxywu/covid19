@@ -3,7 +3,7 @@
     <svg :width="width" :height="height">
       <text class="header label" dy="1em">{{ $t('barChart.label') }}</text>
       <g class="label axis" ref="yAxis" :transform="`translate(${margin.left}, 0)`" />
-      <g v-for="d in bars" v-if="d.height" :key="d.id" :transform='`translate(${d.x}, ${d.y})`'>
+      <g v-for="d in bars" v-if="d.height" :key="d.id" :transform="`translate(${d.x}, ${d.y})`">
         <rect :width="barWidth" :height="d.height" :fill="d.color" opacity="0.75" />
         <line :x2="barWidth" :stroke="d.color" :stroke-width="2" />
       </g>
@@ -17,7 +17,7 @@ import * as d3 from 'd3'
 import _ from 'lodash'
 
 const healthStatus = [2, 3, 4, 5]
-const margin = {top: 30, right: 0, bottom: 20, left: 20}
+const margin = { top: 30, right: 0, bottom: 20, left: 20 }
 export default {
   name: 'BarChart',
   props: [
@@ -53,7 +53,10 @@ export default {
       .range([this.height - margin.bottom, margin.top])
     this.barWidth = this.xScale.bandwidth()
 
-    this.xAxis = d3.axisBottom().scale(this.xScale).tickSizeOuter(0)
+    this.xAxis = d3
+      .axisBottom()
+      .scale(this.xScale)
+      .tickSizeOuter(0)
     this.yAxis = d3
       .axisLeft()
       .scale(this.yScale)
@@ -115,7 +118,8 @@ export default {
                 height: 0,
                 color: this.colorsByHealth[health],
               }
-            }).value()
+            })
+            .value()
         })
         .flatten()
         .value()
@@ -127,10 +131,17 @@ export default {
         .groupBy('ageGroup')
         .map((people, age) => {
           return Object.assign(
-            _.reduce(healthStatus, (obj, health) => {
-              obj[health] = _.sumBy(people, ({index}) => this.infected[index].health === health)
-              return obj
-            }, {}),
+            _.reduce(
+              healthStatus,
+              (obj, health) => {
+                obj[health] = _.sumBy(
+                  people,
+                  ({ index }) => this.infected[index].health === health
+                )
+                return obj
+              },
+              {}
+            ),
             { ageGroup: this.ageGroups[age] }
           )
         })
@@ -162,12 +173,12 @@ export default {
         this.tl.to(
           this.bars,
           {
-            x: (i, {id}) => this.nextBarsById[id].x,
-            y: (i, {id}) => this.nextBarsById[id].y,
-            height: (i, {id}) => this.nextBarsById[id].height,
+            x: (i, { id }) => this.nextBarsById[id].x,
+            y: (i, { id }) => this.nextBarsById[id].y,
+            height: (i, { id }) => this.nextBarsById[id].height,
             duration: this.phases[1] / 2,
           },
-          `day${this.day}-1`,
+          `day${this.day}-1`
         )
         // and at same time update scales
         this.tl.add(() => {
@@ -182,11 +193,13 @@ export default {
 
         this.playTimeline('bar')
       } else {
-        _.each(this.bars, d => Object.assign(d, {
-          x: this.nextBarsById[d.id].x,
-          y: this.nextBarsById[d.id].y,
-          height: this.nextBarsById[d.id].height,
-        }))
+        _.each(this.bars, d =>
+          Object.assign(d, {
+            x: this.nextBarsById[d.id].x,
+            y: this.nextBarsById[d.id].y,
+            height: this.nextBarsById[d.id].height,
+          })
+        )
         d3.select(this.$refs.xAxis).call(this.xAxis)
         d3.select(this.$refs.yAxis).call(this.yAxis)
         this.formatYAxis(null, null, [this.$refs.yAxis])
@@ -195,10 +208,12 @@ export default {
     formatYAxis(d, i, nodes) {
       const container = d3.select(nodes[0])
       container.select('path').remove()
-      container.selectAll('g')
+      container
+        .selectAll('g')
         .filter(d => !_.isInteger(d))
         .remove()
-      container.selectAll('line')
+      container
+        .selectAll('line')
         .attr('stroke-dasharray', '5')
         .attr('stroke', '#cfcfcf')
         .attr('shape-rendering', 'crispEdges')

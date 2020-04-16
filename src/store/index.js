@@ -129,6 +129,7 @@ export default new Vuex.Store({
     exerciseStatus: {},
     gameId: '',
     createdAt: '',
+    communitySizeSelection: '',
   },
   getters: {
     week({day}) {
@@ -169,8 +170,9 @@ export default new Vuex.Store({
     totalBeds(state, {hospitals, population, zipsInCounty}) {
       if (!population || !hospitals || !zipsInCounty) return
       const countyPopulation = _.sumBy(populationsByZip, d =>
-        _.includes(zipsInCounty, d.zip) ? d.total : 0)
-      const totalCountyBeds = _.sumBy(hospitals, d => d.beds > 0 ? d.beds : 0)
+        _.includes(zipsInCounty, d.zip) ? d.total : 0,
+      )
+      const totalCountyBeds = _.sumBy(hospitals, d => (d.beds > 0 ? d.beds : 0))
       return Math.floor(population.total * (totalCountyBeds / countyPopulation))
     },
     totalAvailableBeds({bedOccupancyRate}, {totalBeds}) {
@@ -362,7 +364,8 @@ export default new Vuex.Store({
             bestAlternate = _.shuffle(numTimesOut[1])
           }
           weeklyDecision = {
-            player, bestAlternate,
+            player,
+            bestAlternate,
           }
         }
 
@@ -548,6 +551,9 @@ export default new Vuex.Store({
     setZipCode(state, zipCode) {
       state.zipCode = '' + zipCode // stringify just in case
     },
+    setCommunitySizeSelection(state, communitySize) {
+      state.communitySizeSelection = communitySize
+    },
     setDataLoaded(state, dataLoaded) {
       state.dataLoaded = dataLoaded
     },
@@ -646,7 +652,14 @@ export default new Vuex.Store({
       })
     },
     storeGame({
-      state: {allDecisions, zipCode, gameId, pastPlayerIDs, createdAt},
+      state: {
+        allDecisions,
+        zipCode,
+        gameId,
+        pastPlayerIDs,
+        communitySizeSelection,
+        createdAt,
+      },
       getters: {dailyInfectious, dailyHealthStatus},
     }) {
       const decisions = _.get(allDecisions, '[0]', [])
@@ -659,6 +672,7 @@ export default new Vuex.Store({
         numDecisions: decisions.length,
         pastPlayerIDs,
         zipCode,
+        communitySizeSelection,
         createdAt,
       })
     },
