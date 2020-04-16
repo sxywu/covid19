@@ -42,7 +42,7 @@ export default {
   },
   data: function() {
     return {
-      siteUrl: 'https://sxywu.com/covid19',
+      siteUrl: 'peopleofthepandemicgame.com',
     }
   },
   methods: {
