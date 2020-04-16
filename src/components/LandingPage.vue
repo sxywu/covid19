@@ -3,7 +3,7 @@
     <div class="bg" />
     <div class="container">
       <header>
-        <h1>{{ $t('title') }}</h1>
+        <img class="title" src="../assets/pandemic-title.png" />
         <h2>{{ $t('subtitle') }}</h2>
         <hr />
       </header>
@@ -13,7 +13,11 @@
         <p>{{ $t('landing.explanation3') }}</p>
         <div class="people">
           <!-- randomly choose a person image -->
-          <img v-for="i in 20" :src="peopleImages[Math.round(Math.random())]" :key="i" />
+          <img
+            v-for="i in 20"
+            :src="peopleImages[Math.round(Math.random())]"
+            :key="i"
+          />
         </div>
         <p>{{ $t('landing.explanation4') }}</p>
         <hr />
@@ -23,7 +27,7 @@
             <div class="zipCode">
               <input
                 type="number"
-                :class="{'zip-error': errors['zipCode'] }"
+                :class="{ 'zip-error': errors['zipCode'] }"
                 id="zip"
                 v-model="zipCode"
                 :placeholder="$t('landing.zipCodePlaceholder')"
@@ -34,23 +38,44 @@
             <fieldset>
               <div class="communitySize">
                 <div class="radioWrapper">
-                  <input type="radio" id="urban" name="communitySize" value="Urban" />
+                  <input
+                    type="radio"
+                    id="urban"
+                    name="communitySize"
+                    value="Urban"
+                  />
                   <label for="urban">{{ $t('urban') }}</label>
                 </div>
                 <div class="radioWrapper">
-                  <input type="radio" id="suburban" name="communitySize" value="Suburban" />
+                  <input
+                    type="radio"
+                    id="suburban"
+                    name="communitySize"
+                    value="Suburban"
+                  />
                   <label for="suburban">{{ $t('suburban') }}</label>
                 </div>
                 <div class="radioWrapper">
-                  <input type="radio" id="rural" name="communitySize" value="Rural" />
+                  <input
+                    type="radio"
+                    id="rural"
+                    name="communitySize"
+                    value="Rural"
+                  />
                   <label for="rural">{{ $t('rural') }}</label>
                 </div>
               </div>
             </fieldset>
           </div>
-          <p style="text-align: center; max-width: 380px;">{{ $t('landing.instruction2') }}</p>
-          <button type="submit" class="playNowBtn">{{ $t('landing.buttonCta') }}</button>
-          <div v-if="errors['zipCode']" class="zipCodeError">{{ errors['zipCode'] }}</div>
+          <p style="text-align: center; max-width: 380px;">
+            {{ $t('landing.instruction2') }}
+          </p>
+          <button type="submit" class="playNowBtn">
+            {{ $t('landing.buttonCta') }}
+          </button>
+          <div v-if="errors['zipCode']" class="zipCodeError">
+            {{ errors['zipCode'] }}
+          </div>
         </form>
       </div>
     </div>
@@ -81,7 +106,7 @@ export default {
     startPlay(e) {
       if (this.checkFormValid(e)) {
         this.$store.commit('setGameIdAndCreatedAt')
-        this.$store.dispatch('getPastGames', {zipCode: this.zipCode})
+        this.$store.dispatch('getPastGames', { zipCode: this.zipCode })
         this.$store.commit('setZipCode', this.zipCode)
         this.$store.commit('setCurrentPage', 'game')
       }
@@ -131,6 +156,10 @@ export default {
   background: linear-gradient(#fff 50%, $gray);
   @include respond-to('small') {
     padding: 2rem;
+  }
+  .title {
+    max-width: 80%;
+    margin-top: 2em;
   }
 }
 
@@ -355,7 +384,7 @@ header {
   min-height: 640px;
   overflow: hidden;
   z-index: 0;
-  background-image: url('../assets/bg.png');
+  background-image: url('../assets/background.png');
   background-repeat: repeat-x;
   background-position: 0 -60px;
   background-size: 1040px;
