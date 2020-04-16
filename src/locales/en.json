@@ -21,7 +21,7 @@
   "healthStatus": {
     "healthy": "Uninfected",
     "recovered": "Recovered",
-    "infectedAsymptomatic": "No Symptoms",
+    "infectedAsymptomatic": "Infected, No Symptoms",
     "mildSymptoms": "Mild Symptoms",
     "severeSymptoms": "Severe Symptoms",
     "deceased": "Deceased"

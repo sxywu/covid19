@@ -67,8 +67,9 @@ function healthAndDestination(
   )
 
   let destination = -1 // default to home
-  if (health < 3 && playerGoesOut) {
+  if ((health < 3 || (health === 3 && Math.random() > 0.5)) && playerGoesOut) {
     // if they're healthy, recovered, or asymptomatic
+    // or if they're mild symptom they have 50% (made up) likelihood of going out
     // and the player decided to go out
     destination = _.sample(houses[person.houseIndex].destinations)
 
@@ -283,7 +284,7 @@ export default new Vuex.Store({
         )
         const destIndicesInGroup = _.union(
           _.range(groupIndex * destPerGroup, (groupIndex + 1) * destPerGroup),
-          _.times(3, i =>
+          _.times(5, i =>
             _.random(
               (groupIndex + 2) * destPerGroup,
               (groupIndex + 4) * destPerGroup,
