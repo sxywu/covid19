@@ -46,24 +46,26 @@
   },
   "decide": {
     "h1": {
-      "week": "You've been fighting the virus for one week | You've been fighting the virus for {count} weeks",
+      "prevWeek": "In the previous week...",
       "numTimes": "You decided not to go out this week | You decided to go out once this week | You decided to go out {count} times this week"
     },
-    "newCasesTotal": "In the previous week, your community had <strong>{count}</strong> new cases",
+    "prevTimes": "You didn't go out at all | You went out once | You went out {count} times",
+    "avgTimes": "and your community went out an average of {count} times.",
+    "newCasesTotal": "This led to <strong>{count}</strong> new cases in your community",
     "newCasesAvoided": "but you were also able to avoid <strong>{count}</strong> new cases.",
     "foodLow": "Be careful! Your food is running low.",
     "exerciseLow": "Be careful!  You haven't exercised in a while.",
     "bothLow": "Be careful!  You're running out of food and haven't exercised in a while.",
     "h2Question": "How many times will you go out this week?",
     "range": {
-      "0": "Stay home",
-      "1": "Go for a walk",
-      "2": "Buy groceries",
-      "3": "Go for a run",
-      "4": "Lunch with a friend",
-      "5": "Dinner with family",
-      "6": "Go to a house party",
-      "7": "Go to a concert"
+      "0": "Stay<br />home",
+      "1": "Go<br />for a walk",
+      "2": "Buy<br />groceries",
+      "3": "Go<br />for a run",
+      "4": "Lunch<br />with friends",
+      "5": "Dinner<br />with family",
+      "6": "Go to<br />a party",
+      "7": "Go to<br />a concert"
     },
     "cta": "Decide",
     "rest": "Here's what the rest of your community decided to do:",

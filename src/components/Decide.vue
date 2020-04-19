@@ -1,66 +1,27 @@
 <template>
   <div id="decideArea">
     <div v-if="!decided">
-      <h1 class="header">{{ $tc('decide.h1.week', week) }}</h1>
-      <p v-if="newCases">
-        <span
-          v-html="
-            $t('decide.newCasesTotal', { count: formatNumber(newCases.total) })
-          "
-        />{{ newCases.avoided ? ',' : '.' }}
-        <span
-          v-if="newCases.avoided"
-          v-html="
-            $t('decide.newCasesAvoided', {
-              count: formatNumber(newCases.avoided),
-            })
-          "
-        />
-      </p>
+      <h1 class="header">{{ $tc('decide.h1.prevWeek', week) }}</h1>
       <div class="content">
-        <div class="statusBars">
-          <!-- STATUS BARS -->
-          <div class="item">
-            <img src="../assets/food.svg" />
-            <div class="item-content">
-              <h3 class="label">{{ $t('food') }}</h3>
-              <ProgressBar
-                v-bind="foodStatus"
-                v-bind:isLow="foodStatus.value < 7"
-              />
-            </div>
-          </div>
-          <div class="item">
-            <img src="../assets/exercise.svg" />
-            <div class="item-content">
-              <h3 class="label">{{ $t('exercise') }}</h3>
-              <ProgressBar
-                v-bind="exerciseStatus"
-                v-bind:isLow="exerciseStatus.value < 2"
-              />
-            </div>
-          </div>
-        </div>
-        <div class="charts">
-          <!-- BAR CHART -->
-          <BarChart
-            v-bind="{
-              width: 500,
-              height: 200,
-              ageGroups,
-              colorsByHealth,
-            }"
+        <p v-if="newCases">
+          <span v-html="
+            $tc('decide.prevTimes', prevWeekDecisions[0])
+          "/>, <span v-html="
+            $t('decide.avgTimes', {count: avgTimes})
+          "/> <span
+            v-html="
+              $t('decide.newCasesTotal', { count: formatNumber(newCases.total) })
+            "
+          />{{ newCases.avoided ? ',' : '.' }}
+          <span
+            v-if="newCases.avoided"
+            v-html="
+              $t('decide.newCasesAvoided', {
+                count: formatNumber(newCases.avoided),
+              })
+            "
           />
-          <!-- LINE CHART -->
-          <LineChart
-            v-bind="{
-              width: 400,
-              height: 200,
-              ageGroups,
-              colorsByHealth,
-            }"
-          />
-        </div>
+        </p>
       </div>
       <!-- DECISION -->
       <div class="decide">
@@ -103,8 +64,8 @@
               <label
                 for="range"
                 :style="{ fontWeight: value <= +numTimes ? 'bold' : '' }"
-                >{{ label }}</label
-              >
+                v-html="label"
+              ></label>
             </div>
           </div>
         </div>
@@ -176,13 +137,21 @@ export default {
     dailyHealthStatus() {
       return this.$store.getters.dailyHealthStatus
     },
+    prevWeekDecisions() {
+      return _.map(this.$store.state.allDecisions, d => d[this.week - 1])
+    },
+    avgTimes() {
+      return _.chain(this.prevWeekDecisions).mean().round(2)
+    },
     newCases() {
       if (!this.dailyHealthStatus) return
       const today = this.dailyHealthStatus[this.day - 1]
       const lastWeek = this.dailyHealthStatus[this.day - 7]
+      const total = today.player.total - lastWeek.player.total
+      const alternateTotal = today.worstAlternate.total - lastWeek.worstAlternate.total
       return {
-        total: today.player.total - lastWeek.player.total,
-        avoided: today.worstAlternate.total - lastWeek.worstAlternate.total,
+        total,
+        avoided: Math.max(alternateTotal - total, 0),
       }
     },
   },
@@ -212,9 +181,11 @@ export default {
   margin-right: auto;
   margin-left: auto;
 }
-
-p {
+.content {
+  width: 500px;
   font-size: 18px;
+  line-height: 1.5;
+  margin: auto;
 }
 
 .decideBtn {
@@ -230,44 +201,6 @@ p {
   }
 }
 
-.charts {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  align-items: center;
-  grid-gap: 2rem;
-  margin-top: 2rem;
-}
-
-.statusBars {
-  width: 100%;
-  max-width: 845px;
-  margin: 0 auto;
-  text-align: center;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-}
-
-.item {
-  padding: 1rem;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-}
-.item-content {
-  margin-left: 0.75rem;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  flex-direction: column;
-  width: 100%;
-  h3 {
-    padding-bottom: 3px;
-  }
-  progress {
-    margin-top: 4px;
-  }
-}
-
 h2 {
   margin: 2rem 0;
 }
@@ -279,9 +212,8 @@ h2 {
   .times,
   .labels {
     margin: 0 auto;
-    max-width: 988px;
+    width: 800px;
     justify-content: flex-start;
-    width: 100%;
     display: grid;
     grid-template-columns: repeat(8, 1fr);
     grid-gap: 15px;
@@ -315,6 +247,13 @@ h2 {
         padding-left: 7.5rem;
       }
     }
+    :first-of-type {
+      label::after {
+        content: 'OR';
+        position: absolute;
+        padding-left: 7.5rem;
+      }
+    }
   }
 }
 
@@ -322,5 +261,6 @@ h1,
 .body {
   position: relative;
   z-index: 1000;
+  background: rgba(255, 255, 255, 0.75);
 }
 </style>

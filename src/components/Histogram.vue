@@ -65,7 +65,7 @@ export default {
   data() {
     return {
       width: 800,
-      height: 300,
+      height: 250,
       imageHeight: 25,
       imageHeight: 25 * imageRatio,
       margin,
