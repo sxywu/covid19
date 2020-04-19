@@ -2,7 +2,7 @@
   <div id="app">
     <GamePlay v-bind="$data" v-show="currentPage === 'game'" />
     <LandingPage v-if="currentPage === 'landing'" />
-    <EndPage v-if="currentPage === 'end'" />
+    <EndPage v-bind="$data" v-if="currentPage === 'end'" />
     <FailedPage v-bind="$data" v-if="currentPage === 'failed'" />
   </div>
 </template>
@@ -86,5 +86,14 @@ button {
   letter-spacing: 0.5px;
   text-transform: uppercase;
   margin: 0;
+}
+
+a {
+  text-decoration: none;
+  border-bottom: 1px solid;
+  color: inherit;
+}
+a:hover {
+  border-bottom: 1px dashed;
 }
 </style>

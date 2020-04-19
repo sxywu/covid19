@@ -1,21 +1,27 @@
 <template>
-  <div id="header" :style="{height: `${height}px`}">
+  <div id="header" :style="{ height: `${height}px` }">
     <div class="item">
       <img src="../assets/food.svg" />
       <div class="item-content">
         <h3 class="label">{{ $t('food') }}</h3>
-        <ProgressBar v-bind="foodStatus" />
+        <ProgressBar
+          v-bind="foodStatus"
+          :className="foodStatus.value < 7 && 'red'"
+        />
       </div>
     </div>
     <div class="item">
       <img src="../assets/exercise.svg" />
       <div class="item-content">
         <h3 class="label">{{ $t('exercise') }}</h3>
-        <ProgressBar v-bind="exerciseStatus" />
+        <ProgressBar
+          v-bind="exerciseStatus"
+          :className="exerciseStatus.value < 2 && 'red'"
+        />
       </div>
     </div>
     <div id="date">
-      <h3 class="label">{{ $tc('week', 1, {count: ''}) }}</h3>
+      <h3 class="label">{{ $tc('week', 1, { count: '' }) }}</h3>
       <h4>{{ week }}</h4>
     </div>
     <div id="date">
@@ -36,7 +42,7 @@
       <div class="item-content">
         <h3 class="label">{{ $t('header.stayedHome') }}</h3>
         <ProgressBar
-          v-bind="{value: stayedHome.length, maxValue: infected.length}"
+          v-bind="{ value: stayedHome.length, maxValue: infected.length }"
         />
       </div>
     </div>
@@ -54,7 +60,8 @@
       <div class="item-content">
         <h3 class="label">{{ $t('header.hospitalCapacity') }}</h3>
         <ProgressBar
-          v-bind="{value: filledBeds, maxValue: totalAvailableBeds}"
+          v-bind="{ value: filledBeds, maxValue: totalAvailableBeds }"
+          :className="filledBeds / totalAvailableBeds > 0.85 && 'red'"
         />
       </div>
     </div>
@@ -87,7 +94,7 @@ export default {
       return this.$store.getters.infected || []
     },
     stayedHome() {
-      return _.filter(this.infected, ({destination}) => destination === -1)
+      return _.filter(this.infected, ({ destination }) => destination === -1)
     },
     totalAvailableBeds() {
       return this.$store.getters.totalAvailableBeds

@@ -4,8 +4,8 @@
     <div class="container">
       <header>
         <h1>{{ $t('title') }}</h1>
-        <h2>{{ $t('subtitle') }}</h2>
-        <hr />
+        <!-- <h2>{{ $t('subtitle') }}</h2> -->
+        <!-- <hr /> -->
       </header>
       <div class="content">
         <p>{{ $t('landing.explanation1') }}</p>
@@ -13,7 +13,11 @@
         <p>{{ $t('landing.explanation3') }}</p>
         <div class="people">
           <!-- randomly choose a person image -->
-          <img v-for="i in 20" :src="peopleImages[Math.round(Math.random())]" :key="i" />
+          <img
+            v-for="i in 20"
+            :src="peopleImages[Math.round(Math.random())]"
+            :key="i"
+          />
         </div>
         <p>{{ $t('landing.explanation4') }}</p>
         <hr />
@@ -23,7 +27,7 @@
             <div class="zipCode">
               <input
                 type="number"
-                :class="{'zip-error': errors['zipCode'] }"
+                :class="{'zip-error': errors['zipCode']}"
                 id="zip"
                 v-model="zipCode"
                 :placeholder="$t('landing.zipCodePlaceholder')"
@@ -33,24 +37,29 @@
             <span>{{ $t('or') }}</span>
             <fieldset>
               <div class="communitySize">
-                <div class="radioWrapper">
-                  <input type="radio" id="urban" name="communitySize" value="Urban" />
-                  <label for="urban">{{ $t('urban') }}</label>
-                </div>
-                <div class="radioWrapper">
-                  <input type="radio" id="suburban" name="communitySize" value="Suburban" />
-                  <label for="suburban">{{ $t('suburban') }}</label>
-                </div>
-                <div class="radioWrapper">
-                  <input type="radio" id="rural" name="communitySize" value="Rural" />
-                  <label for="rural">{{ $t('rural') }}</label>
+                <div v-for="{id, value} in communitySizes" class="radioWrapper">
+                  <input
+                    type="radio"
+                    :id="id"
+                    name="communitySize"
+                    :value="value"
+                    v-model="communitySize"
+                    :disabled="!!zipCode"
+                  />
+                  <label :for="id">{{ $t(id) }}</label>
                 </div>
               </div>
             </fieldset>
           </div>
-          <p style="text-align: center; max-width: 380px;">{{ $t('landing.instruction2') }}</p>
-          <button type="submit" class="playNowBtn">{{ $t('landing.buttonCta') }}</button>
-          <div v-if="errors['zipCode']" class="zipCodeError">{{ errors['zipCode'] }}</div>
+          <p style="text-align: center; max-width: 380px;">
+            {{ $t('landing.instruction2') }}
+          </p>
+          <button type="submit" class="playNowBtn">
+            {{ $t('landing.buttonCta') }}
+          </button>
+          <div v-if="errors['zipCode']" class="zipCodeError">
+            {{ errors['zipCode'] }}
+          </div>
         </form>
       </div>
     </div>
@@ -66,6 +75,12 @@ export default {
     return {
       errors: {},
       zipCode: '',
+      communitySize: '',
+      communitySizes: [
+        {id: 'urban', value: 'Urban'},
+        {id: 'suburban', value: 'Suburban'},
+        {id: 'rural', value: 'Rural'},
+      ],
       peopleImages: [
         require('../assets/person-1.svg'),
         require('../assets/person-2.svg'),
@@ -76,9 +91,18 @@ export default {
     zips() {
       return this.$store.getters.allZips
     },
+    zipsByCommunitySize() {
+      return this.$store.getters.zipsByCommunitySize
+    },
   },
   methods: {
     startPlay(e) {
+      if (!this.zipCode && this.communitySize) {
+        this.zipCode = _.sample(
+          this.zipsByCommunitySize[this.communitySize.toLowerCase()],
+        ).zip
+        this.$store.commit('setCommunitySizeSelection', this.communitySize)
+      }
       if (this.checkFormValid(e)) {
         this.$store.commit('setGameIdAndCreatedAt')
         this.$store.dispatch('getPastGames', {zipCode: this.zipCode})
@@ -86,7 +110,7 @@ export default {
         this.$store.commit('setCurrentPage', 'game')
       }
     },
-    createFormError({ condition, event, fieldName, errorMessage }) {
+    createFormError({condition, event, fieldName, errorMessage}) {
       if (condition) {
         this.errors[fieldName] = errorMessage
         event.preventDefault()
@@ -247,6 +271,11 @@ form {
     background: $text;
     color: white;
   }
+  input[type='radio']:disabled + label {
+    background: $gray;
+    color: rgba(0, 0, 0, 0.3);
+    cursor: not-allowed;
+  }
 }
 header {
   padding: 4rem 4rem 0 4rem;
@@ -288,10 +317,7 @@ header {
   position: relative;
   padding-bottom: 4rem;
   z-index: 10;
-  box-shadow: 0 2.8px 2.2px rgba(0, 0, 0, 0.008),
-    0 6.7px 5.3px rgba(0, 0, 0, 0.012), 0 12.5px 10px rgba(0, 0, 0, 0.015),
-    0 22.3px 17.9px rgba(0, 0, 0, 0.018), 0 41.8px 33.4px rgba(0, 0, 0, 0.022),
-    0 100px 80px rgba(0, 0, 0, 0.03);
+  @include shadow;
 
   hr {
     border: none;
@@ -306,7 +332,7 @@ header {
   display: flex;
   align-items: center;
   flex-direction: column;
-  padding: 2rem 6rem 6rem 6rem;
+  padding: 2rem 6rem;
   p {
     width: 100%;
     font-size: 1.15rem;
