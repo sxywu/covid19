@@ -2,8 +2,8 @@
   <div id="failed">
     <div class="content">
       <div class="item">
-        <img v-if="isFoodVariant" src="../assets/food.svg" />
-        <img v-else src="../assets/exercise.svg" />
+        <img v-if="isFoodVariant" src="../assets/food-icon.png" />
+        <img v-else src="../assets/runner.png" />
         <div class="item-content">
           <h3 v-if="isFoodVariant" class="label">{{ $t('food') }}</h3>
           <h3 v-else class="label">{{ $t('exercise') }}</h3>
@@ -16,7 +16,9 @@
       <h1 v-else>{{ $t('failed.heading.exercise') }}</h1>
       <p>{{ $t('failed.body') }}</p>
       <Share />
-      <button @click="playAgain" class="playBtn">{{ $t('failed.buttonCta') }}</button>
+      <button @click="playAgain" class="playBtn">
+        {{ $t('failed.buttonCta') }}
+      </button>
     </div>
   </div>
 </template>

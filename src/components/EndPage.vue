@@ -5,12 +5,13 @@
         <h1>{{ $t('end.h1', {saved, avoided}) }}</h1>
         <p>{{ $t('end.average', {average}) }}</p>
       </header>
-      <Histogram v-bind="{type: 'all'}" />
+      <Histogram v-bind="{type: 'all', width: 700}" />
 
       <p>{{ $t('end.closerLook') }}</p>
       <div class="charts">
         <BarChart
           v-bind="{
+            width: 280,
             height: 200,
             ageGroups,
             colorsByHealth,
@@ -18,6 +19,7 @@
         />
         <LineChart
           v-bind="{
+            width: 320,
             height: 200,
             ageGroups,
             colorsByHealth,

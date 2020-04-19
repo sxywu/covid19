@@ -11,7 +11,7 @@
     <p>
       <strong>Stephen Osserman</strong>
       Simulation Design & Development<br />
-      Master in Spatial Analysis for Public
+      Master in Spatial Analysis for Public Health
     </p>
     <p>
       <strong><a href="https://twitter.com/sidneymbell" target="_new">Sidney Bell</a></strong>

@@ -1,6 +1,6 @@
 {
-  "title": "People of the Pandemic",
-  "subtitle": "Lorem Ipsum Dolor Sit",
+  "title": "The Game Title",
+  "subtitle": "A global pandemic has arrived in your backyard.",
   "or": "or",
   "urban": "Urban",
   "suburban": "Suburban",
@@ -27,10 +27,11 @@
     "deceased": "Deceased"
   },
   "landing": {
-    "explanation1": "The first cases of a global pandemic have arrived in your backyard. Because the disease can be transmitted before symptoms appear, it has the potential to spread throughout the entire community—unless you take action now through physical distancing. The next 8 weeks are crucial for saving thousands of lives.",
+    "explanation1": "You're in the first few days of a new viral spread. This virus can be transmitted before symptoms appear, and it has the potential to spread throughout the entire community—unless you take action now through physical distancing. The next 8 weeks are crucial for saving thousands of lives.",
     "explanation2": "But you can’t do this alone! It’ll take the cooperation of the entire community to slow the spread of this disease. Together, you’ll have to find ways to meet your individual needs while limiting your outings as much as possible.",
-    "explanation3": "This game uses the decisions of 20 players—you and 19 other people who have played before—to determine how frequently people in your community leave their homes over the next 8 weeks. Each player’s choices will influence how 5% of the population behaves.",
-    "explanation4": "Their decisions and yours will determine how many lives are lost or saved.",
+    "explanation3": "You’ll play alongside 19 other real people",
+    "explanation4": "These 19 other people have played before you. Their decisions and yours will determine how frequently people in your community leave their homes over the next 8 weeks. Each of these players represents 5% of the total population.",
+    "explanation5": "Your collective decisions will determine how many lives are lost or saved.",
     "instruction1": "To start, enter your <strong>zip code</strong> or choose a <strong>community size</strong>.",
     "instruction2": "We’ll pull real data to set up the game with your community’s actual population and number of available hospital beds.",
     "zipCodePlaceholder": "Enter your zip code (e.g. 60617)",
@@ -46,24 +47,26 @@
   },
   "decide": {
     "h1": {
-      "week": "You've been fighting the virus for one week | You've been fighting the virus for {count} weeks",
+      "prevWeek": "In the previous week...",
       "numTimes": "You decided not to go out this week | You decided to go out once this week | You decided to go out {count} times this week"
     },
-    "newCasesTotal": "In the previous week, your community had <strong>{count}</strong> new cases",
+    "prevTimes": "You didn't go out at all | You went out once | You went out {count} times",
+    "avgTimes": "and your community went out an average of <strong>{count}</strong> times.",
+    "newCasesTotal": "This led to <strong>{count}</strong> new cases in your community",
     "newCasesAvoided": "but you were also able to avoid <strong>{count}</strong> new cases.",
     "foodLow": "Be careful! Your food is running low.",
     "exerciseLow": "Be careful!  You haven't exercised in a while.",
     "bothLow": "Be careful!  You're running out of food and haven't exercised in a while.",
     "h2Question": "How many times will you go out this week?",
     "range": {
-      "0": "Stay home",
-      "1": "Go for a walk",
-      "2": "Buy groceries",
-      "3": "Go for a run",
-      "4": "Lunch with a friend",
-      "5": "Dinner with family",
-      "6": "Go to a house party",
-      "7": "Go to a concert"
+      "0": "Stay<br />home",
+      "1": "Go<br />for a walk",
+      "2": "Buy<br />groceries",
+      "3": "Go<br />for a run",
+      "4": "Lunch<br />with friends",
+      "5": "Dinner<br />with family",
+      "6": "Go to<br />a party",
+      "7": "Go to<br />a concert"
     },
     "cta": "Decide",
     "rest": "Here's what the rest of your community decided to do:",
@@ -77,7 +80,7 @@
     "label": "Infected cases by age group"
   },
   "lineChart": {
-    "label": "Total cases by day",
+    "label": "Infected cases by day",
     "hospital": "Hospital Capacity Reached",
     "legend": {
       "cases": "{count} Case | {count} Cases",

@@ -30,7 +30,7 @@
       ref="canvas"
       :width="width"
       :height="height"
-      :style="{width: `${width}px`, height: `${height}px`}"
+      :style="{ width: `${width}px`, height: `${height}px` }"
     />
   </div>
 </template>
@@ -47,10 +47,11 @@ const destSize = 120
 
 const houseImages = _.map(
   ['house-sm-left', 'house-sm-right', 'house-lg-left', 'house-lg-right'],
-  file => require(`../assets/${file}.png`)
+  (file) => require(`../assets/${file}.png`)
 )
-const destImages = _.map(['cafe', 'restaurant', 'park'], file =>
-  require(`../assets/${file}.png`)
+const destImages = _.map(
+  ['cafe-1', 'cafe-2', 'rest-1', 'rest-2', 'park-1'],
+  (file) => require(`../assets/${file}.png`)
 )
 
 export default {
@@ -64,12 +65,12 @@ export default {
     'tl',
     'phases',
     'playTimeline',
-    'setGroups'
+    'setGroups',
   ],
   data() {
     return {
       houses: [],
-      destinations: []
+      destinations: [],
       // links: null,
     }
   },
@@ -88,7 +89,7 @@ export default {
     },
     center() {
       return { x: this.width / 2, y: this.height / 2 + this.top }
-    }
+    },
   },
   mounted() {
     this.ctx = this.$refs.canvas.getContext('2d')
@@ -99,15 +100,15 @@ export default {
       .forceSimulation()
       .force(
         'collide',
-        modifiedCollide().radius(d => 2 * d.r || 0.5 * d.size)
+        modifiedCollide().radius((d) => 2 * d.r || 0.5 * d.size)
       )
       .force(
         'x',
-        d3.forceX().x(d => d.focusX)
+        d3.forceX().x((d) => d.focusX)
       )
       .force(
         'y',
-        d3.forceY().y(d => d.focusY)
+        d3.forceY().y((d) => d.focusY)
       )
       .alphaDecay(0)
       // .velocityDecay(0.5)
@@ -123,7 +124,7 @@ export default {
     },
     infected() {
       this.updateTimeline()
-    }
+    },
   },
   methods: {
     setupPositions() {
@@ -136,19 +137,19 @@ export default {
       let houses = _.take(this.community.houses, cutoff)
       let groups = []
       let maxDest = _.chain(houses)
-        .map(d => d.destinations)
+        .map((d) => d.destinations)
         .flatten()
         .max()
         .value()
       maxDest = Math.ceil((maxDest + 1) / destsPerGroup) * destsPerGroup // +1 to account for 0-based index
-      const destinations = _.map(_.range(maxDest), i => {
+      const destinations = _.map(_.range(maxDest), (i) => {
         const { id, groupIndex } = this.community.destinations[i]
         let group = groups[groupIndex]
         if (!group) {
           group = groups[groupIndex] = Object.assign(
             {
               size: 2.5 * destSize,
-              dests: []
+              dests: [],
             },
             i === 0 ? { fx: this.center.x, fy: this.center.y } : {}
           )
@@ -156,7 +157,7 @@ export default {
         const destination = {
           id,
           group,
-          size: destSize
+          size: destSize,
         }
         group.dests.push(destination)
         return destination
@@ -166,17 +167,17 @@ export default {
         const source = {
           id: house.id,
           size: houseSizes[house.numPeople < 3 ? 0 : 1],
-          href: houseImages[house.numPeople < 3 ? _.random(1) : _.random(2, 3)]
+          href: houseImages[house.numPeople < 3 ? _.random(1) : _.random(2, 3)],
         }
-        _.each(house.destinations, index => {
+        _.each(house.destinations, (index) => {
           links.push({ source, target: destinations[index].group })
         })
 
         return source
       })
       // and also link all groups together so they're packed closely together
-      _.each(groups, source => {
-        _.each(groups, target => {
+      _.each(groups, (source) => {
+        _.each(groups, (target) => {
           if (source === target) return
           links.push({ source, target })
         })
@@ -187,7 +188,7 @@ export default {
         .forceSimulation(_.union(groups, houses))
         .force(
           'collide',
-          d3.forceCollide().radius(d => 0.6 * d.size)
+          d3.forceCollide().radius((d) => 0.6 * d.size)
         )
         .force('center', d3.forceCenter(this.center.x, this.center.y))
         .force('link', d3.forceLink(links))
@@ -208,7 +209,7 @@ export default {
           }
           // keep group if at least one is on screen
           Object.assign(dest, {
-            href: destImages[i % destsPerGroup ? _.random(1) : 2],
+            href: destImages[i % destsPerGroup ? _.random(3) : 4],
             x: dx,
             y: dy,
             fx: dx,
@@ -217,19 +218,19 @@ export default {
               -destSize / 2 < dx &&
               dx < this.width + destSize / 2 &&
               -destSize / 2 < dy &&
-              dy < this.height + destSize / 2
+              dy < this.height + destSize / 2,
           })
         })
       })
 
       // only keep the houses on screen
-      _.each(houses, d =>
+      _.each(houses, (d) =>
         Object.assign(d, {
           onScreen:
             -houseSizes[1] / 2 < d.x &&
             d.x < this.width + houseSizes[1] / 2 &&
             -houseSizes[1] < d.y &&
-            d.y < this.height + houseSizes[1] / 2
+            d.y < this.height + houseSizes[1] / 2,
         })
       )
 
@@ -239,7 +240,7 @@ export default {
         if (houseIndex >= cutoff) return true // terminate loop here
         const house = houses[houseIndex]
         const dests = this.community.houses[houseIndex].destinations
-        if (!house.onScreen || !_.some(dests, i => destinations[i].onScreen))
+        if (!house.onScreen || !_.some(dests, (i) => destinations[i].onScreen))
           return
 
         const color = this.colorsByHealth[0]
@@ -250,19 +251,19 @@ export default {
           x: house.x,
           y: house.y,
           r: personR,
-          color
+          color,
         })
       })
 
       this.houses = _.chain(houses)
-        .map(d => Object.assign(d, { fx: d.x, fy: d.y }))
-        .sortBy(d => d.y)
+        .map((d) => Object.assign(d, { fx: d.x, fy: d.y }))
+        .sortBy((d) => d.y)
         .value()
       this.destinations = destinations
       this.people = this.allPeople = people
       this.buildings = _.chain(this.destinations)
         .union(this.houses)
-        .filter(d => d && d.onScreen)
+        .filter((d) => d && d.onScreen)
         .value()
 
       this.setGroups(groups)
@@ -271,7 +272,7 @@ export default {
     updateTimeline() {
       if (!this.community && !this.people) return
       if (this.day === 1) {
-        _.each(this.people, d => d.color = this.colorsByHealth[0])
+        _.each(this.people, (d) => (d.color = this.colorsByHealth[0]))
       }
       if (this.week === 1 || this.week === 8) {
         this.simulation.velocityDecay(0.5)
@@ -283,7 +284,7 @@ export default {
 
       // calculate next state
       this.people = _.chain(this.allPeople)
-        .map(person => {
+        .map((person) => {
           const { health, destination, inHospital } = this.infected[person.i]
           if (health > 4 || inHospital) return
           const { x, y, id } =
@@ -297,7 +298,7 @@ export default {
             colorChange,
             nextColor,
             colorInterpolate:
-              colorChange && chroma.scale([person.color, nextColor])
+              colorChange && chroma.scale([person.color, nextColor]),
           })
         })
         .filter()
@@ -314,7 +315,7 @@ export default {
       const duration = 500 * duration2 // turn into milliseconds
       const stagger = Math.min((0.5 * duration) / this.colorChanges.length, 100)
       this.tl.add(() => {
-        const t = d3.timer(elapsed => {
+        const t = d3.timer((elapsed) => {
           this.ctx.clearRect(0, 0, this.width, this.height)
           _.each(this.people, (d, i) => {
             if (d.colorChange) return // only draw the non color changing ones here
@@ -339,12 +340,12 @@ export default {
 
       // phase 3: go back home
       this.tl.add(() => {
-        _.each(this.people, person =>
+        _.each(this.people, (person) =>
           Object.assign(person, {
             color: person.nextColor,
             destination: person.house.id,
             focusX: person.house.x,
-            focusY: person.house.y
+            focusY: person.house.y,
           })
         )
         this.simulation.nodes(this.nodes)
@@ -365,8 +366,8 @@ export default {
       this.ctx.beginPath()
       this.ctx.arc(x, y, r || personR, 0, 2 * Math.PI)
       this.ctx.fill()
-    }
-  }
+    },
+  },
 }
 </script>
 

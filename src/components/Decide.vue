@@ -1,44 +1,27 @@
 <template>
   <div id="decideArea">
     <div v-if="!decided">
-      <h1 class="header">{{ $tc('decide.h1.week', week) }}</h1>
-      <p v-if="foodStatus.value < 7 && exerciseStatus.value < 2">{{ $t('decide.bothLow') }}</p>
-      <p v-else-if="foodStatus.value < 7">{{ $t('decide.foodLow') }}</p>
-      <p v-else-if="exerciseStatus.value < 2">{{ $t('decide.exerciseLow') }}</p>
-      <p v-if="newCases">
-        <span v-html="$t('decide.newCasesTotal', {count: formatNumber(newCases.total)})" />
-        {{ newCases.avoided ? "," : "." }}
-        <span
-          v-if="newCases.avoided"
-          v-html="$t('decide.newCasesAvoided', {count: formatNumber(newCases.avoided)})"
-        />
-      </p>
+      <h1 class="header">{{ $tc('decide.h1.prevWeek', week) }}</h1>
       <div class="content">
-        <div class="statusBars">
-          <!-- STATUS BARS -->
-          <div class="item">
-            <img src="../assets/food.svg" />
-            <div class="item-content">
-              <h3 class="label">{{ $t('food') }}</h3>
-              <ProgressBar v-bind="foodStatus" />
-            </div>
-          </div>
-          <div class="item">
-            <img src="../assets/exercise.svg" />
-            <div class="item-content">
-              <h3 class="label">{{ $t('exercise') }}</h3>
-              <ProgressBar v-bind="exerciseStatus" />
-            </div>
-          </div>
-        </div>
-        <!-- LINE CHART -->
-        <LineChart
-          v-bind="{
-            height: 200,
-            ageGroups,
-            colorsByHealth,
-          }"
-        />
+        <p v-if="newCases">
+          <span v-html="
+            $tc('decide.prevTimes', prevWeekDecisions[0])
+          "/>, <span v-html="
+            $t('decide.avgTimes', {count: avgTimes})
+          "/> <span
+            v-html="
+              $t('decide.newCasesTotal', { count: formatNumber(newCases.total) })
+            "
+          />{{ newCases.avoided ? ',' : '.' }}
+          <span
+            v-if="newCases.avoided"
+            v-html="
+              $t('decide.newCasesAvoided', {
+                count: formatNumber(newCases.avoided),
+              })
+            "
+          />
+        </p>
       </div>
       <!-- DECISION -->
       <div class="decide">
@@ -46,12 +29,17 @@
         <div class="numTimes">
           <div class="times">
             <label
-              v-for="({value}) in range"
+              v-for="{ value } in range"
               for="range"
               :key="value"
-              :style="{fontWeight: value === +numTimes ? 'bold' : ''}"
+              :style="{ fontWeight: value === +numTimes ? 'bold' : '' }"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="32"
+                height="32"
+                viewBox="0 0 32 32"
+              >
                 <g fill="none" fill-rule="evenodd" transform="translate(4)">
                   <path
                     fill="#000"
@@ -61,7 +49,7 @@
                   <text
                     fill="#FFF"
                     font-size="15"
-                    :style="{fontWeight: value === +numTimes ? 'bold' : ''}"
+                    :style="{ fontWeight: value === +numTimes ? 'bold' : '' }"
                     letter-spacing="-.361"
                   >
                     <tspan x="7.5" y="18">{{ value }}</tspan>
@@ -72,21 +60,31 @@
           </div>
           <range-slider class="slider" min="0" max="7" v-model="numTimes" />
           <div class="labels">
-            <div v-for="({value, label}) in range" :key="value">
-              <label for="range" :style="{fontWeight: value <= +numTimes ? 'bold' : ''}">{{ label }}</label>
+            <div v-for="{ value, label } in range" :key="value">
+              <label
+                for="range"
+                :style="{ fontWeight: value <= +numTimes ? 'bold' : '' }"
+                v-html="label"
+              ></label>
             </div>
           </div>
         </div>
 
-        <button class="decideBtn mt3" @click="decided = true">{{ $t('decide.cta') }}</button>
+        <button class="decideBtn mt3" @click="decided = true">
+          {{ $t('decide.cta') }}
+        </button>
       </div>
     </div>
 
     <div v-else>
-      <h1 class="header">{{ $tc('decide.h1.numTimes', numTimes, {count: numTimes}) }}.</h1>
+      <h1 class="header">
+        {{ $tc('decide.h1.numTimes', numTimes, { count: numTimes }) }}.
+      </h1>
       <p class="body">{{ $t('decide.rest') }}</p>
-      <Histogram v-bind="{type: 'weekly', numTimes: numTimes}" />
-      <button class="decideBtn mt3" @click="onUpdate(numTimes)">{{ $t('decide.start') }}</button>
+      <Histogram v-bind="{ type: 'weekly', numTimes: numTimes, width: 700 }" />
+      <button class="decideBtn mt3" @click="onUpdate(numTimes)">
+        {{ $t('decide.start') }}
+      </button>
     </div>
   </div>
 </template>
@@ -95,6 +93,7 @@
 import * as d3 from 'd3'
 import _ from 'lodash'
 import LineChart from './LineChart'
+import BarChart from './BarChart'
 import Histogram from './Histogram'
 import ProgressBar from './ProgressBar'
 import RangeSlider from 'vue-range-slider'
@@ -105,6 +104,7 @@ export default {
   props: ['onUpdate', 'ageGroups', 'colorsByHealth'],
   components: {
     LineChart,
+    BarChart,
     Histogram,
     ProgressBar,
     RangeSlider,
@@ -137,13 +137,21 @@ export default {
     dailyHealthStatus() {
       return this.$store.getters.dailyHealthStatus
     },
+    prevWeekDecisions() {
+      return _.map(this.$store.state.allDecisions, d => d[this.week - 1])
+    },
+    avgTimes() {
+      return _.chain(this.prevWeekDecisions).mean().round(2)
+    },
     newCases() {
       if (!this.dailyHealthStatus) return
       const today = this.dailyHealthStatus[this.day - 1]
       const lastWeek = this.dailyHealthStatus[this.day - 7]
+      const total = today.player.total - lastWeek.player.total
+      const alternateTotal = today.worstAlternate.total - lastWeek.worstAlternate.total
       return {
-        total: today.player.total - lastWeek.player.total,
-        avoided: today.worstAlternate.total - lastWeek.worstAlternate.total,
+        total,
+        avoided: Math.max(alternateTotal - total, 0),
       }
     },
   },
@@ -173,12 +181,11 @@ export default {
   margin-right: auto;
   margin-left: auto;
 }
-
-p {
+.content {
+  width: 500px;
   font-size: 18px;
-}
-
-.decide {
+  line-height: 1.5;
+  margin: auto;
 }
 
 .decideBtn {
@@ -194,47 +201,8 @@ p {
   }
 }
 
-.content {
-  display: grid;
-  grid-template-columns: 0.8fr 1fr;
-  align-items: center;
-  grid-gap: 2rem;
-  justify-content: center;
-  margin: 2rem auto;
-}
-
-.statusBars {
-  width: 100%;
-  // max-width: 400px;
-  text-align: center;
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-template-rows: 1fr 1fr;
-}
-
-.item {
-  padding: 1rem;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-}
-.item-content {
-  margin-left: 0.75rem;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  flex-direction: column;
-  width: 100%;
-  h3 {
-    padding-bottom: 3px;
-  }
-  progress {
-    margin-top: 4px;
-  }
-}
-
 h2 {
-  margin-bottom: 3rem;
+  margin: 2rem 0;
 }
 
 .numTimes {
@@ -244,9 +212,8 @@ h2 {
   .times,
   .labels {
     margin: 0 auto;
-    max-width: 988px;
+    width: 800px;
     justify-content: flex-start;
-    width: 100%;
     display: grid;
     grid-template-columns: repeat(8, 1fr);
     grid-gap: 15px;
@@ -280,6 +247,13 @@ h2 {
         padding-left: 7.5rem;
       }
     }
+    :first-of-type {
+      label::after {
+        content: 'OR';
+        position: absolute;
+        padding-left: 7.5rem;
+      }
+    }
   }
 }
 
@@ -287,5 +261,6 @@ h1,
 .body {
   position: relative;
   z-index: 1000;
+  background: rgba(255, 255, 255, 0.75);
 }
 </style>

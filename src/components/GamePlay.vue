@@ -34,6 +34,15 @@
           <h3 v-if="cityCounty">{{ cityCounty.city }}, {{ cityCounty.state }} {{ cityCounty.zip }}</h3>
           <div v-if="population">Population: {{ formatNumber(population.total) }}</div>
         </div>
+        <!-- DECISION SCREEN -->
+        <Decide
+          v-if="showDecision"
+          v-bind="{
+            onUpdate: updateDecision,
+            ageGroups,
+            colorsByHealth,
+          }"
+        />
       </div>
       <!-- RIGHT PANEL -->
       <div id="rightPanel" :style="{width: `${rightWidth}px`}">
@@ -53,6 +62,7 @@
         <Legend v-bind="{healthStatus, colorsByHealth}" />
         <BarChart
           v-bind="{
+            width: 300,
             height: bottomHeight,
             ageGroups,
             colorsByHealth,
@@ -63,6 +73,7 @@
         />
         <LineChart
           v-bind="{
+            width: 320,
             height: bottomHeight,
             ageGroups,
             colorsByHealth,
@@ -72,15 +83,6 @@
           }"
         />
       </div>
-      <!-- DECISION SCREEN -->
-      <Decide
-        v-if="showDecision"
-        v-bind="{
-          onUpdate: updateDecision,
-          ageGroups,
-          colorsByHealth,
-        }"
-      />
     </div>
   </div>
 </template>
