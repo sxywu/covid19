@@ -1,7 +1,7 @@
 <template>
   <div id="header" :style="{ height: `${height}px` }">
     <div class="item">
-      <img src="../assets/food.svg" />
+      <img src="../assets/food-icon.png" height="22" />
       <div class="item-content">
         <h3 class="label">{{ $t('food') }}</h3>
         <ProgressBar
@@ -11,7 +11,7 @@
       </div>
     </div>
     <div class="item">
-      <img src="../assets/exercise.svg" />
+      <img src="../assets/runner.png" height="22" />
       <div class="item-content">
         <h3 class="label">{{ $t('exercise') }}</h3>
         <ProgressBar

@@ -39,9 +39,9 @@ export default {
         this.$t('healthStatus.deceased'),
       ],
       colorsByHealth: [
-        '#e1e0ed',
-        '#63cbe2',
-        '#8f6dbd',
+        '#B8D7E1',
+        '#3BB2CA',
+        '#815FAE',
         '#fe8f55',
         '#fe476f',
         '#4b3b59',

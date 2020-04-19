@@ -3,14 +3,19 @@
     <div class="bg" />
     <div class="container">
       <header>
-        <h1>{{ $t('title') }}</h1>
-        <!-- <h2>{{ $t('subtitle') }}</h2> -->
-        <!-- <hr /> -->
+        <img
+          alt="people of the pandemic"
+          class="title"
+          src="../assets/pandemic-title.png"
+        />
+        <h2>{{ $t('subtitle') }}</h2>
+        <hr />
       </header>
       <div class="content">
         <p>{{ $t('landing.explanation1') }}</p>
         <p>{{ $t('landing.explanation2') }}</p>
-        <p>{{ $t('landing.explanation3') }}</p>
+        <h2>{{ $t('landing.explanation3') }}</h2>
+        <p>{{ $t('landing.explanation4') }}</p>
         <div class="people">
           <!-- randomly choose a person image -->
           <img
@@ -19,7 +24,7 @@
             :key="i"
           />
         </div>
-        <p>{{ $t('landing.explanation4') }}</p>
+        <p>{{ $t('landing.explanation5') }}</p>
         <hr />
         <h2 class="instructions" v-html="$t('landing.instruction1')"></h2>
         <form @submit="startPlay">
@@ -27,7 +32,7 @@
             <div class="zipCode">
               <input
                 type="number"
-                :class="{'zip-error': errors['zipCode']}"
+                :class="{ 'zip-error': errors['zipCode'] }"
                 id="zip"
                 v-model="zipCode"
                 :placeholder="$t('landing.zipCodePlaceholder')"
@@ -105,7 +110,7 @@ export default {
       }
       if (this.checkFormValid(e)) {
         this.$store.commit('setGameIdAndCreatedAt')
-        this.$store.dispatch('getPastGames', {zipCode: this.zipCode})
+        this.$store.dispatch('getPastGames', { zipCode: this.zipCode })
         this.$store.commit('setZipCode', this.zipCode)
         this.$store.commit('setCurrentPage', 'game')
       }
@@ -155,6 +160,10 @@ export default {
   background: linear-gradient(#fff 50%, $gray);
   @include respond-to('small') {
     padding: 2rem;
+  }
+  .title {
+    max-width: 80%;
+    margin-top: 2em;
   }
 }
 
@@ -381,7 +390,7 @@ header {
   min-height: 640px;
   overflow: hidden;
   z-index: 0;
-  background-image: url('../assets/bg.png');
+  background-image: url('../assets/background.png');
   background-repeat: repeat-x;
   background-position: 0 -60px;
   background-size: 1040px;
