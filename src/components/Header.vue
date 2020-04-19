@@ -4,7 +4,10 @@
       <img src="../assets/food.svg" />
       <div class="item-content">
         <h3 class="label">{{ $t('food') }}</h3>
-        <ProgressBar v-bind="foodStatus" v-bind:isLow="foodStatus.value < 7" />
+        <ProgressBar
+          v-bind="foodStatus"
+          :className="foodStatus.value < 7 && 'red'"
+        />
       </div>
     </div>
     <div class="item">
@@ -13,7 +16,7 @@
         <h3 class="label">{{ $t('exercise') }}</h3>
         <ProgressBar
           v-bind="exerciseStatus"
-          v-bind:isLow="exerciseStatus.value < 2"
+          :className="exerciseStatus.value < 2 && 'red'"
         />
       </div>
     </div>
@@ -58,6 +61,7 @@
         <h3 class="label">{{ $t('header.hospitalCapacity') }}</h3>
         <ProgressBar
           v-bind="{ value: filledBeds, maxValue: totalAvailableBeds }"
+          :className="filledBeds / totalAvailableBeds > 0.85 && 'red'"
         />
       </div>
     </div>

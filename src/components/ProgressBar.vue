@@ -1,7 +1,7 @@
 ProgressBar.vue
 
 <template>
-  <div id="progress-bar" :class="isLow ? 'low' : 'default'">
+  <div id="progress-bar" :class="className || 'default'">
     <progress :value="value" :max="maxValue" />
   </div>
 </template>
@@ -10,10 +10,9 @@ ProgressBar.vue
 export default {
   name: 'ProgressBar',
   props: {
-    isLow: { default: false },
     value: { default: 0 },
     maxValue: { default: 100 },
-    color: { default: '#393939', low: '#fe476f' }, // put in a random default color, please change!
+    className: { default: 'default' },
   },
 }
 </script>
@@ -47,7 +46,7 @@ progress[value]::-webkit-progress-bar {
     border-radius: 2px;
   }
 }
-.low {
+.red {
   progress[value]::-webkit-progress-value {
     background-color: $red;
     border-radius: 2px;
