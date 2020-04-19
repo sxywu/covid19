@@ -50,7 +50,7 @@
       "numTimes": "You decided not to go out this week | You decided to go out once this week | You decided to go out {count} times this week"
     },
     "prevTimes": "You didn't go out at all | You went out once | You went out {count} times",
-    "avgTimes": "and your community went out an average of {count} times.",
+    "avgTimes": "and your community went out an average of <strong>{count}</strong> times.",
     "newCasesTotal": "This led to <strong>{count}</strong> new cases in your community",
     "newCasesAvoided": "but you were also able to avoid <strong>{count}</strong> new cases.",
     "foodLow": "Be careful! Your food is running low.",
@@ -79,7 +79,7 @@
     "label": "Infected cases by age group"
   },
   "lineChart": {
-    "label": "Total cases by day",
+    "label": "Infected cases by day",
     "hospital": "Hospital Capacity Reached",
     "legend": {
       "cases": "{count} Case | {count} Cases",
