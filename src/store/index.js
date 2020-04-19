@@ -11,12 +11,16 @@ import diseaseNumbers from '../assets/diseaseNumbers.json'
 
 let populationsByZip = []
 let hospitalsByZip = []
+let citiesByZip = []
 let prevInfected = []
 let dailyHealthStatus = []
 let dailyInfectious = []
 const totalPlayers = 20
 const foodStatus = {value: 18, maxValue: 18}
 const exerciseStatus = {value: 7, maxValue: 7}
+const numTimesOut = _.times(8, numTimes => {
+  return _.times(7, i => +(i < numTimes))
+})
 
 function assignHealth(person, daysSinceInfection, prevInHospital) {
   // health statuses: 0 = healthy, 1 = recovered, 2 = infected+asymptomatic,
@@ -125,6 +129,7 @@ export default new Vuex.Store({
     exerciseStatus: {},
     gameId: '',
     createdAt: '',
+    communitySizeSelection: '',
   },
   getters: {
     week({day}) {
@@ -134,24 +139,41 @@ export default new Vuex.Store({
       if (!dataLoaded) return
       return _.map(populationsByZip, d => d.zip)
     },
+    zipsByCommunitySize({dataLoaded}) {
+      if (!dataLoaded) return
+      return _.groupBy(populationsByZip, d => {
+        if (d.total > 50000) return 'urban'
+        if (d.total > 10000) return 'suburban'
+        if (d.total > 5000) return 'rural'
+        return 'others'
+      })
+    },
     population({zipCode, dataLoaded}) {
       if (!zipCode || !dataLoaded) return
       return _.find(populationsByZip, d => d.zip === zipCode)
     },
-    zipsInCounty(state, {population}) {
-      if (!population) return
-      return _.filter(populationsByZip, d => d.county === population.county)
+    cityCounty({zipCode, dataLoaded}) {
+      if (!zipCode || !dataLoaded) return
+      return _.find(citiesByZip, d => d.zip === zipCode)
+    },
+    zipsInCounty(state, {cityCounty}) {
+      if (!cityCounty) return
+      return _.chain(citiesByZip)
+        .filter(d => d.county === cityCounty.county)
+        .map('zip')
+        .value()
     },
     hospitals(state, {zipsInCounty}) {
       if (!zipsInCounty) return
-      const zips = _.map(zipsInCounty, 'zip')
-      return _.filter(hospitalsByZip, d => _.includes(zips, d.zip))
+      return _.filter(hospitalsByZip, d => _.includes(zipsInCounty, d.zip))
     },
     totalBeds(state, {hospitals, population, zipsInCounty}) {
       if (!population || !hospitals || !zipsInCounty) return
-      const countyPopulation = _.sumBy(zipsInCounty, 'total')
-      const bedsPerPerson = _.sumBy(hospitals, 'beds') / countyPopulation
-      return Math.floor(population.total * bedsPerPerson)
+      const countyPopulation = _.sumBy(populationsByZip, d =>
+        _.includes(zipsInCounty, d.zip) ? d.total : 0,
+      )
+      const totalCountyBeds = _.sumBy(hospitals, d => (d.beds > 0 ? d.beds : 0))
+      return Math.floor(population.total * (totalCountyBeds / countyPopulation))
     },
     totalAvailableBeds({bedOccupancyRate}, {totalBeds}) {
       return Math.floor((1 - bedOccupancyRate) * totalBeds)
@@ -331,22 +353,19 @@ export default new Vuex.Store({
         // if this is first day of week
         if (dayOfWeek === 0) {
           const numTimes = allDecisions[i % totalPlayers][week - 1]
-          let player
-          if (numTimes === 7) {
-            player = [1, 1, 1, 1, 1, 1, 1]
-          } else {
-            // TODO: OPTIMIZE PERFORMANCE
-            player = _.chain(7)
-              .times(i => +(i < numTimes))
-              .shuffle()
-              .value()
+          let player = numTimesOut[7]
+          let bestAlternate = numTimesOut[7]
+          if (numTimes < 7) {
+            player = _.shuffle(numTimesOut[numTimes])
+          }
+          if (week > 1) {
+            // for best alternate, have everyone go out the same amount in week 1
+            // and after week 1, only go out once a week
+            bestAlternate = _.shuffle(numTimesOut[1])
           }
           weeklyDecision = {
             player,
-            // for best alternate, have everyone go out the same amount in week 1
-            // and after week 1, only go out once a week
-            bestAlternate:
-              week === 1 ? player : _.shuffle([1, 0, 0, 0, 0, 0, 0]),
+            bestAlternate,
           }
         }
 
@@ -532,6 +551,9 @@ export default new Vuex.Store({
     setZipCode(state, zipCode) {
       state.zipCode = '' + zipCode // stringify just in case
     },
+    setCommunitySizeSelection(state, communitySize) {
+      state.communitySizeSelection = communitySize
+    },
     setDataLoaded(state, dataLoaded) {
       state.dataLoaded = dataLoaded
     },
@@ -579,15 +601,23 @@ export default new Vuex.Store({
   actions: {
     getRawData({commit, dispatch}) {
       function formatData(obj) {
-        const zip = obj.zip // make sure zip doesn't get turned into integers
+        let zip = obj.zip // make sure zip doesn't get turned into integers
+        if (zip.length === 3) {
+          zip = '00' + zip
+        }
+        if (zip.length === 4) {
+          zip = '0' + zip
+        }
         return Object.assign(d3.autoType(obj), {zip}) // but everything else is formatted correctly
       }
       Promise.all([
         d3.csv('./population-by-zip-code.csv', formatData),
         d3.csv('./hospitals-by-zip-code.csv', formatData),
-      ]).then(([populations, hospitals]) => {
+        d3.csv('./zip-to-city-county.csv', formatData),
+      ]).then(([populations, hospitals, cities]) => {
         populationsByZip = populations
         hospitalsByZip = hospitals
+        citiesByZip = cities
 
         commit('setDataLoaded', true)
         commit('setFoodStatus', foodStatus)
@@ -622,7 +652,14 @@ export default new Vuex.Store({
       })
     },
     storeGame({
-      state: {allDecisions, zipCode, gameId, pastPlayerIDs, createdAt},
+      state: {
+        allDecisions,
+        zipCode,
+        gameId,
+        pastPlayerIDs,
+        communitySizeSelection,
+        createdAt,
+      },
       getters: {dailyInfectious, dailyHealthStatus},
     }) {
       const decisions = _.get(allDecisions, '[0]', [])
@@ -635,6 +672,7 @@ export default new Vuex.Store({
         numDecisions: decisions.length,
         pastPlayerIDs,
         zipCode,
+        communitySizeSelection,
         createdAt,
       })
     },

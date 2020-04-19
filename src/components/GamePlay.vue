@@ -29,6 +29,20 @@
             }"
           />
         </div>
+        <!-- POPULATION  -->
+        <div class="label" id="populationContainer">
+          <h3 v-if="cityCounty">{{ cityCounty.city }}, {{ cityCounty.state }} {{ cityCounty.zip }}</h3>
+          <div v-if="population">Population: {{ formatNumber(population.total) }}</div>
+        </div>
+        <!-- DECISION SCREEN -->
+        <Decide
+          v-if="showDecision"
+          v-bind="{
+            onUpdate: updateDecision,
+            ageGroups,
+            colorsByHealth,
+          }"
+        />
       </div>
       <!-- RIGHT PANEL -->
       <div id="rightPanel" :style="{width: `${rightWidth}px`}">
@@ -48,6 +62,7 @@
         <Legend v-bind="{healthStatus, colorsByHealth}" />
         <BarChart
           v-bind="{
+            width: 300,
             height: bottomHeight,
             ageGroups,
             colorsByHealth,
@@ -58,6 +73,7 @@
         />
         <LineChart
           v-bind="{
+            width: 320,
             height: bottomHeight,
             ageGroups,
             colorsByHealth,
@@ -67,21 +83,12 @@
           }"
         />
       </div>
-      <!-- DECISION SCREEN -->
-      <Decide v-if="showDecision" v-bind="{
-          onUpdate: updateDecision,
-        }" />
-      <div class="zipCode">
-        ZIP CODE:
-        <strong>{{ zipCode }}</strong>
-        ({{ population.total }}
-        residents)
-      </div>
     </div>
   </div>
 </template>
 
 <script>
+import * as d3 from 'd3'
 import gsap from 'gsap'
 
 import Community from './Community'
@@ -137,11 +144,14 @@ export default {
     totalDays() {
       return this.$store.state.totalDays
     },
-    zipCode() {
-      return this.$store.state.zipCode
-    },
     population() {
       return this.$store.getters.population || {}
+    },
+    cityCounty() {
+      return this.$store.getters.cityCounty
+    },
+    population() {
+      return this.$store.getters.population
     },
     communityDimensions() {
       return {
@@ -221,21 +231,19 @@ export default {
       }, `day${this.day}-3`)
       this.tl.play(`day${this.day}`)
     },
+    formatNumber(number) {
+      return d3.format(',')(Math.round(number))
+    },
   },
 }
 </script>
 
 <style lang="scss" scoped>
 #gameplay {
-  // max-width: 1320px;
-  // max-height: 840px;
   background: white;
   border-radius: 6px;
   overflow: hidden;
-  box-shadow: 0 2.8px 2.2px rgba(0, 0, 0, 0.008),
-    0 6.7px 5.3px rgba(0, 0, 0, 0.012), 0 12.5px 10px rgba(0, 0, 0, 0.015),
-    0 22.3px 17.9px rgba(0, 0, 0, 0.018), 0 41.8px 33.4px rgba(0, 0, 0, 0.022),
-    0 100px 80px rgba(0, 0, 0, 0.03);
+  @include shadow;
 }
 
 .gameContainer {
@@ -288,13 +296,22 @@ export default {
   padding: 1rem;
 }
 
-.panel {
+#populationContainer {
   position: absolute;
+  align-self: flex-start;
+  margin: 1rem;
+  margin-right: auto;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 5px;
+  border: 1px solid $gray;
+  border-radius: 3px;
+
+  h3 {
+    margin: 0;
+  }
 }
 
-.zipCode {
+.panel {
   position: absolute;
-  margin-bottom: -2rem;
-  bottom: 0;
 }
 </style>
