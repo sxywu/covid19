@@ -81,7 +81,7 @@
         {{ $tc('decide.h1.numTimes', numTimes, { count: numTimes }) }}.
       </h1>
       <p class="body">{{ $t('decide.rest') }}</p>
-      <Histogram v-bind="{ type: 'weekly', numTimes: numTimes }" />
+      <Histogram v-bind="{ type: 'weekly', numTimes: numTimes, width: 700 }" />
       <button class="decideBtn mt3" @click="onUpdate(numTimes)">
         {{ $t('decide.start') }}
       </button>
