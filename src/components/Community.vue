@@ -206,7 +206,7 @@ export default {
           }
           // keep group if at least one is on screen
           Object.assign(dest, {
-            href: destImages[i % destsPerGroup ? _.random(1) : 4],
+            href: destImages[i % destsPerGroup ? _.random(3) : 4],
             x: dx,
             y: dy,
             fx: dx,
