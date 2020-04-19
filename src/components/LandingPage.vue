@@ -16,14 +16,7 @@
         <p>{{ $t('landing.explanation2') }}</p>
         <h2>{{ $t('landing.explanation3') }}</h2>
         <p>{{ $t('landing.explanation4') }}</p>
-        <div class="people">
-          <!-- randomly choose a person image -->
-          <img
-            v-for="i in 20"
-            :src="peopleImages[Math.round(Math.random())]"
-            :key="i"
-          />
-        </div>
+        <Histogram v-bind="{ type: 'all', width: 700 }" />
         <p>{{ $t('landing.explanation5') }}</p>
         <hr />
         <h2 class="instructions" v-html="$t('landing.instruction1')"></h2>
@@ -73,9 +66,11 @@
 
 <script>
 import _ from 'lodash'
+import Histogram from './Histogram'
 
 export default {
   name: 'LandingPage',
+  components: {Histogram},
   data() {
     return {
       errors: {},
@@ -110,7 +105,6 @@ export default {
       }
       if (this.checkFormValid(e)) {
         this.$store.commit('setGameIdAndCreatedAt')
-        this.$store.dispatch('getPastGames', { zipCode: this.zipCode })
         this.$store.commit('setZipCode', this.zipCode)
         this.$store.commit('setCurrentPage', 'game')
       }

@@ -610,17 +610,13 @@ export default new Vuex.Store({
         commit('setExerciseStatus', exerciseStatus)
       })
     },
-    getPastGames({commit, dispatch}, zipCode) {
+    getPastGames({commit, dispatch}) {
       const numPastPlayers = totalPlayers - 1
       apiService.getFilteredGames({
-        filters: {zipCode},
+        filters: {zipCode: 'Any'},
         limit: numPastPlayers,
         cb: data => {
-          if (zipCode !== 'Any' && data.length < numPastPlayers) {
-            // if there aren't enough past games in zip code, take from any zip code
-            dispatch('getPastGames', 'Any')
-            return
-          }
+          console.log(data)
           const allDecisions = _.chain(data)
             .map('decisions')
             .filter()
