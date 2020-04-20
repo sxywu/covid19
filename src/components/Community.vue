@@ -275,7 +275,7 @@ export default {
         _.each(this.people, (d) => (d.color = this.colorsByHealth[0]))
       }
       if (this.week === 1 || this.week === 8) {
-        this.simulation.velocityDecay(0.5)
+        this.simulation.velocityDecay(0.45)
       } else {
         this.simulation.velocityDecay(0.4)
       }
