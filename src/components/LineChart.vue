@@ -83,6 +83,9 @@ export default {
     week() {
       return this.$store.getters.week
     },
+    population() {
+      return this.$store.getters.population
+    },
     dailyHealthStatus() {
       return this.$store.getters.dailyHealthStatus
     },
@@ -108,22 +111,13 @@ export default {
       })
     },
   },
-  watch: {
-    day() {
-      if (this.day === 1) {
-        this.startLineChart()
-      }
-    },
-    dailyHealthStatus() {
-      this.calculateLineChart()
-      this.animateLineChart()
-    },
-  },
   created() {
     this.xScale = d3
       .scaleLinear()
       .range([margin.left, this.width - margin.right])
-    this.yScale = d3.scaleLog().range([this.height - margin.bottom, margin.top])
+    this.yScale = d3.scaleLinear()
+      .domain([0, this.population.total]).nice()
+      .range([this.height - margin.bottom, margin.top])
 
     this.lineGenerator = d3.line().curve(d3.curveCatmullRom)
 
@@ -136,7 +130,7 @@ export default {
     this.yAxis = d3
       .axisLeft()
       .scale(this.yScale)
-      .ticks(6, d3.format(',.1s'))
+      .ticks(4, d3.format(',s'))
       .tickSizeOuter(0)
       .tickSizeInner(-this.width + margin.left + margin.right)
   },
@@ -144,6 +138,20 @@ export default {
     this.startLineChart()
     this.calculateLineChart()
     this.animateLineChart()
+  },
+  watch: {
+    day() {
+      if (this.day === 1) {
+        this.startLineChart()
+      }
+    },
+    population() {
+      this.yScale.domain([0, this.population.total]).nice()
+    },
+    dailyHealthStatus() {
+      this.calculateLineChart()
+      this.animateLineChart()
+    },
   },
   methods: {
     startLineChart() {
@@ -166,15 +174,9 @@ export default {
     },
     calculateLineChart() {
       if (!this.dailyHealthStatus) return
+      console.log(this.dailyHealthStatus)
 
       this.xScale.domain([1, this.week * 7])
-
-      const allNumbers = _.chain(this.dailyHealthStatus)
-        .map(d => _.map(types, type => d[type].total))
-        .flatten()
-        .value()
-      const [min, max] = d3.extent(allNumbers, d => d)
-      this.yScale.domain([_.floor(min, -1) || 1, _.ceil(max, -1)])
 
       if (this.day % 7 === 1 || !this.tl) {
         // if first day of week or isn't part of week animation
@@ -251,16 +253,6 @@ export default {
     formatYAxis(d, i, nodes) {
       const container = d3.select(nodes[0])
       container.select('path').remove()
-      container
-        .selectAll('g')
-        .filter(
-          d =>
-            !_.includes(
-              [1, 5, 10, 50, 100, 500, 1000, 5000, 10000, 50000, 100000],
-              d
-            )
-        )
-        .remove()
       container
         .selectAll('line')
         .attr('stroke-dasharray', '5')
