@@ -93,6 +93,7 @@ a {
   text-decoration: none;
   border-bottom: 1px solid;
   color: inherit;
+  cursor: pointer;
 }
 a:hover {
   border-bottom: 1px dashed;
