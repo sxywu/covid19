@@ -20,6 +20,7 @@
         <p>{{ $t('landing.explanation5') }}</p>
         <hr />
         <h2 class="instructions" v-html="$t('landing.instruction1')"></h2>
+        <div v-html="$t('landing.zipCodeDisclaimer')"></div>
         <form @submit="startPlay">
           <div class="inputs">
             <div class="zipCode">
@@ -49,9 +50,8 @@
               </div>
             </fieldset>
           </div>
-          <p style="text-align: center; max-width: 380px;">
-            {{ $t('landing.instruction2') }}
-          </p>
+          <p style="text-align: center; max-width: 380px;"
+            v-html="$t('landing.instruction2')"></p>
           <button type="submit" class="playNowBtn">
             {{ $t('landing.buttonCta') }}
           </button>
@@ -164,6 +164,7 @@ export default {
 .instructions {
   text-align: center;
   font-weight: normal;
+  margin-bottom: 0.5rem;
 }
 
 form {
