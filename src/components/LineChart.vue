@@ -8,10 +8,10 @@
       <g class="axis label" ref="yAxis" :transform="`translate(${margin.left}, 0)`" />
       <path
         v-for="d in paths"
-        :key="d.type"
+        :key="d.id"
         :d="d.path"
         fill="none"
-        :stroke="pathColor"
+        :stroke="d.color"
         stroke-width="2"
         stroke-linecap="round"
         :stroke-dasharray="d.strokeDasharray"
@@ -25,24 +25,24 @@
       <g class="axis label" ref="xAxis" :transform="`translate(0, ${height - margin.bottom})`" />
     </svg>
     <ul class="legend">
-      <li v-for="({label, count, strokeDasharray}) in legend">
-        <div>
+      <li v-for="({label, counts, strokeDasharray}) in legend">
+        <div class="label">{{ label }}</div>
+        <div v-for="{color, label} in counts">
           <svg :width="legendSVGWidth" height="1">
             <line
               :x2="legendSVGWidth"
-              :stroke="pathColor"
+              :stroke="color"
               stroke-width="2"
               stroke-linecap="round"
               :stroke-dasharray="strokeDasharray"
             />
           </svg>
-          <span class="label">{{ $tc('lineChart.legend.cases', count) }}</span>
+          <span class="label"> {{ label }}</span>
         </div>
-        <div class="label">{{ label }}</div>
       </li>
       <li v-if="week > 1">
         <span class="week"></span>
-        <span class="label">{{ $t('lineChart.legend.currentWeek') }}</span>
+        <span class="label"> {{ $t('lineChart.legend.currentWeek') }}</span>
       </li>
     </ul>
   </div>
@@ -53,8 +53,9 @@ import * as d3 from 'd3'
 import _ from 'lodash'
 import gsap from 'gsap'
 
-const types = ['worstAlternate', 'player', 'bestAlternate']
-const margin = { top: 30, right: 20, bottom: 20, left: 20 }
+const types = ['worstAlternate', 'player']
+const healths = ['total', 5]
+const margin = { top: 30, right: 15, bottom: 20, left: 20 }
 export default {
   name: 'LineChart',
   props: [
@@ -68,8 +69,7 @@ export default {
   ],
   data() {
     return {
-      legendSVGWidth: 60,
-      pathColor: this.colorsByHealth[2],
+      legendSVGWidth: 40,
       margin,
       paths: [],
       rect: {},
@@ -101,23 +101,29 @@ export default {
     },
     legend() {
       const latest = _.last(this.dailyHealthStatus)
-      return _.map(types, type => {
-        return {
-          strokeDasharray:
-            type === 'player' ? 0 : type === 'worstAlternate' ? '2 4' : '12',
-          count: latest && this.formatNumber(latest[type].total),
-          label: this.$t(`lineChart.legend.types.${type}`),
-        }
-      })
+      return _.chain(types)
+        .map(type => {
+          const counts = _.map(healths, health => {
+            const count = latest && this.formatNumber(latest[type][health] || 0)
+            return {
+              color: this.colorsByHealth[health] || this.colorsByHealth[2],
+              label: this.$tc(`lineChart.legend.${health}`, count),
+            }
+          })
+          return {
+            strokeDasharray:
+              type === 'player' ? 0 : type === 'worstAlternate' ? '2 4' : '12',
+            label: this.$t(`lineChart.legend.types.${type}`),
+            counts,
+          }
+        }).value()
     },
   },
   created() {
     this.xScale = d3
       .scaleLinear()
       .range([margin.left, this.width - margin.right])
-    this.yScale = d3.scaleLinear()
-      .domain([0, this.population.total]).nice()
-      .range([this.height - margin.bottom, margin.top])
+    this.yScale = d3.scaleLinear().range([this.height - margin.bottom, margin.top])
 
     this.lineGenerator = d3.line().curve(d3.curveCatmullRom)
 
@@ -146,9 +152,6 @@ export default {
         this.startLineChart()
       }
     },
-    population() {
-      this.yScale.domain([0, this.population.total]).nice()
-    },
     dailyHealthStatus() {
       this.calculateLineChart()
       this.animateLineChart()
@@ -156,28 +159,34 @@ export default {
   },
   methods: {
     startLineChart() {
-      this.paths = _.map(types, type => {
-        return {
-          type,
-          points: [],
-          path: '',
-          strokeDasharray:
-            type === 'player' ? 0 : type === 'worstAlternate' ? '2 4' : '12',
-        }
-      })
+      this.paths = _.chain(types)
+        .map(type => {
+          return _.map(healths, health => {
+            return {
+              id: `${type}-${health}`,
+              type, health,
+              points: [],
+              path: '',
+              color: this.colorsByHealth[health] || this.colorsByHealth[2],
+              strokeDasharray:
+                type === 'player' ? 0 : type === 'worstAlternate' ? '2 4' : '12',
+            }
+          })
+        }).flatten().value()
       this.rect = {
         x: this.width - margin.right,
         y: margin.top,
         width: 0,
         height: this.height - margin.top - margin.bottom,
+
       }
       this.line = {}
     },
     calculateLineChart() {
       if (!this.dailyHealthStatus) return
-      console.log(this.dailyHealthStatus)
 
       this.xScale.domain([1, this.week * 7])
+      this.yScale.domain([0, this.population.total]).nice()
 
       if (this.day % 7 === 1 || !this.tl) {
         // if first day of week or isn't part of week animation
@@ -206,7 +215,7 @@ export default {
         const nextPoints = _.map(this.dailyHealthStatus, o => {
           return [
             _.round(this.xScale(o.day), 2),
-            _.round(this.yScale(o[d.type].total), 0),
+            _.round(this.yScale(o[d.type][d.health] || 0), 0),
           ]
         })
         // for sake of animation make previous path have same number of points as next set
@@ -305,11 +314,12 @@ li {
   padding: 0;
 }
 li {
-  padding: 0.25rem 0;
+  padding: 0.35rem 0;
   align-items: center;
 }
 
 .legend {
+  width: 160px;
   text-align: left;
 
   svg {
@@ -319,6 +329,7 @@ li {
   .label {
     white-space: nowrap;
     font-variant-numeric: tabular-nums;
+
   }
 
   .week {

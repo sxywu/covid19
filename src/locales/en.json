@@ -83,12 +83,13 @@
     "label": "Infected cases by day",
     "hospital": "Hospital Capacity Reached",
     "legend": {
-      "cases": "{count} Case | {count} Cases",
+      "total": "{count} Infected",
+      "5": "No Deaths | One Death | {count} Deaths",
       "currentWeek": "Current Week",
       "types": {
-        "player": "Current Scenario",
-        "worstAlternate": "Worst Case Scenario",
-        "bestAlternate": "Best Case Scenario"
+        "player": "Your Decisions",
+        "worstAlternate": "Business As Usual",
+        "bestAlternate": "Minimal Outings"
       }
     }
   },
