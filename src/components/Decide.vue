@@ -1,6 +1,22 @@
 <template>
   <div id="decideArea">
-    <div v-if="!decided">
+    <!-- IF THIS IS EIGHT WEEK -->
+    <div v-if="day === totalDays">
+      <h1 class="header">{{ $t('decide.h1.8weeks') }}</h1>
+      <div class="content">
+        <div v-html="$t('decide.businessAsUsual')"></div>
+        <button class="decideBtn" @click="continueGame(true)">
+          {{ $t('decide.start4weeks') }}
+        </button>
+        <div>
+          <a @click="continueGame(false)">
+            {{ $t('decide.finish') }}
+          </a>
+        </div>
+      </div>
+    </div>
+    <!-- ALL OTHER WEEKS -->
+    <div v-else-if="!decided">
       <h1 class="header">{{ $tc('decide.h1.prevWeek', week) }}</h1>
       <div class="content">
         <p v-if="newCases">
@@ -76,6 +92,7 @@
       </div>
     </div>
 
+    <!-- IF DECIDED, SHOW HISTOGRAM -->
     <div v-else>
       <h1 class="header">
         {{ $tc('decide.h1.numTimes', numTimes, { count: numTimes }) }}.
@@ -101,7 +118,7 @@ import '../styles/slider.scss'
 
 export default {
   name: 'DecideArea',
-  props: ['onUpdate', 'ageGroups', 'colorsByHealth'],
+  props: ['onUpdate', 'continueGame', 'ageGroups', 'colorsByHealth'],
   components: {
     LineChart,
     BarChart,
@@ -124,6 +141,9 @@ export default {
   computed: {
     day() {
       return this.$store.state.day
+    },
+    totalDays() {
+      return this.$store.state.totalDays
     },
     week() {
       return this.$store.getters.week

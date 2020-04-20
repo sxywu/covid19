@@ -305,7 +305,7 @@ export default new Vuex.Store({
 
       return {people, houses, destinations, numGroups: numDestGroups}
     },
-    infected({day, allDecisions}, {week, community, totalAvailableBeds}) {
+    infected({day, totalDays, allDecisions}, {week, community, totalAvailableBeds}) {
       if (!community || !allDecisions.length) return
       // and if this is the same day as previous, then don't do anything
       const prevDailyHealth = _.last(dailyHealthStatus)
@@ -354,14 +354,16 @@ export default new Vuex.Store({
 
         const dayOfWeek = (day - 1) % 7
         // if this is first day of week
+        // figure out number of times to go out
         if (dayOfWeek === 0) {
           const numTimes = allDecisions[i % totalPlayers][week - 1]
           let player = numTimesOut[7]
           let bestAlternate = numTimesOut[7]
-          if (numTimes < 7) {
+          if (day <= totalDays && numTimes < 7) {
+            // if this is within first eight weeks
             player = _.shuffle(numTimesOut[numTimes])
           }
-          if (week > 1) {
+          if (week > 1 && day <= totalDays) {
             // for best alternate, have everyone go out the same amount in week 1
             // and after week 1, only go out once a week
             bestAlternate = _.shuffle(numTimesOut[1])
@@ -529,11 +531,14 @@ export default new Vuex.Store({
     },
     setDay(state, day) {
       state.day = day
+      // if player decides to look at 4 more weeks of simulation
+      // then don't do anything more to the food & exercise
+      if (day > state.totalDays) return
+
       state.foodStatus.value -= 1 // for every day they don't get groceries
       if (day % 3 === 0) {
         state.exerciseStatus.value -= 1 // for every 3 days they don't go out
       }
-
       if (!state.foodStatus.value || !state.exerciseStatus) {
         state.currentPage = 'failed'
       }

@@ -48,7 +48,8 @@
   "decide": {
     "h1": {
       "prevWeek": "In the previous week...",
-      "numTimes": "You decided not to go out this week | You decided to go out once this week | You decided to go out {count} times this week"
+      "numTimes": "You decided not to go out this week | You decided to go out once this week | You decided to go out {count} times this week",
+      "8weeks": "You've been fighting the virus for 8 weeks"
     },
     "prevTimes": "You didn't go out at all | You went out once | You went out <strong>{count}</strong> times",
     "avgTimes": "and your community went out an average of <strong>{count}</strong> times.",
@@ -70,7 +71,10 @@
     },
     "cta": "Decide",
     "rest": "Here's what the rest of your community decided to do:",
-    "start": "Start Next Week →"
+    "start": "Start Next Week →",
+    "businessAsUsual": "Your local government is now considering going back to business as usual.  Would you like to see what the next four weeks might look like if everyone in your community went out seven times a week again*?<p><sup>*you won't have to make any more decisions.</sup></p>",
+    "start4weeks": "Start next four weeks →",
+    "finish": "No, let's finish this"
   },
   "communityStats": {
     "total": "total cases",

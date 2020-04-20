@@ -39,6 +39,7 @@
           v-if="showDecision"
           v-bind="{
             onUpdate: updateDecision,
+            continueGame,
             ageGroups,
             colorsByHealth,
           }"
@@ -209,6 +210,16 @@ export default {
       this.$store.dispatch('storeGame')
       this.updateDay()
     },
+    continueGame(cont) {
+      this.showDecision = false
+      if (cont) {
+        // if after 8 weeks, player decides to continue
+        this.updateDay()
+      } else {
+        // if not, go to end page
+        this.$store.commit('setCurrentPage', 'end')
+      }
+    },
     updateDay() {
       this.setupDone = []
 
@@ -227,12 +238,18 @@ export default {
 
       // if all children have been setup
       this.tl.add(() => {
-        if (this.day % 7) {
-          this.updateDay()
-        } else if (this.day < this.totalDays) {
-          this.showDecision = true
-        } else {
+        if (this.day === this.totalDays + 28) {
+          // if four weeks after total, show end page
           this.$store.commit('setCurrentPage', 'end') // if we've gone through all the days, end
+        } else if (this.day % 7 || this.day > this.totalDays) {
+          // if it isn't the seventh day of the week
+          // or if it's the 4 weeks after initial 8 weeks
+          // then continue animating
+          this.updateDay()
+        } else if (this.day <= this.totalDays) {
+          // if it's the seventh day of week
+          // and still within initial 8 weeks, show decision
+          this.showDecision = true
         }
       }, `day${this.day}-3`)
       this.tl.play(`day${this.day}`)

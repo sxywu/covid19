@@ -104,10 +104,12 @@ export default {
       return _.chain(types)
         .map(type => {
           const counts = _.map(healths, health => {
-            const count = latest && this.formatNumber(latest[type][health] || 0)
+            const count = latest && (latest[type][health] || 0)
             return {
               color: this.colorsByHealth[health] || this.colorsByHealth[2],
-              label: this.$tc(`lineChart.legend.${health}`, count),
+              label: this.$tc(`lineChart.legend.${health}`, count, {
+                count: this.formatNumber(count)
+              }),
             }
           })
           return {
