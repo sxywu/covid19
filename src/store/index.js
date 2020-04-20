@@ -307,6 +307,10 @@ export default new Vuex.Store({
     },
     infected({day, allDecisions}, {week, community, totalAvailableBeds}) {
       if (!community || !allDecisions.length) return
+      // and if this is the same day as previous, then don't do anything
+      const prevDailyHealth = _.last(dailyHealthStatus)
+      if (prevDailyHealth && prevDailyHealth.day === day) return
+
       const {people, houses} = community
 
       if (!prevInfected.length) {
@@ -663,7 +667,6 @@ export default new Vuex.Store({
       // reset prevInfected
       prevInfected = []
       dailyHealthStatus = []
-      dailyInfectious = []
 
       const allDecisions = _.clone(state.allDecisions) // to avoid mutating?
       allDecisions[0] = [7]
