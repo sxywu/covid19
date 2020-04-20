@@ -620,7 +620,6 @@ export default new Vuex.Store({
         filters: {zipCode: 'Any'},
         limit: numPastPlayers,
         cb: data => {
-          console.log(data)
           const allDecisions = _.chain(data)
             .map('decisions')
             .filter()
