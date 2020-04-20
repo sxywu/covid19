@@ -2,11 +2,13 @@
   <div id="end">
     <div class="content">
       <header>
-        <h1>{{ $t('end.h1', {saved, avoided}) }}</h1>
-        <p>{{ $t('end.average', {average}) }}</p>
+        <h1>{{ $t('end.h1', {week}) }}</h1>
+        <p v-html="$t('end.numbers', {
+          total: formatNumber(lastHealthStatus.player.total),
+          deaths: formatNumber(lastHealthStatus.player[5] || 0),
+          saved, avoided
+        })"></p>
       </header>
-      <Histogram v-bind="{type: 'all', width: 700}" />
-
       <p>{{ $t('end.closerLook') }}</p>
       <div class="charts">
         <BarChart
@@ -19,13 +21,16 @@
         />
         <LineChart
           v-bind="{
-            width: 320,
+            width: 280,
             height: 200,
             ageGroups,
             colorsByHealth,
           }"
         />
       </div>
+      <p v-html="$t('end.together')"></p>
+      <Histogram v-bind="{type: 'all', width: 700}" />
+      <p v-html="$t('end.future')"></p>
 
       <p v-html="$t('end.influence')"></p>
       <p v-html="$t('end.share')"></p>
@@ -59,6 +64,9 @@ export default {
     Footnotes,
   },
   computed: {
+    week() {
+      return this.$store.getters.week
+    },
     lastHealthStatus() {
       return _.last(this.$store.getters.dailyHealthStatus) || {}
     },
@@ -109,7 +117,7 @@ export default {
   text-align: center;
   width: 100%;
   padding: 4rem;
-  max-width: 960px;
+  max-width: 880px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -121,7 +129,7 @@ export default {
 header {
   position: relative;
   z-index: 1000;
-  max-width: 450px;
+  max-width: 500px;
   p {
     text-align: center;
   }

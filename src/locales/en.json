@@ -27,10 +27,10 @@
     "deceased": "Deceased"
   },
   "landing": {
-    "explanation1": "You're in the first few days of a new viral spread. This virus can be transmitted before symptoms appear, and it has the potential to spread throughout the entire community—unless you take action now through physical distancing. The next 8 weeks are crucial for saving thousands of lives.",
+    "explanation1": "You're in the first few days of a new viral spread. This virus can be transmitted before symptoms appear, and it has the potential to spread throughout the entire community—unless you take action now through physical distancing. The coming weeks are crucial for saving thousands of lives.",
     "explanation2": "But you can’t do this alone! It’ll take the cooperation of the entire community to slow the spread of this disease. Together, you’ll have to find ways to meet your individual needs while limiting your outings as much as possible.",
-    "explanation3": "You’ll play alongside 19 other real people",
-    "explanation4": "These 19 other people have played before you. Their decisions and yours will determine how frequently people in your community leave their homes over the next 8 weeks. Each of these players represents 5% of the total population.",
+    "explanation3": "You’ll play alongside 19 other real people.",
+    "explanation4": "These 19 people have played before you, and have made the weekly decisions you are about to.  Their decisions and yours together will determine how frequently people in your community leave their homes each week, for the duration of 8 weeks.",
     "explanation5": "Your collective decisions will determine how many lives are lost or saved.",
     "instruction1": "To start, enter your <strong>zip code</strong>* or choose a <strong>community size</strong>.",
     "instruction2": "We’ll pull real data to set up the game with your community’s actual population and number of available hospital beds.",
@@ -73,7 +73,7 @@
     "cta": "Decide",
     "rest": "Here's what the rest of your community decided to do:",
     "start": "Start Next Week →",
-    "businessAsUsual": "Your local government is now considering going back to business as usual.  Would you like to see what the next four weeks might look like if everyone in your community went out seven times a week again*?<p><sup>*you won't have to make any more decisions.</sup></p>",
+    "businessAsUsual": "Your local government is now considering going back to business as usual.  Would you like to see what the next four weeks might look like if everyone in your community went out every day of the week again*?<p><sup>*you won't have to make any more decisions.</sup></p>",
     "start4weeks": "Start next four weeks →",
     "finish": "No, let's finish this"
   },
@@ -102,10 +102,12 @@
     "beds": "{filledBeds} Filled / {totalAvailableBeds} Available ({totalBeds} Total Beds)"
   },
   "end": {
-    "h1": "You saved {saved} lives and were able to avoid {avoided} cases.",
-    "average": "This is a direct result of you and your community's efforts, who collectively went out an average of {average} times per week:",
+    "h1": "In the span of {week} weeks...",
     "closerLook": "Here's a closer look at the numbers:",
-    "influence": "During this game, you only had control over 5% of the population. This means that your actions may appear to have little influence. However, this doesn’t mean that your choices have no influence. When <em>everyone</em> chooses to stay home as much as possible, the most infections are avoided. Slower infection rates mean that hospitals and first responders can better help the sickest members of our community.",
+    "numbers": "Your community had <strong>{total}</strong> total cases, including <strong>{deaths}</strong> deaths.  However, this is {avoided} less cases than if your community had gone on with business as usual, and you were able to collectively save {saved} lives.",
+    "together": "You may have felt that your decisions had little influence over the weeks—but in fact, your community was able to achieve these numbers precisely because of your decisions, compounded by the decision of the 19 others in your team:",
+    "future": "In turn, <strong>future players will be helped by the decisions you made today</strong>.",
+    "influence": "This is reflected in the real world: when <em>everyone</em> chooses to stay home as much as possible, the most infections are avoided. Slower infection rates mean that hospitals and first responders can better help the sickest members of our community.",
     "share": "So, take a moment to share this game with your friends, family, and neighbors and work to flatten the curve, together."
   },
   "failed": {
