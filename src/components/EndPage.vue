@@ -11,7 +11,7 @@
       <div class="charts">
         <BarChart
           v-bind="{
-            width: 280,
+            width: 300,
             height: 200,
             ageGroups,
             colorsByHealth,
