@@ -36,10 +36,12 @@
     "instruction2": "We’ll pull real data to set up the game with your community’s actual population and number of available hospital beds.",
     "zipCodeDisclaimer": "<sup>*unfortunately, we currently only support US zip codes.</sup>",
     "zipCodePlaceholder": "Enter your zip code (e.g. 60617)",
+    "zipCodePlaceholderNoMobile": "Mobile is currently not supported",
     "buttonCta": "Start Playing →",
     "errors": {
       "invalidZip": "Invalid ZIP code",
-      "zipNotFound": "ZIP code not found, please try a different one"
+      "zipNotFound": "ZIP code not found, please try a different one",
+      "noMobile": "Unfortunately, we don't currently support mobile.  Please visit us on desktop!"
     }
   },
   "header": {

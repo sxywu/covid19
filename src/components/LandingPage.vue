@@ -16,7 +16,9 @@
         <p>{{ $t('landing.explanation2') }}</p>
         <h2>{{ $t('landing.explanation3') }}</h2>
         <p>{{ $t('landing.explanation4') }}</p>
-        <Histogram v-bind="{ type: 'all', width: 700 }" />
+        <Histogram v-bind="{
+          type: 'all', width: isPhone ? 300 : 700,
+        }" />
         <p>{{ $t('landing.explanation5') }}</p>
         <hr />
         <h2 class="instructions" v-html="$t('landing.instruction1')"></h2>
@@ -29,8 +31,11 @@
                 :class="{ 'zip-error': errors['zipCode'] }"
                 id="zip"
                 v-model="zipCode"
-                :placeholder="$t('landing.zipCodePlaceholder')"
+                :placeholder="isPhone ?
+                  $t('landing.zipCodePlaceholderNoMobile') :
+                  $t('landing.zipCodePlaceholder')"
                 pattern="/(^\d{5}$)|(^\d{5}-\d{4}$)/"
+                :disabled="isPhone"
               />
             </div>
             <span>{{ $t('or') }}</span>
@@ -43,7 +48,7 @@
                     name="communitySize"
                     :value="value"
                     v-model="communitySize"
-                    :disabled="!!zipCode"
+                    :disabled="isPhone || !!zipCode"
                   />
                   <label :for="id">{{ $t(id) }}</label>
                 </div>
@@ -52,11 +57,14 @@
           </div>
           <p style="text-align: center; max-width: 380px;"
             v-html="$t('landing.instruction2')"></p>
-          <button type="submit" class="playNowBtn">
+          <button type="submit" class="playNowBtn" :disabled="isPhone">
             {{ $t('landing.buttonCta') }}
           </button>
           <div v-if="errors['zipCode']" class="zipCodeError">
             {{ errors['zipCode'] }}
+          </div>
+          <div v-if="isPhone" class="mobileError">
+            {{ $t('landing.errors.noMobile') }}
           </div>
         </form>
       </div>
@@ -67,10 +75,12 @@
 <script>
 import _ from 'lodash'
 import Histogram from './Histogram'
+const isPhone = isMobile.phone
 
 export default {
   name: 'LandingPage',
   components: {Histogram},
+  props: ['isPhone'],
   data() {
     return {
       errors: {},
@@ -215,6 +225,9 @@ form {
       font-size: 1rem;
       border: 1px solid rgba(0, 0, 0, 0.3);
       border-radius: 5px;
+      &:disabled {
+        background-color: $gray;
+      }
     }
     .zip-error {
       border: 1px solid $red;
@@ -360,10 +373,15 @@ header {
     border-radius: 5px;
   }
 }
-.zipCodeError {
+.zipCodeError, .mobileError {
   padding-top: 0.5rem;
   color: $red;
+}
+.zipCodeError {
   text-align: justify;
+}
+.mobileError {
+  text-align: center;
 }
 .playNowBtn {
   background-color: $red;
@@ -376,6 +394,10 @@ header {
   &:hover {
     filter: brightness(0.9) contrast(1.2) saturate(0.9);
   }
+  &:disabled {
+    background-color: $gray;
+    box-shadow: 0 5px #e0e0e0;
+  }
 }
 .bg {
   position: absolute;
@@ -387,7 +409,7 @@ header {
   z-index: 0;
   background-image: url('../assets/background.png');
   background-repeat: repeat-x;
-  background-position: 0 -60px;
+  background-position: center -60px;
   background-size: 1040px;
 }
 .people {

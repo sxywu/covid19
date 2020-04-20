@@ -48,7 +48,7 @@ const images = [
   require('../assets/person-2.svg'),
 ]
 const imageRatio = 94 / 52
-const margin = { top: 20, right: 20, bottom: 40, left: 20 }
+const margin = { top: 20, right: 0, bottom: 40, left: 0 }
 export default {
   name: 'Histogram',
   props: ['width', 'type', 'numTimes'],
