@@ -85,6 +85,9 @@
         />
       </div>
     </div>
+    <footer id='footNote' :style="{width: `${width}px`}">
+      <a class='label' href='https://observablehq.com/d/1f2c594529809ad2' target='_new'>Full Methodology</a>
+    </footer>
   </div>
 </template>
 
@@ -336,5 +339,11 @@ export default {
 
 .panel {
   position: absolute;
+}
+
+#footNote {
+  position: absolute;
+  text-align: right;
+  padding: 3px;
 }
 </style>
