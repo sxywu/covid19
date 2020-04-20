@@ -45,7 +45,7 @@
     }
   },
   "header": {
-    "stayedHome": "Stayed Home",
+    "stayedHome": "% Stayed Home",
     "hospitalCapacity": "Hospital Capacity"
   },
   "decide": {
