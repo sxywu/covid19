@@ -1,9 +1,9 @@
 <template>
   <div id="app">
-    <GamePlay v-bind="$data" v-show="currentPage === 'game'" />
-    <LandingPage v-if="currentPage === 'landing'" />
-    <EndPage v-bind="$data" v-if="currentPage === 'end'" />
-    <FailedPage v-bind="$data" v-if="currentPage === 'failed'" />
+    <GamePlay v-bind="$data" v-if="!isPhone" v-show="currentPage === 'game'" />
+    <LandingPage v-bind="{isPhone}" v-if="currentPage === 'landing'" />
+    <EndPage v-bind="$data" v-if="!isPhone && currentPage === 'end'" />
+    <FailedPage v-bind="$data" v-if="!isPhone && currentPage === 'failed'" />
   </div>
 </template>
 
@@ -23,6 +23,7 @@ export default {
   },
   data() {
     return {
+      isPhone: isMobile.phone,
       ageGroups: {
         '0': this.$t('ageGroups.0'),
         '20': this.$t('ageGroups.20'),
@@ -55,6 +56,7 @@ export default {
   },
   created() {
     this.$store.dispatch('getRawData')
+    this.$store.dispatch('getPastGames')
   },
 }
 </script>
@@ -92,6 +94,7 @@ a {
   text-decoration: none;
   border-bottom: 1px solid;
   color: inherit;
+  cursor: pointer;
 }
 a:hover {
   border-bottom: 1px dashed;

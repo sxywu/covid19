@@ -39,6 +39,7 @@
           v-if="showDecision"
           v-bind="{
             onUpdate: updateDecision,
+            continueGame,
             ageGroups,
             colorsByHealth,
           }"
@@ -84,6 +85,9 @@
         />
       </div>
     </div>
+    <footer id='footNote' :style="{width: `${width}px`}">
+      <a class='label' href='https://observablehq.com/d/1f2c594529809ad2' target='_new'>Full Methodology</a>
+    </footer>
   </div>
 </template>
 
@@ -129,7 +133,6 @@ export default {
       rightWidth: 320,
       bottomHeight: 180,
       tl: new gsap.timeline({ paused: true }),
-      phases: [0.5, 0.75, 0.75],
       groups: [],
       showDecision: false,
     }
@@ -140,6 +143,9 @@ export default {
     },
     day() {
       return this.$store.state.day
+    },
+    week() {
+      return this.$store.getters.week
     },
     totalDays() {
       return this.$store.state.totalDays
@@ -170,6 +176,10 @@ export default {
         height,
         y: this.height - this.bottomHeight - height - 10,
       }
+    },
+    phases() {
+      if (this.week === 1 || this.week === 8) return [1, 0.75, 1.25]
+      return [0.5, 0.75, 0.75]
     },
   },
   mounted() {
@@ -203,6 +213,16 @@ export default {
       this.$store.dispatch('storeGame')
       this.updateDay()
     },
+    continueGame(cont) {
+      this.showDecision = false
+      if (cont) {
+        // if after 8 weeks, player decides to continue
+        this.updateDay()
+      } else {
+        // if not, go to end page
+        this.$store.commit('setCurrentPage', 'end')
+      }
+    },
     updateDay() {
       this.setupDone = []
 
@@ -221,12 +241,18 @@ export default {
 
       // if all children have been setup
       this.tl.add(() => {
-        if (this.day % 7) {
-          this.updateDay()
-        } else if (this.day < this.totalDays) {
-          this.showDecision = true
-        } else {
+        if (this.day === this.totalDays + 28) {
+          // if four weeks after total, show end page
           this.$store.commit('setCurrentPage', 'end') // if we've gone through all the days, end
+        } else if (this.day % 7 || this.day > this.totalDays) {
+          // if it isn't the seventh day of the week
+          // or if it's the 4 weeks after initial 8 weeks
+          // then continue animating
+          this.updateDay()
+        } else if (this.day <= this.totalDays) {
+          // if it's the seventh day of week
+          // and still within initial 8 weeks, show decision
+          this.showDecision = true
         }
       }, `day${this.day}-3`)
       this.tl.play(`day${this.day}`)
@@ -313,5 +339,11 @@ export default {
 
 .panel {
   position: absolute;
+}
+
+#footNote {
+  position: absolute;
+  text-align: right;
+  padding: 3px;
 }
 </style>

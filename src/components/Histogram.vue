@@ -6,6 +6,7 @@
         <image
           :height="imageHeight"
           :href="d.image"
+          opacity="0.85"
         />
         <g v-if="d.isPlayer">
           <image :height="imageHeight" href="../assets/star.svg" />
@@ -47,7 +48,7 @@ const images = [
   require('../assets/person-2.svg'),
 ]
 const imageRatio = 94 / 52
-const margin = { top: 20, right: 20, bottom: 40, left: 20 }
+const margin = { top: 20, right: 0, bottom: 40, left: 0 }
 export default {
   name: 'Histogram',
   props: ['width', 'type', 'numTimes'],
@@ -91,12 +92,13 @@ export default {
   },
   methods: {
     calculatePeople() {
-      if (!this.allDecisions) return
+      if (!this.allDecisions.length) return
 
       const groupedPeople = _.chain(this.allDecisions)
         .map((d, i) => {
           let numTimes = d[this.week] || this.numTimes
           if (this.type === 'all') {
+            if (d.length !== 8) return
             numTimes = _.round(d3.mean(d), 1)
           }
           return {
@@ -104,6 +106,7 @@ export default {
             isPlayer: i === 0, // player is first
           }
         })
+        .filter()
         .groupBy('numTimes')
         .value()
       const maxLength = _.chain(groupedPeople)
@@ -128,7 +131,6 @@ export default {
         })
         .flatten()
         .value()
-
       const average = d3.mean(this.people, d => d.numTimes)
       this.average = {
         count: _.round(average, 2),
