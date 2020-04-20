@@ -92,7 +92,7 @@ export default {
   },
   methods: {
     calculatePeople() {
-      if (!this.allDecisions) return
+      if (!this.allDecisions.length) return
 
       const groupedPeople = _.chain(this.allDecisions)
         .map((d, i) => {
