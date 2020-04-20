@@ -130,7 +130,8 @@ export default {
     this.yAxis = d3
       .axisLeft()
       .scale(this.yScale)
-      .ticks(4, d3.format(',s'))
+      .ticks(4)
+      .tickFormat(d => (d >= 1000 ? `${_.round(d / 1000, 1)}k` : d))
       .tickSizeOuter(0)
       .tickSizeInner(-this.width + margin.left + margin.right)
   },
