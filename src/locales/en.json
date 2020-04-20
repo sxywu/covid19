@@ -50,10 +50,10 @@
       "prevWeek": "In the previous week...",
       "numTimes": "You decided not to go out this week | You decided to go out once this week | You decided to go out {count} times this week"
     },
-    "prevTimes": "You didn't go out at all | You went out once | You went out {count} times",
+    "prevTimes": "You didn't go out at all | You went out once | You went out <strong>{count}</strong> times",
     "avgTimes": "and your community went out an average of <strong>{count}</strong> times.",
     "newCasesTotal": "This led to <strong>{count}</strong> new cases in your community",
-    "newCasesAvoided": "but you were also able to avoid <strong>{count}</strong> new cases.",
+    "newCasesAvoided": "<strong>{count} less</strong> than if you had continued with business as usual.",
     "foodLow": "Be careful! Your food is running low.",
     "exerciseLow": "Be careful!  You haven't exercised in a while.",
     "bothLow": "Be careful!  You're running out of food and haven't exercised in a while.",

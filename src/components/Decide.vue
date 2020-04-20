@@ -182,7 +182,7 @@ export default {
   margin-left: auto;
 }
 .content {
-  width: 500px;
+  width: 520px;
   font-size: 18px;
   line-height: 1.5;
   margin: auto;
