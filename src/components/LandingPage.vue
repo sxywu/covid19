@@ -69,6 +69,17 @@
         </form>
       </div>
     </div>
+
+    <footer id='disclaimer'>
+      <h3 class='label'>Disclaimer</h3>
+      <p>
+        While we tried our best to get our numbers as close to COVID-19 numbers as possible, the COVID-19 numbers are still too new and moving too quickly.
+        Thus we want to emphasize that we're modeling <em>a</em> virus, not <em>the</em> virus.
+      </p>
+      <p>
+        For more details, please see our <a href='https://observablehq.com/@osserman/people-of-the-pandemic-simulation-methodology' target='_new'>full methodology</a>.
+      </p>
+    </footer>
   </div>
 </template>
 
@@ -424,6 +435,22 @@ header {
   }
   @include respond-to('small') {
     grid-template-columns: repeat(auto-fill, minmax(35px, 1fr));
+  }
+}
+
+#disclaimer {
+  width: 100%;
+  max-width: 600px;
+  text-align: center;
+  line-height: 1.5;
+  margin: 40px auto;
+
+  h3 {
+    margin: 0 auto;
+    text-transform: uppercase;
+    font-weight: normal;
+    letter-spacing: 1px;
+    font-size: 15px;
   }
 }
 </style>
