@@ -29,7 +29,7 @@ function assignHealth(person, daysSinceInfection, prevInHospital) {
   let newInfectious = 0
   if (daysSinceInfection >= 14) {
     const dies = prevInHospital
-      ? person.dieIfSymptomatic
+      ? person.dieIfHospitalized
       : person.dieIfNotHospitalized
     newHealth = dies ? 5 : 1 // dead or recovered
     newInfectious = 0
@@ -244,15 +244,15 @@ export default new Vuex.Store({
             susceptibility,
             symptomaticIfInfected,
             hospitalIfSymptomatic,
-            dieIfSymptomatic,
+            dieIfHospitalized,
             dieIfNotHospitalized,
           } = diseaseNumbers['ageGroups'][ageGroup]
           symptomaticIfInfected = +(Math.random() < symptomaticIfInfected)
           hospitalIfSymptomatic = +(
             symptomaticIfInfected && Math.random() < hospitalIfSymptomatic
           )
-          dieIfSymptomatic = +(
-            hospitalIfSymptomatic && Math.random() < dieIfSymptomatic
+          dieIfHospitalized = +(
+            hospitalIfSymptomatic && Math.random() < dieIfHospitalized
           )
           dieIfNotHospitalized = +(
             hospitalIfSymptomatic && Math.random() < dieIfNotHospitalized
@@ -267,7 +267,7 @@ export default new Vuex.Store({
             susceptibility,
             symptomaticIfInfected,
             hospitalIfSymptomatic,
-            dieIfSymptomatic,
+            dieIfHospitalized,
             dieIfNotHospitalized,
           })
         })
