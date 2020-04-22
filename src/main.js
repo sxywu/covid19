@@ -11,13 +11,13 @@ Vue.use(VueMq, {
     // default breakpoints - customize this
     sm: 450,
     md: 1250,
-    lg: Infinity
-  }
+    lg: Infinity,
+  },
 })
 Vue.use(VueClipboard)
 
 new Vue({
   store,
   i18n,
-  render: h => h(App)
+  render: h => h(App),
 }).$mount('#app')

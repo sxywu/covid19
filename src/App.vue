@@ -55,6 +55,7 @@ export default {
     },
   },
   created() {
+    this.$store.dispatch('setLocale')
     this.$store.dispatch('getRawData')
     this.$store.dispatch('getPastGames')
   },
