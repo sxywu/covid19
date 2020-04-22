@@ -531,6 +531,12 @@ export default new Vuex.Store({
     },
   },
   mutations: {
+    setLocale() {
+      let lang = navigator.language
+      if (lang !== 'en') {
+        i18n.locale = lang
+      }
+    },
     setCurrentPage(state, currentPage) {
       state.currentPage = currentPage
     },
@@ -599,12 +605,6 @@ export default new Vuex.Store({
     },
   },
   actions: {
-    setLocale() {
-      let lang = navigator.language
-      if (lang !== 'en') {
-        i18n.locale = lang
-      }
-    },
     getRawData({commit, dispatch}) {
       function formatData(obj) {
         let zip = obj.zip // make sure zip doesn't get turned into integers
