@@ -1,5 +1,5 @@
 {
-  "title": "The Game Title",
+  "title": "People of the Pandemic",
   "subtitle": "A global pandemic has arrived in your backyard.",
   "or": "or",
   "urban": "Urban",
@@ -9,7 +9,6 @@
   "exercise": "Exercise",
   "week": "week",
   "day": "day",
-  "outOf": "out of",
   "available": "available",
   "ageGroups": {
     "0": "under 19",
