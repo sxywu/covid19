@@ -62,6 +62,7 @@ export default {
         'Tony Chu',
         'Michael Freeman',
         'Alice Lee',
+        'Jeffrey Lin',
         'Philippe Rivière',
         'Duncan Geere',
         'Alex Wein',
