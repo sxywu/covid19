@@ -4,6 +4,7 @@ import * as d3 from 'd3'
 import _ from 'lodash'
 import {apiService} from '../firebase/db'
 import {v4 as uuidv4} from 'uuid'
+import i18n from '../i18n'
 
 Vue.use(Vuex)
 
@@ -305,7 +306,10 @@ export default new Vuex.Store({
 
       return {people, houses, destinations, numGroups: numDestGroups}
     },
-    infected({day, totalDays, allDecisions}, {week, community, totalAvailableBeds}) {
+    infected(
+      {day, totalDays, allDecisions},
+      {week, community, totalAvailableBeds},
+    ) {
       if (!community || !allDecisions.length) return
       // and if this is the same day as previous, then don't do anything
       const prevDailyHealth = _.last(dailyHealthStatus)
@@ -504,7 +508,8 @@ export default new Vuex.Store({
             status[type] = {total: 0, infectious: 0}
           }
 
-          const infectious = type === 'player' ? d.infectious : d[type].infectious
+          const infectious =
+            type === 'player' ? d.infectious : d[type].infectious
           if (infectious) {
             status[type].infectious += 1
           }
@@ -526,6 +531,12 @@ export default new Vuex.Store({
     },
   },
   mutations: {
+    setLocale() {
+      let lang = navigator.language
+      if (lang !== 'en') {
+        i18n.locale = lang
+      }
+    },
     setCurrentPage(state, currentPage) {
       state.currentPage = currentPage
     },
