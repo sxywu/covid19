@@ -1,6 +1,6 @@
 {
   "title": "The Game Title",
-  "subtitle": "Une pandémie mondiale est arrivée sur le pas de votre porte.",
+  "subtitle": "Une pandémie mondiale est arrivée sur le pas de ta porte.",
   "or": "ou",
   "urban": "Ville",
   "suburban": "Périurbain",
@@ -27,15 +27,15 @@
     "deceased": "Décédés"
   },
   "landing": {
-    "explanation1": "Ce sont les premiers jours de développement d’un nouveau virus. Ce virus peut se transmettre avant l’apparition des symptômes et il a le potentiel de contaminer toute la population  à moins que l’on ne prenne des mesures de distanciation sociale. Les prochaines semaines vont être cruciales pour sauver la vie de milliers de personnes.",
-    "explanation2": "Mais tu ne peux pas faire ça tout seul ! Il faut que toute ta communauté coopère pour ralentir l'avancement de l’épidémie. Ensemble, vous devrez trouver des solutions pour que chacun puisse subvenir à ses besoins en limitant ses sorties le plus possible.",
+    "explanation1": "Un nouveau virus vient d’apparaître. Ce virus peut se transmettre avant l’apparition des symptômes et il a le potentiel de contaminer toute la population  à moins que l’on ne prenne des mesures de distanciation sociale. Les prochaines semaines vont être cruciales pour sauver la vie de milliers de personnes.",
+    "explanation2": "Mais tu ne peux pas faire ça tout seul ! Il faut que tout ton quartier coopère pour ralentir l'avancement de l’épidémie. Vous devrez trouver des solutions ensemble pour que chacun puisse subvenir à ses besoins en limitant au maximum ses sorties.",
     "explanation3": "Tu vas jouer avec 19 autres personnes.",
-    "explanation4": "Ces 19 personnes ont joué avant toi et on dû prendre des décisions chaque semaine, comme tu t'apprêtes à le faire. Leurs décisions et les tiennes vont déterminer à quelle fréquence les gens de ta communauté sortent de chez eux chaque semaine, pendant 8 semaines.",
+    "explanation4": "Ces 19 personnes ont joué avant toi et on dû prendre des décisions chaque semaine, comme tu t'apprêtes à le faire. Leurs décisions et les tiennes vont déterminer à quelle fréquence les gens de ton quartier sortent de chez eux chaque semaine, pendant 8 semaines.",
     "explanation5": "La somme de vos décisions déterminera combien de vies sont perdues ou sauvées.",
-    "instruction1": "Pour commencer entre ton <strong>code postal</strong>* ou choisi <strong>une densité de communauté</strong>.",
-    "instruction2": "Le jeu va être configuré avec les données réelles de ta communauté : la taille de la population ainsi que le nombre de lits en réanimation.",
+    "instruction1": "Pour commencer entre ton <strong>code postal</strong>* ou choisi <strong>ton milieu d’habitation</strong>.",
+    "instruction2": "Le jeu va être configuré avec les données réelles de ton quartier : la taille de la population ainsi que le nombre de lits en réanimation.",
     "zipCodeDisclaimer": "<sup>*malheureusement notre code n’est compatible qu’avec des codes postaux français. ",
-    "zipCodePlaceholder": "Entrez votre code postal (ex: 75000)",
+    "zipCodePlaceholder": "Entre ton code postal (ex: 75000)",
     "zipCodePlaceholderNoMobile": "Nous n’avons malheureusement pas encore de version mobile",
     "buttonCta": "Commencer le jeu",
     "errors": {
@@ -51,12 +51,12 @@
   "decide": {
     "h1": {
       "prevWeek": "La semaine précédente...",
-      "numTimes": "Tu as décidé de ne pas sortir cette semaine | Tu as décidé de sortir une fois cette semaine. | Tu as décidé de sortit {count} fois cette semaine.",
+      "numTimes": "Tu as décidé de ne pas sortir cette semaine | Tu as décidé de sortir une fois cette semaine. | Tu as décidé de sortir {count} fois cette semaine.",
       "8weeks": "Tu as combattu le virus pendant 8 semaines."
     },
     "prevTimes": "Tu n’es pas du tout sorti. | Tu es sorti une fois. | Tu es sorti <strong>{count}</strong> fois",
-    "avgTimes": "et ta communauté est sortie un nombre moyen de <strong>{count}</strong> fois.",
-    "newCasesTotal": "Cela a mené à  <strong>{count}</strong> nouveaux cas dans ta communauté",
+    "avgTimes": "et les habitants de ton quartier sont sortis un nombre moyen de <strong>{count}</strong> fois.",
+    "newCasesTotal": "Cela a mené à  <strong>{count}</strong> nouveaux cas dans ton quartier",
     "newCasesAvoided": "<strong>{count} moins</strong> que si vous aviez fait comme si de rien n’était.",
     "foodLow": "Attention! Tu vas bientôt manquer de nourriture.",
     "exerciseLow": "Attention!  Tu n’as pas fait de sport depuis un moment.",
@@ -65,17 +65,17 @@
     "range": {
       "0": "Rester<br />à la maison",
       "1": "Aller<br />faire un tour",
-      "2": "Acheter<br />à manger",
+      "2": "Aller<br />faire des courses",
       "3": "Aller<br />courrir",
       "4": "Déjeuner<br />entre amis",
       "5": "Dîner<br />en famille",
       "6": "Aller<br />à une fête",
       "7": "Aller<br />à un concert"
     },
-    "cta": "Décide",
-    "rest": "Voilà ce que le reste de ta communauté a décidé de faire:",
+    "cta": "Valider",
+    "rest": "Voilà ce que le reste de ton quartier a décidé de faire:",
     "start": "Commencer la semaine suivante →",
-    "businessAsUsual": "Ton gouvernement local décide désormais de mettre fin au confinement. Veux-tu voir à quoi cela ressemblerait si tous les membres de ta communauté recommençaient à sortir tous les jours à nouveau* ?<p><sup>*tu n’auras pas à prendre de décision.</sup></p>",
+    "businessAsUsual": "Ton gouvernement local décide désormais de mettre fin au confinement. Veux-tu voir à quoi cela ressemblerait si tous les membres de ton quartier recommençaient à sortir tous les jours à nouveau* ?<p><sup>*tu n’auras pas à prendre de décision.</sup></p>",
     "start4weeks": "Commencer les 4 semaines suivantes →",
     "finish": "Non, j’arrête ici"
   },
@@ -101,16 +101,16 @@
     }
   },
   "hospital": {
-    "beds": "{filledBeds} remplis / {totalAvailableBeds} disponibles ({totalBeds} lits au total)"
+    "beds": "{filledBeds} occupés / {totalAvailableBeds} disponibles ({totalBeds} lits au total)"
   },
   "end": {
     "h1": "En {week} semaines...",
     "closerLook": "Regardons les chiffres de plus près… ",
-    "numbers": "Ta communauté a eu un total de<strong>{total}</strong> cas, notamment <strong>{deaths}</strong> morts.  Néanmoins, c’est {avoided} moins de cas que si ta communauté n’avait rien changé à ses habitudes. Collectivement vous avez sauvé {saved} vies.",
+    "numbers": "Ton quartier a eu un total de<strong>{total}</strong> cas, notamment <strong>{deaths}</strong> morts.  Néanmoins, c’est {avoided} moins de cas que si les gens de ton quartier n’avaient rien changé à ses habitudes. Collectivement vous avez sauvé {saved} vies.",
     "together": "Tu as peut-être eu l’impression d’avoir eu peu d’influence durant ces quelques semaines, mais en réalité tu as réussi à atteindre ce résultat grâce à tes décisions et à celle des 19 autres personnes de ton équipe:",
     "future": "À leur tour <strong>les futurs joueurs seront aidés par les décisions que tu as prises aujourd’hui.</strong>.",
-    "influence": "De même dans le monde réel, quand  <em>tout le monde</em> décide de limiter ses sorties le plus possible, le plus grand nombre d’infections est évité. Un taux de contamination réduit permet aux hôpitaux et au personnel soignant d’apporter la meilleure aide aux membres de notre communauté.",
-    "share": "Alors prend le temps de partager ce jeu avec tes amis, ta famille ou tes voisin et aide à aplanir la courbe, ensemble."
+    "influence": "De même dans le monde réel, quand  <em>tout le monde</em> décide de limiter le plus possible ses sorties, le plus grand nombre d’infections est évité. Un taux de contamination réduit permet aux hôpitaux et au personnel soignant d’apporter la meilleure aide aux membres de notre communauté.",
+    "share": "Alors prend le temps de partager ce jeu avec tes amis, ta famille ou tes voisin et aide à aplatir la courbe, ensemble."
   },
   "failed": {
     "heading": {
@@ -121,7 +121,7 @@
     "buttonCta": "Rejouer"
   },
   "share": {
-    "heading": "Partager ce jeu et dis aux autre de #resteràlamaison",
+    "heading": "Partage ce jeu et dis aux autres de #resteràlamaison",
     "buttonCta": "Copier",
     "success": "Copié"
   }
