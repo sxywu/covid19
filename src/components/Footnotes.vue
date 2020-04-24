@@ -1,10 +1,7 @@
 <template>
   <div id="footnotes">
-    <h3>Methodology</h3>
-    <p>
-      We've put a lot of thought and research into our simulation.<br />
-      Read the full, detailed methodology <a href='https://observablehq.com/d/1f2c594529809ad2' target='_new'>here</a>.
-    </p>
+    <h3>{{ $t('footnotes.methodology') }}</h3>
+    <p v-html="$t('footnotes.methodologyHere')"></p>
 
     <h3>CREDITS</h3>
     <p>
@@ -38,14 +35,10 @@
       Copywriting
     </p>
     <hr />
+    <p v-html="$t('footnotes.egghead')"></p>
+    <p v-html="$t('footnotes.observable')"></p>
     <p>
-      Thank you so much to <strong><a href="https://egghead.io" target="_new">egghead.io</a></strong> for sponsoring this project.
-    </p>
-    <p>
-      Thank you Jeremy Ashkenas and Anjana Vakil for <a href="https://observablehq.com/" target="_new">Observable</a> support.
-    </p>
-    <p>
-      And thank you to the following kind people for all their feedback:
+      <span v-html="$t('footnotes.feedback')"></span>
       <!-- <div v-for='name in feedback'>{{ name }}</div> -->
       {{ feedback.join(', ') }}
     </p>

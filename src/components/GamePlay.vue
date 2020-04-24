@@ -85,8 +85,8 @@
         />
       </div>
     </div>
-    <footer id='footNote' :style="{width: `${width}px`}">
-      <a class='label' href='https://observablehq.com/d/1f2c594529809ad2' target='_new'>Full Methodology</a>
+    <footer id='footNote' class='label' :style="{width: `${width}px`}">
+      <span v-html="$t('footnotes.fullMethodology')"></span>
     </footer>
   </div>
 </template>
