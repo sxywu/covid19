@@ -1,5 +1,5 @@
 {
-  "title": "The Game Title",
+  "title": "People of the Pandemic",
   "subtitle": "Une pandémie mondiale est arrivée sur le pas de ta porte.",
   "or": "ou",
   "urban": "Ville",
@@ -32,10 +32,10 @@
     "explanation3": "Tu vas jouer avec 19 autres personnes.",
     "explanation4": "Ces 19 personnes ont joué avant toi et on dû prendre des décisions chaque semaine, comme tu t'apprêtes à le faire. Leurs décisions et les tiennes vont déterminer à quelle fréquence les gens de ton quartier sortent de chez eux chaque semaine, pendant 8 semaines.",
     "explanation5": "La somme de vos décisions déterminera combien de vies sont perdues ou sauvées.",
-    "instruction1": "Pour commencer entre ton <strong>code postal</strong>* ou choisi <strong>ton milieu d’habitation</strong>.",
+    "instruction1": "Pour commencer choisi <strong>ton type de milieu d’habitation</strong>.",
     "instruction2": "Le jeu va être configuré avec les données réelles de ton quartier : la taille de la population ainsi que le nombre de lits en réanimation.",
-    "zipCodeDisclaimer": "<sup>*malheureusement notre code n’est compatible qu’avec des codes postaux français. ",
-    "zipCodePlaceholder": "Entre ton code postal (ex: 75000)",
+    "zipCodeDisclaimer": "<sup>*Notre jeu n’est pour l’instant compatible qu’avec des codes postaux américains. ",
+    "zipCodePlaceholder": "Bientôt disponible.",
     "zipCodePlaceholderNoMobile": "Nous n’avons malheureusement pas encore de version mobile",
     "buttonCta": "Commencer le jeu",
     "errors": {
@@ -74,6 +74,7 @@
     },
     "cta": "Valider",
     "rest": "Voilà ce que le reste de ton quartier a décidé de faire:",
+    "average": "Moyenne: {count} fois",
     "start": "Commencer la semaine suivante →",
     "businessAsUsual": "Ton gouvernement local décide désormais de mettre fin au confinement. Veux-tu voir à quoi cela ressemblerait si tous les membres de ton quartier recommençaient à sortir tous les jours à nouveau* ?<p><sup>*tu n’auras pas à prendre de décision.</sup></p>",
     "start4weeks": "Commencer les 4 semaines suivantes →",
@@ -112,6 +113,19 @@
     "influence": "De même dans le monde réel, quand  <em>tout le monde</em> décide de limiter le plus possible ses sorties, le plus grand nombre d’infections est évité. Un taux de contamination réduit permet aux hôpitaux et au personnel soignant d’apporter la meilleure aide aux membres de notre communauté.",
     "share": "Alors prend le temps de partager ce jeu avec tes amis, ta famille ou tes voisin et aide à aplatir la courbe, ensemble."
   },
+  "footnotes": {
+    "disclaimer": "Avertissement",
+    "fullDisclaimer": "Nous avons fait de notre mieux pour que nos chiffres se rapprochent de ceux du COVID-19, mais les chiffres du COVID-19 sont encore très nouveaux et fluctuent très vite. Nous voulons donc souligner que nous modélisons <em>un</em> virus, pas <em>le</em> virus.<br /><br />Pour plus de détails, merci d’aller voir notre <a href='https://observablehq.com/@osserman/people-of-the-pandemic-simulation-methodology' target='_new'>méthodologie complète (en anglais)</a>.",
+
+    "methodology": "Méthodologie",
+    "fullMethodology": "<a href='https://observablehq.com/@osserman/people-of-the-pandemic-simulation-methodology' target='_new'>Méthodologie Complète</a>",
+    "methodologyHere": "Notre méthodologie a été conçue avec soin et est basée sur des recherches.<br />Lire le détails de la méthodologie (en anglais).<a href='https://observablehq.com/@osserman/people-of-the-pandemic-simulation-methodology' target='_new'>here</a>.",
+    "credits": "Remerciements",
+    "egghead": "Merci beaucoup à <strong><a href='https://egghead.io' target='_new'>egghead.io</a></strong> de sponsoriser ce projet.",
+    "observable": "Merci à Jeremy Ashkenas et Anjana Vakil pour <a href='https://observablehq.com/' target='_new'>Observable</a> leur soutien.",
+    "feedback": "Et merci aux personnes suivantes pour leur retours:"
+  },
+
   "failed": {
     "heading": {
       "food": "Oh non! Tu n’as plus de nourriture",
