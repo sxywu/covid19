@@ -685,5 +685,8 @@ export default new Vuex.Store({
       commit('setExerciseStatus', exerciseStatus)
       commit('setCurrentPage', 'game')
     },
+    getRandomGames() {
+      apiService.getRandomGames({cb: console.log})
+    },
   },
 })

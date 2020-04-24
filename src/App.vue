@@ -57,6 +57,7 @@ export default {
   created() {
     this.$store.dispatch('getRawData')
     this.$store.dispatch('getPastGames')
+    this.$store.dispatch('getRandomGames')
   },
 }
 </script>
