@@ -71,14 +71,8 @@
     </div>
 
     <footer id='disclaimer'>
-      <h3 class='label'>Disclaimer</h3>
-      <p>
-        While we tried our best to get our numbers as close to COVID-19 numbers as possible, the COVID-19 numbers are still too new and moving too quickly.
-        Thus we want to emphasize that we're modeling <em>a</em> virus, not <em>the</em> virus.
-      </p>
-      <p>
-        For more details, please see our <a href='https://observablehq.com/@osserman/people-of-the-pandemic-simulation-methodology' target='_new'>full methodology</a>.
-      </p>
+      <h3 class='label'>{{ $t('footnotes.disclaimer' )}}</h3>
+      <p v-html="$t('footnotes.fullDisclaimer')"></p>
     </footer>
   </div>
 </template>

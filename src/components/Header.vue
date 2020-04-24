@@ -40,9 +40,9 @@
         />
       </svg>
       <div class="item-content">
-        <h3 class="label">{{ $t('header.stayedHome') }}</h3>
+        <h3 class="label">{{ $t('header.wentOut') }}</h3>
         <ProgressBar
-          v-bind="{ value: stayedHome.length, maxValue: infected.length }"
+          v-bind="{ value: wentOut.length, maxValue: infected.length }"
         />
       </div>
     </div>
@@ -93,8 +93,8 @@ export default {
     infected() {
       return this.$store.getters.infected || []
     },
-    stayedHome() {
-      return _.filter(this.infected, ({ destination }) => destination === -1)
+    wentOut() {
+      return _.filter(this.infected, ({ destination }) => destination > -1)
     },
     totalAvailableBeds() {
       return this.$store.getters.totalAvailableBeds

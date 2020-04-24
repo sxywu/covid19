@@ -267,13 +267,6 @@ h2 {
         padding-left: 7.5rem;
       }
     }
-    :first-of-type {
-      label::after {
-        content: 'OR';
-        position: absolute;
-        padding-left: 7.5rem;
-      }
-    }
   }
 }
 

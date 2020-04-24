@@ -44,7 +44,7 @@
     }
   },
   "header": {
-    "stayedHome": "% Stayed Home",
+    "wentOut": "% Went Out",
     "hospitalCapacity": "Hospital Capacity"
   },
   "decide": {
@@ -73,6 +73,7 @@
     },
     "cta": "Decide",
     "rest": "Here's what the rest of your community decided to do:",
+    "average": "Average: {count} times",
     "start": "Start Next Week →",
     "businessAsUsual": "Your local government is now considering going back to business as usual.  Would you like to see what the next four weeks might look like if everyone in your community went out every day of the week again*?<p><sup>*you won't have to make any more decisions.</sup></p>",
     "start4weeks": "Start next four weeks →",
@@ -110,6 +111,17 @@
     "future": "In turn, <strong>future players will be helped by the decisions you made today</strong>.",
     "influence": "This is reflected in the real world: when <em>everyone</em> chooses to stay home as much as possible, the most infections are avoided. Slower infection rates mean that hospitals and first responders can better help the sickest members of our community.",
     "share": "So, take a moment to share this game with your friends, family, and neighbors and work to flatten the curve, together."
+  },
+  "footnotes": {
+    "disclaimer": "Disclaimer",
+    "fullDisclaimer": "While we tried our best to get our numbers as close to COVID-19 numbers as possible, the COVID-19 numbers are still too new and moving too quickly.  Thus we want to emphasize that we're modeling <em>a</em> virus, not <em>the</em> virus.<br /><br />For more details, please see our <a href='https://observablehq.com/@osserman/people-of-the-pandemic-simulation-methodology' target='_new'>full methodology</a>.",
+    "methodology": "Methodology",
+    "fullMethodology": "<a href='https://observablehq.com/@osserman/people-of-the-pandemic-simulation-methodology' target='_new'>Full Methodology</a>",
+    "methodologyHere": "We've put a lot of thought and research into our simulation.<br />Read the full, detailed methodology <a href='https://observablehq.com/@osserman/people-of-the-pandemic-simulation-methodology' target='_new'>here</a>.",
+    "credits": "Credits",
+    "egghead": "Thank you so much to <strong><a href='https://egghead.io' target='_new'>egghead.io</a></strong> for sponsoring this project.",
+    "observable": "Thank you Jeremy Ashkenas and Anjana Vakil for <a href='https://observablehq.com/' target='_new'>Observable</a> support.",
+    "feedback": "And thank you to the following kind people for all their feedback:"
   },
   "failed": {
     "heading": {

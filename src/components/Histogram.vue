@@ -27,7 +27,7 @@
           text-anchor="middle"
           font-weight="bold"
         >
-          average: {{ average.count }} times
+          {{ $t('decide.average', {count: average.count}) }}
         </text>
       </g>
       <g

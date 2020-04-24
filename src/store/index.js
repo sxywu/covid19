@@ -531,12 +531,6 @@ export default new Vuex.Store({
     },
   },
   mutations: {
-    setLocale() {
-      let lang = navigator.language
-      if (lang !== 'en') {
-        i18n.locale = lang
-      }
-    },
     setCurrentPage(state, currentPage) {
       state.currentPage = currentPage
     },
