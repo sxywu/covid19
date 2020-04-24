@@ -45,7 +45,7 @@
     }
   },
   "header": {
-    "stayedHome": "% sont restés à la maison",
+    "wentOut": "% sortis",
     "hospitalCapacity": "Capacité hospitalière"
   },
   "decide": {
