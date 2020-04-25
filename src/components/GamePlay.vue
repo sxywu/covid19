@@ -124,7 +124,7 @@ export default {
     Header,
     Legend,
   },
-  props: ['ageGroups', 'healthStatus', 'colorsByHealth'],
+  props: ['isPhone', 'ageGroups', 'healthStatus', 'colorsByHealth'],
   data() {
     return {
       width: maxWidth,
