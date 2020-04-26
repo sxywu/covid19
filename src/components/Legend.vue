@@ -46,6 +46,8 @@ export default {
 }
 
 #legend.sm {
+  border-top: 1px solid $gray;
+
   ul {
     width: 100%;
     display: grid;
