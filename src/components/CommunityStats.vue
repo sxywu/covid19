@@ -169,8 +169,9 @@ header {
 
 .sm {
   header {
-    padding: 0.5rem;
+    padding: 0.25rem;
     margin: 0;
+    border-top: 1px solid $gray;
     border-bottom: 0;
 
     h4 {

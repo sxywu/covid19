@@ -89,7 +89,8 @@
       <div id="topPanel" class="panel">
         <Header v-bind="{height: topHeight, isPhone}" />
       </div>
-      <div id="bottomPanel" class="panel">
+      <div id="bottomPanel" class="panel" :style="{height: `${bottomHeight}px`}">
+        <Legend v-bind="{healthStatus, colorsByHealth, isPhone}" />
         <CommunityStats
           v-bind="{
             isPhone,
@@ -146,7 +147,7 @@ export default {
       height: maxHeight,
       topHeight: this.isPhone ? 55 : 75,
       rightWidth: 320,
-      bottomHeight: this.isPhone ? 55 : 180,
+      bottomHeight: this.isPhone ? 110 : 180,
       tl: new gsap.timeline({ paused: true }),
       groups: [],
       showDecision: false,
