@@ -86,6 +86,9 @@
       </div>
     </div>
     <div v-if="isPhone" class="gameContainer">
+      <div id="topPanel">
+        <Header v-bind="{height: topHeight, isPhone}" />
+      </div>
     </div>
     <!-- ONLY SHOW FOOTNOTE METHODOLOGY ON DESKTOP -->
     <footer v-if="!isPhone" id='footNote' class='label' :style="{width: `${width}px`}">
@@ -132,7 +135,7 @@ export default {
     return {
       width: maxWidth,
       height: maxHeight,
-      topHeight: 75,
+      topHeight: this.isPhone ? 64 : 75,
       rightWidth: 320,
       bottomHeight: 180,
       tl: new gsap.timeline({ paused: true }),
@@ -355,9 +358,14 @@ export default {
   }
 }
 
-#footNote {
-  position: absolute;
-  text-align: right;
-  padding: 3px;
+#gameplay.sm {
+  background: white;
+  overflow: hidden;
+
+  #topPanel {
+    width: 100%;
+    top: 0;
+    border-bottom: 1px solid $gray;
+  }
 }
 </style>
