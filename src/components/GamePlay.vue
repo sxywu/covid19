@@ -1,9 +1,9 @@
 <template>
-  <div id="gameplay" :style="{width: `${width}px`, height: `${height}px`}">
-    <div class="gameContainer">
+  <div id="gameplay" :class="$mq" :style="{width: `${width}px`, height: `${height}px`}">
+    <div v-if="!isPhone" class="gameContainer">
       <!-- TOP PANEL -->
       <div id="topPanel">
-        <Header v-bind="{height: topHeight}" />
+        <Header v-bind="{height: topHeight, isPhone}" />
       </div>
       <!-- COMMUNITY -->
       <div id="communityPanel">
@@ -85,7 +85,10 @@
         />
       </div>
     </div>
-    <footer id='footNote' class='label' :style="{width: `${width}px`}">
+    <div v-if="isPhone" class="gameContainer">
+    </div>
+    <!-- ONLY SHOW FOOTNOTE METHODOLOGY ON DESKTOP -->
+    <footer v-if="!isPhone" id='footNote' class='label' :style="{width: `${width}px`}">
       <span v-html="$t('footnotes.fullMethodology')"></span>
     </footer>
   </div>
@@ -183,8 +186,8 @@ export default {
     },
   },
   mounted() {
-    window.addEventListener('resize', this.calculateDimensions)
     this.calculateDimensions()
+    window.addEventListener('resize', this.calculateDimensions)
   },
   destroyed() {
     window.removeEventListener('resize', this.calculateDimensions)
@@ -204,8 +207,12 @@ export default {
       this.groups = groups
     },
     calculateDimensions() {
-      this.width = Math.min(window.innerWidth - padding, maxWidth)
-      this.height = Math.min((1 / widthHeightRatio) * this.width, maxHeight)
+      this.width = window.innerWidth
+      this.height = window.innerHeight
+      if (!this.isPhone) {
+        this.width = Math.min(window.innerWidth - padding, maxWidth)
+        this.height = Math.min((1 / widthHeightRatio) * this.width, maxHeight)
+      }
     },
     updateDecision(numTimes) {
       this.showDecision = false
@@ -265,80 +272,87 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-#gameplay {
+// DESKTOP
+#gameplay.lg, #gameplay.md {
   background: white;
   border-radius: 6px;
   overflow: hidden;
   @include shadow;
-}
 
-.gameContainer {
-  position: relative;
-  display: grid;
-  height: 100%;
-  grid-template-rows: 1fr 7fr 2fr;
-}
-
-#topPanel {
-  grid-column: 1 / 3;
-  width: 100%;
-  top: 0;
-  border-bottom: 1px solid $gray;
-}
-
-#communityPanel {
-  overflow: hidden;
-  display: grid;
-  grid-row-start: 2;
-  grid-row-end: 3;
-  position: relative;
-}
-
-#rightPanel {
-  display: flex;
-  flex-direction: column;
-  grid-column: 2;
-  grid-row-start: 2;
-  grid-row-end: 4;
-  right: 0px;
-  bottom: 0px;
-  border-left: 1px solid $gray;
-}
-
-#bottomPanel {
-  display: grid;
-  grid-template-columns: 180px 1fr 1.5fr;
-  grid-row: 3;
-  padding: 1rem;
-  left: 0px;
-  bottom: 0px;
-  border-top: 1px solid $gray;
-}
-
-#minimapContainer {
-  position: relative;
-  align-self: flex-end;
-  margin-left: auto;
-  padding: 1rem;
-}
-
-#populationContainer {
-  position: absolute;
-  align-self: flex-start;
-  margin: 1rem;
-  margin-right: auto;
-  background-color: rgba(255, 255, 255, 0.9);
-  padding: 5px;
-  border: 1px solid $gray;
-  border-radius: 3px;
-
-  h3 {
-    margin: 0;
+  .gameContainer {
+    position: relative;
+    display: grid;
+    height: 100%;
+    grid-template-rows: 1fr 7fr 2fr;
   }
-}
 
-.panel {
-  position: absolute;
+  #topPanel {
+    grid-column: 1 / 3;
+    width: 100%;
+    top: 0;
+    border-bottom: 1px solid $gray;
+  }
+
+  #communityPanel {
+    overflow: hidden;
+    display: grid;
+    grid-row-start: 2;
+    grid-row-end: 3;
+    position: relative;
+  }
+
+  #rightPanel {
+    display: flex;
+    flex-direction: column;
+    grid-column: 2;
+    grid-row-start: 2;
+    grid-row-end: 4;
+    right: 0px;
+    bottom: 0px;
+    border-left: 1px solid $gray;
+  }
+
+  #bottomPanel {
+    display: grid;
+    grid-template-columns: 180px 1fr 1.5fr;
+    grid-row: 3;
+    padding: 1rem;
+    left: 0px;
+    bottom: 0px;
+    border-top: 1px solid $gray;
+  }
+
+  #minimapContainer {
+    position: relative;
+    align-self: flex-end;
+    margin-left: auto;
+    padding: 1rem;
+  }
+
+  #populationContainer {
+    position: absolute;
+    align-self: flex-start;
+    margin: 1rem;
+    margin-right: auto;
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 5px;
+    border: 1px solid $gray;
+    border-radius: 3px;
+
+    h3 {
+      margin: 0;
+    }
+  }
+
+  .panel {
+    position: absolute;
+  }
+
+  #footNote {
+    position: absolute;
+    text-align: right;
+    padding: 3px;
+  }
 }
 
 #footNote {
