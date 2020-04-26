@@ -1,6 +1,6 @@
 <template>
-  <div id="lineChart">
-    <svg :width="width" :height="height">
+  <div id="lineChart" :class="$mq">
+    <svg :width="svgWidth" :height="height">
       <text class="header label" dy="1em">{{ $t('lineChart.label') }}</text>
       <!-- WEEK -->
       <rect v-if="week > 1" :x="rect.x" :y="rect.y" :width="rect.width" :height="rect.height" />
@@ -24,7 +24,7 @@
       <!-- X-AXIS -->
       <g class="axis label" ref="xAxis" :transform="`translate(0, ${height - margin.bottom})`" />
     </svg>
-    <ul class="legend">
+    <ul class="legend" :style="{width: `${legendWidth}px`}">
       <li v-for="({label, counts, strokeDasharray}) in legend">
         <div class="label">{{ label }}</div>
         <div v-for="{color, label} in counts">
@@ -40,7 +40,8 @@
           <span class="label"> {{ label }}</span>
         </div>
       </li>
-      <li v-if="week > 1">
+      <!-- NOT ON PHONE -->
+      <li v-if="!isPhone && week > 1">
         <span class="week"></span>
         <span class="label"> {{ $t('lineChart.legend.currentWeek') }}</span>
       </li>
@@ -55,10 +56,10 @@ import gsap from 'gsap'
 
 const types = ['worstAlternate', 'player']
 const healths = ['total', 5]
-const margin = { top: 30, right: 15, bottom: 20, left: 20 }
 export default {
   name: 'LineChart',
   props: [
+    'isPhone',
     'width',
     'height',
     'ageGroups',
@@ -68,9 +69,14 @@ export default {
     'playTimeline',
   ],
   data() {
+    const legendWidth = 140
     return {
-      legendSVGWidth: 40,
-      margin,
+      svgWidth: this.width - legendWidth - 12, // 12 is for padding in CSS
+      legendWidth,
+      legendSVGWidth: 20,
+      // margin: this.isPhone ? {top: 30, right: 10, bottom: 20, left: 20} :
+      //   { top: 30, right: 15, bottom: 20, left: 20 },
+      margin: { top: 30, right: 15, bottom: 20, left: 20 },
       paths: [],
       rect: {},
       line: {},
@@ -122,10 +128,11 @@ export default {
     },
   },
   created() {
-    this.xScale = d3
-      .scaleLinear()
-      .range([margin.left, this.width - margin.right])
-    this.yScale = d3.scaleLinear().range([this.height - margin.bottom, margin.top])
+    this.xScale = d3.scaleLinear()
+      .range([this.margin.left, this.svgWidth - this.margin.right])
+
+    this.yScale = d3.scaleLinear()
+      .range([this.height - this.margin.bottom, this.margin.top])
 
     this.lineGenerator = d3.line().curve(d3.curveCatmullRom)
 
@@ -138,10 +145,10 @@ export default {
     this.yAxis = d3
       .axisLeft()
       .scale(this.yScale)
-      .ticks(4)
+      .ticks(this.isPhone ? 2 : 4)
       .tickFormat(d => (d >= 1000 ? `${_.round(d / 1000, 1)}k` : d))
+      .tickSizeInner(-this.svgWidth + this.margin.left + this.margin.right)
       .tickSizeOuter(0)
-      .tickSizeInner(-this.width + margin.left + margin.right)
   },
   mounted() {
     this.startLineChart()
@@ -176,11 +183,10 @@ export default {
           })
         }).flatten().value()
       this.rect = {
-        x: this.width - margin.right,
-        y: margin.top,
+        x: this.svgWidth - this.margin.right,
+        y: this.margin.top,
         width: 0,
-        height: this.height - margin.top - margin.bottom,
-
+        height: this.height - this.margin.top - this.margin.bottom,
       }
       this.line = {}
     },
@@ -321,7 +327,6 @@ li {
 }
 
 .legend {
-  width: 160px;
   text-align: left;
 
   svg {
@@ -340,6 +345,15 @@ li {
     display: inline-block;
     background-color: $gray;
     vertical-align: middle;
+  }
+}
+
+.sm {
+  padding: 0.5rem 0px 0px 12px;
+  border-top: 1px solid $gray;
+
+  .legend {
+    margin: 0;
   }
 }
 </style>

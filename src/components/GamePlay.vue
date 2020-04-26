@@ -63,6 +63,7 @@
         <Legend v-bind="{healthStatus, colorsByHealth}" />
         <BarChart
           v-bind="{
+            isPhone,
             width: 300,
             height: bottomHeight,
             ageGroups,
@@ -74,7 +75,8 @@
         />
         <LineChart
           v-bind="{
-            width: 320,
+            isPhone,
+            width: 460,
             height: bottomHeight,
             ageGroups,
             colorsByHealth,
@@ -86,11 +88,26 @@
       </div>
     </div>
     <div v-if="isPhone" class="gameContainer">
+      <div id="chartsPanel" class="panel" :style='{bottom: `${bottomHeight}px`}'>
+        <Legend v-bind="{healthStatus, colorsByHealth, isPhone}" />
+        <LineChart
+          v-bind="{
+            isPhone,
+            width,
+            height: 120,
+            ageGroups,
+            colorsByHealth,
+            tl,
+            phases,
+            playTimeline,
+          }"
+        />
+        <!-- <Hospital v-bind="{colorsByHealth, tl, phases, playTimeline}" /> -->
+      </div>
       <div id="topPanel" class="panel">
         <Header v-bind="{height: topHeight, isPhone}" />
       </div>
       <div id="bottomPanel" class="panel" :style="{height: `${bottomHeight}px`}">
-        <Legend v-bind="{healthStatus, colorsByHealth, isPhone}" />
         <CommunityStats
           v-bind="{
             isPhone,
@@ -125,7 +142,6 @@ const maxWidth = 1320
 const maxHeight = 840
 const widthHeightRatio = maxWidth / maxHeight
 const padding = 40
-const needSetup = ['community', 'area', 'bar', 'hospital', 'stats']
 
 export default {
   name: 'GamePlay',
@@ -143,13 +159,15 @@ export default {
   props: ['isPhone', 'ageGroups', 'healthStatus', 'colorsByHealth'],
   data() {
     return {
-      width: maxWidth,
-      height: maxHeight,
+      width: this.isPhone ? window.innerWidth : maxWidth,
+      height: this.isPhone ? window.innerHeight : maxHeight,
       topHeight: this.isPhone ? 55 : 75,
       rightWidth: 320,
-      bottomHeight: this.isPhone ? 110 : 180,
+      bottomHeight: this.isPhone ? 55 : 180,
       tl: new gsap.timeline({ paused: true }),
       groups: [],
+      needSetup: this.isPhone ? ['area', 'stats'] :
+        ['community', 'area', 'bar', 'hospital', 'stats'],
       showDecision: false,
     }
   },
@@ -199,6 +217,7 @@ export default {
     },
   },
   mounted() {
+    this.setupDone = []
     this.calculateDimensions()
     window.addEventListener('resize', this.calculateDimensions)
   },
@@ -257,7 +276,7 @@ export default {
     },
     playTimeline(child) {
       this.setupDone.push(child)
-      if (_.difference(needSetup, this.setupDone).length) return
+      if (_.difference(this.needSetup, this.setupDone).length) return
 
       // if all children have been setup
       this.tl.add(() => {
@@ -373,19 +392,22 @@ export default {
   overflow: hidden;
 
   #topPanel {
-    width: 100%;
     top: 0;
     border-bottom: 1px solid $gray;
   }
 
+  #chartsPanel {
+    bottom: 0;
+  }
+
   #bottomPanel {
-    width: 100%;
     left: 0px;
     bottom: 0px;
     border-top: 1px solid $gray;
   }
 
   .panel {
+    width: 100%;
     position: fixed;
   }
 }
