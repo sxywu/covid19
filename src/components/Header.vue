@@ -185,8 +185,11 @@ h4 {
   display: grid;
   grid-template-columns: 60px 60px 1fr 1fr;
 
+  h4 {
+    font-size: 1.5rem;
+  }
   .item {
-    padding: 0.75rem;
+    padding: 0.5rem;
   }
   .item-content {
     margin-left: 0;

@@ -1,5 +1,5 @@
 <template>
-  <div id="communityStats">
+  <div id="communityStats" :class="$mq">
     <header>
       <div>
         <h3 class="label">{{ $t('communityStats.total') }}</h3>
@@ -10,7 +10,8 @@
         <h4>{{ formatNumber(avoided) }}</h4>
       </div>
     </header>
-    <div class="bars">
+    <!-- ONLY ON DESKTOP -->
+    <div class="bars" v-if="!isPhone">
       <div class="item" v-for="({label, value, maxValue, color}) in items" v-bind:key="label">
         <h3 class="label">{{ label }}</h3>
         <div class="value">
@@ -32,6 +33,7 @@ export default {
     ProgressBar,
   },
   props: [
+    'isPhone',
     'colorsByHealth',
     'healthStatus',
     'tl',
@@ -71,6 +73,9 @@ export default {
       this.total = 0
       this.avoided = 0
 
+      if (this.isPhone) return
+
+      // ONLY ON DESKTOP
       this.items = _.map([4, 5, 1], num => {
         return {
           color: this.colorsByHealth[num],
@@ -91,11 +96,14 @@ export default {
         duration: this.duration,
       }, `day${this.day}`)
 
-      this.tl.to(this.items, {
-        value: (i, {num}) => player[num] || 0,
-        maxValue: player.total,
-        duration: this.duration,
-      }, `day${this.day}`)
+      // ONLY ON DESKTOP
+      if (!this.isPhone) {
+        this.tl.to(this.items, {
+          value: (i, {num}) => player[num] || 0,
+          maxValue: player.total,
+          duration: this.duration,
+        }, `day${this.day}`)
+      }
 
       this.playTimeline('stats')
     },
@@ -107,9 +115,6 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-#communityStats {
-}
-
 header {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -159,6 +164,18 @@ header {
   }
   progress {
     margin-top: 4px;
+  }
+}
+
+.sm {
+  header {
+    padding: 0.5rem;
+    margin: 0;
+    border-bottom: 0;
+
+    h4 {
+      font-size: 1.5rem;
+    }
   }
 }
 </style>

@@ -86,8 +86,17 @@
       </div>
     </div>
     <div v-if="isPhone" class="gameContainer">
-      <div id="topPanel">
+      <div id="topPanel" class="panel">
         <Header v-bind="{height: topHeight, isPhone}" />
+      </div>
+      <div id="bottomPanel" class="panel">
+        <CommunityStats
+          v-bind="{
+            isPhone,
+            tl, phases,
+            playTimeline,
+          }"
+        />
       </div>
     </div>
     <!-- ONLY SHOW FOOTNOTE METHODOLOGY ON DESKTOP -->
@@ -135,9 +144,9 @@ export default {
     return {
       width: maxWidth,
       height: maxHeight,
-      topHeight: this.isPhone ? 64 : 75,
+      topHeight: this.isPhone ? 55 : 75,
       rightWidth: 320,
-      bottomHeight: 180,
+      bottomHeight: this.isPhone ? 55 : 180,
       tl: new gsap.timeline({ paused: true }),
       groups: [],
       showDecision: false,
@@ -366,6 +375,17 @@ export default {
     width: 100%;
     top: 0;
     border-bottom: 1px solid $gray;
+  }
+
+  #bottomPanel {
+    width: 100%;
+    left: 0px;
+    bottom: 0px;
+    border-top: 1px solid $gray;
+  }
+
+  .panel {
+    position: fixed;
   }
 }
 </style>
