@@ -1,5 +1,6 @@
 <template>
   <div id="gameplay" :class="$mq" :style="{width: `${width}px`, height: `${height}px`}">
+    <!-- FOR DESKTOP -->
     <div v-if="!isPhone" class="gameContainer">
       <!-- TOP PANEL -->
       <div id="topPanel">
@@ -85,7 +86,36 @@
         />
       </div>
     </div>
+    <!-- FOR PHONE  -->
     <div v-if="isPhone" class="gameContainer">
+      <div id="communityPanel" class="panel" :style="{top: `${topHeight}px`}">
+        <Community
+          v-bind="{
+            isPhone,
+            ...communityDimensions,
+            colorsByHealth,
+            tl,
+            phases,
+            playTimeline,
+            setGroups,
+          }"
+        />
+        <!-- POPULATION  -->
+        <div class="label" id="populationContainer">
+          <h3 v-if="cityCounty">{{ cityCounty.city }}, {{ cityCounty.state }} {{ cityCounty.zip }}</h3>
+          <div v-if="population">Population: {{ formatNumber(population.total) }}</div>
+        </div>
+        <!-- DECISION SCREEN -->
+        <!-- <Decide
+          v-if="showDecision"
+          v-bind="{
+            onUpdate: updateDecision,
+            continueGame,
+            ageGroups,
+            colorsByHealth,
+          }"
+        /> -->
+      </div>
       <div id="chartsPanel" class="panel" :style='{
         bottom: `${bottomHeight}px`,
         height: `${chartsHeight}px`,
@@ -213,9 +243,10 @@ export default {
     communityDimensions() {
       return {
         top: 0,
-        left: this.topHeight,
-        width: this.width - this.rightWidth,
-        height: this.height - this.topHeight - this.bottomHeight,
+        left: 0,
+        width: this.width - (this.isPhone ? 0 : this.rightWidth),
+        height: this.height - this.bottomHeight - this.topHeight
+          - (this.isPhone ? this.chartsHeight : 0),
       }
     },
     minimapDimensions() {
@@ -413,6 +444,19 @@ export default {
     border-bottom: 1px solid $gray;
   }
 
+  #populationContainer {
+    position: absolute;
+    margin: 0.5rem 0.75rem;
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 5px;
+    border: 1px solid $gray;
+    border-radius: 3px;
+
+    h3 {
+      margin: 0;
+    }
+  }
+
   #chartsPanel {
     bottom: 0;
     overflow-x: hidden;
@@ -435,6 +479,7 @@ export default {
   .panel {
     width: 100%;
     position: fixed;
+    background-color: white;
   }
 }
 </style>
