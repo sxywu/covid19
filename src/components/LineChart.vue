@@ -349,7 +349,7 @@ li {
 }
 
 .sm {
-  padding: 0.5rem 0px 0px 12px;
+  padding: 0.5rem 0px 0.5px 0.75rem;
   border-top: 1px solid $gray;
 
   .legend {
