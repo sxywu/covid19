@@ -105,6 +105,18 @@
             }"
           />
           <Hospital v-bind="{isPhone, colorsByHealth, tl, phases, playTimeline}" />
+          <BarChart
+            v-bind="{
+              isPhone,
+              width,
+              height: 120,
+              ageGroups,
+              colorsByHealth,
+              tl,
+              phases,
+              playTimeline,
+            }"
+          />
         </div>
       </div>
       <div id="topPanel" class="panel">
@@ -402,7 +414,8 @@ export default {
 
   #chartsPanel {
     bottom: 0;
-    overflow: scroll;
+    overflow-x: hidden;
+    overflow-y: scroll;
     border-top: 1px solid $gray;
   }
 

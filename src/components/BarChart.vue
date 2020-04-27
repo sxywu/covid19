@@ -1,5 +1,5 @@
 <template>
-  <div id="barChart">
+  <div id="barChart" :class="$mq">
     <svg :width="width" :height="height">
       <text class="header label" dy="1em">{{ $t('barChart.label') }}</text>
       <g class="label axis" ref="yAxis" :transform="`translate(${margin.left}, 0)`" />
@@ -21,6 +21,7 @@ const margin = { top: 30, right: 10, bottom: 20, left: 15 }
 export default {
   name: 'BarChart',
   props: [
+    'isPhone',
     'width',
     'height',
     'ageGroups',
@@ -31,6 +32,7 @@ export default {
   ],
   data() {
     return {
+      svgWidth: this.width - (this.isPhone ? 15 : 0),
       margin,
       bars: [],
       barWidth: 0,
@@ -46,8 +48,8 @@ export default {
     this.xScale = d3
       .scaleBand()
       .domain(_.values(this.ageGroups))
-      .range([margin.left, this.width - margin.right])
-      .padding(0.45)
+      .range([margin.left, this.svgWidth - margin.right])
+      .padding(this.width > 300 ? 0.6 : 0.45)
     this.yScale = d3
       .scaleLinear()
       .range([this.height - margin.bottom, margin.top])
@@ -60,9 +62,9 @@ export default {
     this.yAxis = d3
       .axisLeft()
       .scale(this.yScale)
-      .ticks(4)
+      .ticks(this.isPhone ? 2 : 4)
       .tickSizeOuter(0)
-      .tickSizeInner(-this.width + margin.left + margin.right)
+      .tickSizeInner(-this.svgWidth + margin.left + margin.right)
       .tickFormat(d => (d >= 1000 ? `${_.round(d / 1000, 1)}k` : d))
   },
   mounted() {
@@ -222,7 +224,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 #barChart {
   display: inline-block;
 }
@@ -237,5 +239,10 @@ svg {
 
 .axis {
   font-size: 10px;
+}
+
+.sm {
+  padding: 0.5rem 0.75rem;
+  border-top: 1px solid $gray;
 }
 </style>
