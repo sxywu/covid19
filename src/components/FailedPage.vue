@@ -1,9 +1,11 @@
 <template>
   <div id="failed">
+    <div class="image-content">
+      <img v-if="isFoodVariant" src="../assets/empty-fridge.png" />
+      <img v-else src="../assets/dirty-couch.png" />
+    </div>
     <div class="content">
       <div class="item">
-        <img v-if="isFoodVariant" src="../assets/food-icon.png" />
-        <img v-else src="../assets/runner.png" />
         <div class="item-content">
           <h3 v-if="isFoodVariant" class="label">{{ $t('food') }}</h3>
           <h3 v-else class="label">{{ $t('exercise') }}</h3>
@@ -16,41 +18,39 @@
       <h1 v-else>{{ $t('failed.heading.exercise') }}</h1>
       <p>{{ $t('failed.body') }}</p>
       <Share />
-      <button @click="playAgain" class="playBtn">
-        {{ $t('failed.buttonCta') }}
-      </button>
+      <button @click="playAgain" class="playBtn">{{ $t('failed.buttonCta') }}</button>
     </div>
   </div>
 </template>
 
 <script>
-import Share from './Share'
+import Share from "./Share";
 
 export default {
-  name: 'FailedPage',
+  name: "FailedPage",
   components: {
-    Share,
+    Share
   },
   methods: {
     playAgain() {
-      this.$store.dispatch('resetGame')
-    },
+      this.$store.dispatch("resetGame");
+    }
   },
   computed: {
     foodStatus() {
-      return this.$store.state.foodStatus
+      return this.$store.state.foodStatus;
     },
     exerciseStatus() {
-      return this.$store.state.exerciseStatus
+      return this.$store.state.exerciseStatus;
     },
     isFoodVariant() {
       return this.$store.state.exerciseStatus.value >=
         this.$store.state.foodStatus.value
         ? true
-        : false
-    },
-  },
-}
+        : false;
+    }
+  }
+};
 </script>
 
 <style lang="scss" scoped>
@@ -69,30 +69,44 @@ p {
   line-height: 1.5;
 }
 
+img {
+  max-width: 300px;
+  margin: 0 auto;
+  display: flex;
+}
+
+input {
+  display: flex;
+  flex-direction: row;
+  align-items: left;
+  justify-content: left;
+}
+
 .content {
-  text-align: center;
-  width: 100%;
+  margin-left: 3em;
+  text-align: left;
+  width: 50%;
   max-width: 500px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  align-items: left;
+  justify-content: left;
 }
 
 .item {
-  padding: 1rem;
+  // padding: 1rem;
   display: flex;
   flex-direction: row;
-  align-items: center;
-  justify-content: center;
+  align-items: left;
+  justify-content: left;
   width: 100%;
 }
 
 .item-content {
-  margin-left: 0.75rem;
+  // margin-left: 0.75rem;
   display: flex;
   align-items: flex-start;
-  justify-content: center;
+  justify-content: left;
   flex-direction: column;
   width: 100%;
   max-width: 300px;
@@ -132,6 +146,7 @@ progress[value]::-moz-progress-bar {
 }
 
 .playBtn {
+  max-width: 250px;
   background-color: $red;
   color: #fff;
   padding: 1rem 2rem;
