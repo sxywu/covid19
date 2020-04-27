@@ -36,22 +36,22 @@
 
 <script>
 export default {
-  name: 'Share',
+  name: "Share",
   props: {
-    isCopied: { type: Boolean, default: false },
+    isCopied: { type: Boolean, default: false }
   },
   data: function() {
     return {
-      siteUrl: 'peopleofthepandemicgame.com',
-    }
+      siteUrl: "peopleofthepandemicgame.com"
+    };
   },
   methods: {
     onCopy: function(e) {
-      this.isCopied = true
-      e.preventDefault()
-    },
-  },
-}
+      this.isCopied = true;
+      e.preventDefault();
+    }
+  }
+};
 </script>
 
 <style lang="scss" scoped>
@@ -64,7 +64,7 @@ form {
   grid-template-columns: 8fr 2fr;
   align-items: center;
   max-width: 380px;
-  margin: 0 auto;
+  // margin: 0 auto;
   margin-bottom: 1rem;
 }
 input {

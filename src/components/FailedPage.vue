@@ -56,7 +56,8 @@ export default {
 <style lang="scss" scoped>
 #failed {
   padding: 1.5rem;
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   align-items: center;
   justify-content: center;
   width: 100vw;
@@ -69,23 +70,18 @@ p {
   line-height: 1.5;
 }
 
-img {
-  max-width: 300px;
-  margin: 0 auto;
-  display: flex;
-}
-
-input {
-  display: flex;
-  flex-direction: row;
-  align-items: left;
-  justify-content: left;
+.image-content {
+  display: grid;
+  justify-self: end;
+  margin-right: 2em;
+  img {
+    max-width: 300px;
+  }
 }
 
 .content {
   margin-left: 3em;
   text-align: left;
-  width: 50%;
   max-width: 500px;
   display: flex;
   flex-direction: column;
