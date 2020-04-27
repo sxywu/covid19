@@ -86,21 +86,26 @@
       </div>
     </div>
     <div v-if="isPhone" class="gameContainer">
-      <div id="chartsPanel" class="panel" :style='{bottom: `${bottomHeight}px`}'>
-        <Legend v-bind="{healthStatus, colorsByHealth, isPhone}" />
-        <LineChart
-          v-bind="{
-            isPhone,
-            width,
-            height: 120,
-            ageGroups,
-            colorsByHealth,
-            tl,
-            phases,
-            playTimeline,
-          }"
-        />
-        <Hospital v-bind="{isPhone, colorsByHealth, tl, phases, playTimeline}" />
+      <div id="chartsPanel" class="panel" :style='{
+        bottom: `${bottomHeight}px`,
+        height: `${chartsHeight}px`,
+      }'>
+        <div>
+          <Legend v-bind="{healthStatus, colorsByHealth, isPhone}" />
+          <LineChart
+            v-bind="{
+              isPhone,
+              width,
+              height: 120,
+              ageGroups,
+              colorsByHealth,
+              tl,
+              phases,
+              playTimeline,
+            }"
+          />
+          <Hospital v-bind="{isPhone, colorsByHealth, tl, phases, playTimeline}" />
+        </div>
       </div>
       <div id="topPanel" class="panel">
         <Header v-bind="{height: topHeight, isPhone}" />
@@ -161,6 +166,7 @@ export default {
       height: this.isPhone ? window.innerHeight : maxHeight,
       topHeight: this.isPhone ? 55 : 75,
       rightWidth: 320,
+      chartsHeight: 275,
       bottomHeight: this.isPhone ? 55 : 180,
       tl: new gsap.timeline({ paused: true }),
       groups: [],
@@ -396,6 +402,8 @@ export default {
 
   #chartsPanel {
     bottom: 0;
+    overflow: scroll;
+    border-top: 1px solid $gray;
   }
 
   #bottomPanel {

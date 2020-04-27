@@ -46,8 +46,6 @@ export default {
 }
 
 #legend.sm {
-  border-top: 1px solid $gray;
-
   ul {
     width: 100%;
     display: grid;
@@ -66,12 +64,5 @@ export default {
     height: 10px;
     border-radius: 50%;
   }
-  // ul, li {
-  //   display: inline-block;
-  //   padding: 0rem;
-  // }
-  // .legend-label {
-  //   vertical-align: middle;
-  // }
 }
 </style>
