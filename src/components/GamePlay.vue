@@ -106,15 +106,16 @@
           <div v-if="population">Population: {{ formatNumber(population.total) }}</div>
         </div>
         <!-- DECISION SCREEN -->
-        <!-- <Decide
+        <Decide
           v-if="showDecision"
           v-bind="{
+            isPhone,
             onUpdate: updateDecision,
             continueGame,
             ageGroups,
             colorsByHealth,
           }"
-        /> -->
+        />
       </div>
       <div id="chartsPanel" class="panel" :style='{
         bottom: `${bottomHeight}px`,
