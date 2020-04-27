@@ -63,7 +63,6 @@
         <Legend v-bind="{healthStatus, colorsByHealth}" />
         <BarChart
           v-bind="{
-            isPhone,
             width: 300,
             height: bottomHeight,
             ageGroups,
@@ -75,7 +74,6 @@
         />
         <LineChart
           v-bind="{
-            isPhone,
             width: 460,
             height: bottomHeight,
             ageGroups,
@@ -102,7 +100,7 @@
             playTimeline,
           }"
         />
-        <!-- <Hospital v-bind="{colorsByHealth, tl, phases, playTimeline}" /> -->
+        <Hospital v-bind="{isPhone, colorsByHealth, tl, phases, playTimeline}" />
       </div>
       <div id="topPanel" class="panel">
         <Header v-bind="{height: topHeight, isPhone}" />
@@ -166,7 +164,7 @@ export default {
       bottomHeight: this.isPhone ? 55 : 180,
       tl: new gsap.timeline({ paused: true }),
       groups: [],
-      needSetup: this.isPhone ? ['area', 'stats'] :
+      needSetup: this.isPhone ? ['area', 'stats', 'hospital'] :
         ['community', 'area', 'bar', 'hospital', 'stats'],
       showDecision: false,
     }
