@@ -117,6 +117,7 @@
               playTimeline,
             }"
           />
+          <div class="methodology label" v-html="$t('footnotes.fullMethodology')"></div>
         </div>
       </div>
       <div id="topPanel" class="panel">
@@ -133,7 +134,7 @@
       </div>
     </div>
     <!-- ONLY SHOW FOOTNOTE METHODOLOGY ON DESKTOP -->
-    <footer v-if="!isPhone" id='footNote' class='label' :style="{width: `${width}px`}">
+    <footer v-if="!isPhone" class='methodology label' :style="{width: `${width}px`}">
       <span v-html="$t('footnotes.fullMethodology')"></span>
     </footer>
   </div>
@@ -396,7 +397,7 @@ export default {
     position: absolute;
   }
 
-  #footNote {
+  .methodology {
     position: absolute;
     text-align: right;
     padding: 3px;
@@ -417,6 +418,12 @@ export default {
     overflow-x: hidden;
     overflow-y: scroll;
     border-top: 1px solid $gray;
+
+    .methodology {
+      padding: 0.5rem 0.75rem;
+      text-align: center;
+      border-top: 1px solid $gray;
+    }
   }
 
   #bottomPanel {
