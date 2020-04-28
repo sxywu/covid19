@@ -18,46 +18,52 @@
       <h1 v-else>{{ $t('failed.heading.exercise') }}</h1>
       <p>{{ $t('failed.body') }}</p>
       <Share />
-      <button @click="playAgain" class="playBtn">{{ $t('failed.buttonCta') }}</button>
+      <button @click="playAgain" class="playBtn">
+        {{ $t('failed.buttonCta') }}
+      </button>
     </div>
   </div>
 </template>
 
 <script>
-import Share from "./Share";
+import Share from './Share'
 
 export default {
-  name: "FailedPage",
+  name: 'FailedPage',
   components: {
-    Share
+    Share,
   },
   methods: {
     playAgain() {
-      this.$store.dispatch("resetGame");
-    }
+      this.$store.dispatch('resetGame')
+    },
   },
   computed: {
     foodStatus() {
-      return this.$store.state.foodStatus;
+      return this.$store.state.foodStatus
     },
     exerciseStatus() {
-      return this.$store.state.exerciseStatus;
+      return this.$store.state.exerciseStatus
     },
     isFoodVariant() {
       return this.$store.state.exerciseStatus.value >=
         this.$store.state.foodStatus.value
         ? true
-        : false;
-    }
-  }
-};
+        : false
+    },
+  },
+}
 </script>
 
 <style lang="scss" scoped>
 #failed {
+  @include respond-to('small') {
+    align-items: initial;
+  }
   padding: 1.5rem;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  // grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   align-items: center;
   justify-content: center;
   width: 100vw;
@@ -71,11 +77,21 @@ p {
 }
 
 .image-content {
-  display: grid;
-  justify-self: end;
+  @include respond-to('medium') {
+    margin-right: 0;
+    margin-bottom: 1rem;
+    img {
+      padding: 1rem;
+    }
+  }
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
   margin-right: 2em;
+  margin-bottom: 0;
   img {
     max-width: 300px;
+    width: 100%;
   }
 }
 
@@ -85,8 +101,9 @@ p {
   max-width: 500px;
   display: flex;
   flex-direction: column;
-  align-items: left;
-  justify-content: left;
+  @include respond-to('small') {
+    margin-left: 0;
+  }
 }
 
 .item {
@@ -99,7 +116,9 @@ p {
 }
 
 .item-content {
-  // margin-left: 0.75rem;
+  @include respond-to('medium') {
+    max-width: 100%;
+  }
   display: flex;
   align-items: flex-start;
   justify-content: left;
