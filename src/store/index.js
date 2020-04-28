@@ -180,17 +180,18 @@ export default new Vuex.Store({
         totalCountyBeds = _.sumBy(hospitals, d => (d.beds > 0 ? d.beds : 0))
       } else {
         // else based on county
-        const hospitalCounty = _.find(hospitalsByZip, ({county}) => cityCounty.county)
+        const hospitalCounty = _.find(hospitalsByZip, ({county}) => county === cityCounty.county)
         countyPopulation = hospitalCounty.population
         totalCountyBeds = hospitalCounty.beds
-        console.log(population.total, countyPopulation, totalCountyBeds)
       }
       return Math.floor(population.total * (totalCountyBeds / countyPopulation))
     },
     totalAvailableBeds({bedOccupancyRate}, {totalBeds}) {
+      if (!totalBeds) return
       return Math.floor((1 - bedOccupancyRate) * totalBeds)
     },
     filledBeds(state, {infected, totalAvailableBeds}) {
+      if (!infected || !totalAvailableBeds) return
       return Math.min(
         _.sumBy(infected, ({health}) => health === 4), // hospitalized
         totalAvailableBeds,
@@ -322,7 +323,7 @@ export default new Vuex.Store({
       {day, totalDays, allDecisions},
       {week, community, totalAvailableBeds},
     ) {
-      if (!community || !allDecisions.length) return
+      if (day < 1 || !community || !allDecisions.length) return
       // and if this is the same day as previous, then don't do anything
       const prevDailyHealth = _.last(dailyHealthStatus)
       if (prevDailyHealth && prevDailyHealth.day === day) return
@@ -371,7 +372,7 @@ export default new Vuex.Store({
         const dayOfWeek = (day - 1) % 7
         // if this is first day of week
         // figure out number of times to go out
-        if (dayOfWeek === 0) {
+        if (!weeklyDecision || dayOfWeek === 0) {
           const numTimes = allDecisions[i % totalPlayers][week - 1]
           let player = numTimesOut[7]
           let bestAlternate = numTimesOut[7]
@@ -634,6 +635,18 @@ export default new Vuex.Store({
         d3.csv(`./${state.country}/hospitals-by-zip-code.csv`, formatData),
         d3.csv(`./${state.country}/zip-to-city-county.csv`, formatData),
       ]).then(([populations, hospitals, cities]) => {
+        // const unequal = _.chain(populations)
+        //   .map(d => {
+        //     const sum = _.sumBy([0, 20, 40, 60, 80], key => d[key])
+        //     return {sum, total: d.total, zip: d.zip}
+        //   }).filter(({sum, total}) => sum !== total)
+        //   .value()
+        // const repeated = _.chain(populations)
+        //   .countBy('zip').map((count, zip) => {return {count, zip}})
+        //   .filter(d => d.count > 1)
+        //   .value()
+        // console.log(JSON.stringify(repeated))
+        // console.log(JSON.stringify(unequal))
         populationsByZip = populations
         hospitalsByZip = hospitals
         citiesByZip = cities
