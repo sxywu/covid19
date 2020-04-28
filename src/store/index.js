@@ -127,6 +127,7 @@ export default new Vuex.Store({
     pastPlayerIDs: [],
     foodStatus: {},
     exerciseStatus: {},
+    country: '',
     gameId: '',
     createdAt: '',
     communitySizeSelection: '',
@@ -167,12 +168,23 @@ export default new Vuex.Store({
       if (!zipsInCounty) return
       return _.filter(hospitalsByZip, d => _.includes(zipsInCounty, d.zip))
     },
-    totalBeds(state, {hospitals, population, zipsInCounty}) {
-      if (!population || !hospitals || !zipsInCounty) return
-      const countyPopulation = _.sumBy(populationsByZip, d =>
-        _.includes(zipsInCounty, d.zip) ? d.total : 0,
-      )
-      const totalCountyBeds = _.sumBy(hospitals, d => (d.beds > 0 ? d.beds : 0))
+    totalBeds(state, {hospitals, population, zipsInCounty, cityCounty}) {
+      if (!population || !hospitals || !zipsInCounty || !cityCounty) return
+      let countyPopulation
+      let totalCountyBeds
+      if (hospitalsByZip[0].zip) {
+        // if hospitals are based on zips
+        countyPopulation = _.sumBy(populationsByZip, d =>
+          _.includes(zipsInCounty, d.zip) ? d.total : 0,
+        )
+        totalCountyBeds = _.sumBy(hospitals, d => (d.beds > 0 ? d.beds : 0))
+      } else {
+        // else based on county
+        const hospitalCounty = _.find(hospitalsByZip, ({county}) => cityCounty.county)
+        countyPopulation = hospitalCounty.population
+        totalCountyBeds = hospitalCounty.beds
+        console.log(population.total, countyPopulation, totalCountyBeds)
+      }
       return Math.floor(population.total * (totalCountyBeds / countyPopulation))
     },
     totalAvailableBeds({bedOccupancyRate}, {totalBeds}) {
@@ -597,23 +609,30 @@ export default new Vuex.Store({
       state.gameId = uuidv4()
       state.createdAt = new Date()
     },
+    setCountry(state) {
+      const country = (navigator.language || navigator.userLanguage).split('-')[1]
+      // if no country found, just default to US
+      state.country = country ? country.toLowerCase() : 'us'
+    },
   },
   actions: {
-    getRawData({commit, dispatch}) {
+    getRawData({commit, state, dispatch}) {
       function formatData(obj) {
         let zip = obj.zip // make sure zip doesn't get turned into integers
-        if (zip.length === 3) {
+        if (zip && zip.length === 3) {
           zip = '00' + zip
         }
-        if (zip.length === 4) {
+        if (zip && zip.length === 4) {
           zip = '0' + zip
         }
-        return Object.assign(d3.autoType(obj), {zip}) // but everything else is formatted correctly
+        return Object.assign(d3.autoType(obj), {
+          [zip ? 'zip' : 'county']: zip || obj.county,
+        }) // but everything else is formatted correctly
       }
       Promise.all([
-        d3.csv('./population-by-zip-code.csv', formatData),
-        d3.csv('./hospitals-by-zip-code.csv', formatData),
-        d3.csv('./zip-to-city-county.csv', formatData),
+        d3.csv(`./${state.country}/population-by-zip-code.csv`, formatData),
+        d3.csv(`./${state.country}/hospitals-by-zip-code.csv`, formatData),
+        d3.csv(`./${state.country}/zip-to-city-county.csv`, formatData),
       ]).then(([populations, hospitals, cities]) => {
         populationsByZip = populations
         hospitalsByZip = hospitals
