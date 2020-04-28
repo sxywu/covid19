@@ -635,18 +635,6 @@ export default new Vuex.Store({
         d3.csv(`./${state.country}/hospitals-by-zip-code.csv`, formatData),
         d3.csv(`./${state.country}/zip-to-city-county.csv`, formatData),
       ]).then(([populations, hospitals, cities]) => {
-        // const unequal = _.chain(populations)
-        //   .map(d => {
-        //     const sum = _.sumBy([0, 20, 40, 60, 80], key => d[key])
-        //     return {sum, total: d.total, zip: d.zip}
-        //   }).filter(({sum, total}) => sum !== total)
-        //   .value()
-        // const repeated = _.chain(populations)
-        //   .countBy('zip').map((count, zip) => {return {count, zip}})
-        //   .filter(d => d.count > 1)
-        //   .value()
-        // console.log(JSON.stringify(repeated))
-        // console.log(JSON.stringify(unequal))
         populationsByZip = populations
         hospitalsByZip = hospitals
         citiesByZip = cities
