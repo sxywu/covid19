@@ -63,7 +63,6 @@ export default {
   padding: 1.5rem;
   display: flex;
   flex-wrap: wrap;
-  // grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   align-items: center;
   justify-content: center;
   width: 100vw;
@@ -107,7 +106,6 @@ p {
 }
 
 .item {
-  // padding: 1rem;
   display: flex;
   flex-direction: row;
   align-items: left;
