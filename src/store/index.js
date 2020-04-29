@@ -635,18 +635,6 @@ export default new Vuex.Store({
         d3.csv(`./${state.country}/hospitals-by-zip-code.csv`, formatData),
         d3.csv(`./${state.country}/zip-to-city-county.csv`, formatData),
       ]).then(([populations, hospitals, cities]) => {
-        // const popZips = _.chain(populations).map('zip').uniq().value()
-        // const cityZips = _.chain(cities).map('zip').uniq().value()
-        // const cityMissing = _.difference(popZips, cityZips)
-        // const cityCounties = _.chain(cities).map('county').uniq().value()
-        // const hospitalCounties = _.chain(hospitals).map('county').uniq().value()
-        // const hospitalMissing = _.difference(cityCounties, hospitalCounties)
-        //
-        // const fixCounty = _.map(cities, ({county, zip}) => {
-        //   if (county !== 97) return county
-        //   return zip.slice(0, 3)
-        // })
-
         populationsByZip = populations
         hospitalsByZip = hospitals
         citiesByZip = cities
