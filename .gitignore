@@ -22,3 +22,5 @@ yarn-error.log*
 
 # firebase
 admin-credentials.json
+public/fr/mismatched-population-zips.csv
+public/fr/repeated-zips.csv
