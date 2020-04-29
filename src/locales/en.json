@@ -58,16 +58,20 @@
     "foodLow": "Be careful! Your food is running low.",
     "exerciseLow": "Be careful!  You haven't exercised in a while.",
     "bothLow": "Be careful!  You're running out of food and haven't exercised in a while.",
-    "h2Question": "How many times will you go out this week?",
-    "range": {
-      "0": "Stay<br />home",
-      "1": "Go<br />for a walk",
-      "2": "Buy<br />groceries",
-      "3": "Go<br />for a run",
-      "4": "Lunch<br />with friends",
-      "5": "Dinner<br />with family",
-      "6": "Go to<br />a party",
-      "7": "Go to<br />a concert"
+    "h2Question": "What will you do this week?",
+    "activities": {
+      "groceries": {
+        "label": "Food", "byline": "Buy groceries or order takeout"
+      },
+      "exercise": {
+        "label": "Exercise", "byline": "Go for a walk or a run"
+      },
+      "small": {
+        "label": "Small gathering", "byline": "Hang out with friends or family"
+      },
+      "large": {
+        "label": "Large gathering", "byline": "Go to a party or attend a concert"
+      }
     },
     "cta": "Decide",
     "rest": "Here's what the rest of your community decided to do:",

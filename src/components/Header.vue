@@ -12,11 +12,11 @@
     <!-- ON BOTH -->
     <div class="item">
       <!-- ON DESKTOP, show on side -->
-      <img v-if="!isPhone" src="../assets/food-icon.png" height="22" />
+      <img v-if="!isPhone" src="../assets/food.png" height="22" />
       <div class="item-content">
         <h3 class="label">
           <!-- ON PHONE, show on top of progress bar -->
-          <img v-if="isPhone" src="../assets/food-icon.png" height="15" />
+          <img v-if="isPhone" src="../assets/food.png" height="15" />
           {{ $t('food') }}
         </h3>
         <ProgressBar
@@ -27,11 +27,11 @@
     </div>
     <div class="item">
       <!-- ON DESKTOP, show on side -->
-      <img v-if="!isPhone" src="../assets/runner.png" height="22" />
+      <img v-if="!isPhone" src="../assets/exercise.png" height="22" />
       <div class="item-content">
         <h3 class="label">
           <!-- ON PHONE, show on top of progress bar -->
-          <img v-if="isPhone" src="../assets/runner.png" height="15" />
+          <img v-if="isPhone" src="../assets/exercise.png" height="15" />
           {{ $t('exercise') }}
         </h3>
         <ProgressBar
