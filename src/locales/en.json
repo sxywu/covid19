@@ -103,6 +103,10 @@
   "hospital": {
     "beds": "{filledBeds} Filled / {totalAvailableBeds} Available ({totalBeds} Total Beds)"
   },
+  "population": {
+    "city": "{city}, {state} {zip}",
+    "count": "Population: {count}"
+  },
   "end": {
     "h1": "In the span of {week} weeks...",
     "closerLook": "Here's a closer look at the numbers:",
