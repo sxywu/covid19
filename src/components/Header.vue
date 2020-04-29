@@ -16,7 +16,7 @@
       <div class="item-content">
         <h3 class="label">
           <!-- ON PHONE, show on top of progress bar -->
-          <img v-if="isPhone" src="../assets/food-icon.png" height="15" />
+          <img v-if="isPhone" src="../assets/food.png" height="15" />
           {{ $t('food') }}
         </h3>
         <ProgressBar
@@ -31,7 +31,7 @@
       <div class="item-content">
         <h3 class="label">
           <!-- ON PHONE, show on top of progress bar -->
-          <img v-if="isPhone" src="../assets/runner.png" height="15" />
+          <img v-if="isPhone" src="../assets/exercise.png" height="15" />
           {{ $t('exercise') }}
         </h3>
         <ProgressBar
