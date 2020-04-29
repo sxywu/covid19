@@ -101,6 +101,7 @@
     }
   },
   "hospital": {
+    "null": "Your Hospital",
     "beds": "{filledBeds} Filled / {totalAvailableBeds} Available ({totalBeds} Total Beds)"
   },
   "population": {

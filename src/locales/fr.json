@@ -102,6 +102,7 @@
     }
   },
   "hospital": {
+    "null": "Ton centre hospitalier",
     "beds": "{filledBeds} occupés / {totalAvailableBeds} disponibles ({totalBeds} lits au total)"
   },
   "population": {

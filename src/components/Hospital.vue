@@ -1,6 +1,6 @@
 <template>
   <div id="hospital">
-    <h3 class="label">{{ hospital && hospital.name }}</h3>
+    <h3 class="label">{{ hospital ? hospital.name : $t('hospital.null') }}</h3>
     <div class="stats label">
       <div>
         {{ $t('hospital.beds', {filledBeds, totalAvailableBeds, totalBeds}) }}
