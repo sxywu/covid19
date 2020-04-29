@@ -8,11 +8,13 @@
       </div>
     </div>
     <div class="action">
-      <button :disabled="value >= 1 ? false : true" v-on:click="value -= 1">
+      <button :disabled="value >= 1 ? false : true"
+        @click="updateDecision(value -= 1, index)">
         -
       </button>
       <span class="value">{{ value }}</span>
-      <button :disabled="value <= 6 ? false : true" v-on:click="value += 1">
+      <button :disabled="value <= 6 ? false : true"
+        @click="updateDecision(value += 1, index)">
         +
       </button>
     </div>
@@ -33,6 +35,8 @@ export default {
     label: { default: 'Buy groceries' },
     byline: { default: 'Go to a supermarket' },
     icon: { default: GroceriesIcon },
+    index: {default: 0},
+    updateDecision: Function,
   },
 }
 </script>

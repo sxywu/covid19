@@ -42,7 +42,7 @@
       <!-- DECISION -->
       <div class="decide">
         <h2>{{ $t('decide.h2Question') }}</h2>
-        <Decision v-for="activity in activities" v-bind="{ ...activity }" />
+        <Decision v-for="activity in activities" v-bind="{ ...activity, updateDecision }" />
         <button class="decideBtn mt3" @click="decided = true">
           {{ $t('decide.cta') }}
         </button>
@@ -86,13 +86,15 @@ export default {
       numTimes: 0,
       activities: _.map([
         'groceries', 'exercise', 'small', 'large',
-      ], key => {
+      ], (key, index) => {
         return {
           label: this.$t(`decide.activities.${key}.label`),
           byline: this.$t(`decide.activities.${key}.byline`),
           icon: require(`../assets/${images[key]}`),
+          index,
         }
       }),
+      decisions: [0, 0, 0, 0],
       decided: false,
     }
   },
@@ -134,6 +136,9 @@ export default {
     },
   },
   methods: {
+    updateDecision(count, index) {
+      this.decisions[index] = count
+    },
     formatNumber(number) {
       return d3.format(',')(number)
     },
