@@ -43,11 +43,14 @@ export default {
 
 <style lang="scss" scoped>
 #decision {
+    @include respond-to('small') {
+    grid-template-columns: 2fr 1.5fr;
+  }
   padding: 0;
   width: 100%;
   text-align: left;
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: 2fr 0.75fr;
   align-items: center;
   width: 100%;
   justify-content: space-between;
@@ -107,6 +110,9 @@ export default {
 .action {
   font-variant-numeric: tabular-nums;
   font-size: 20px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
 }
 
 .value {

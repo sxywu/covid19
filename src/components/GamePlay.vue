@@ -105,17 +105,6 @@
           <h3 v-if="cityCounty">{{ cityCounty.city }}, {{ cityCounty.state }} {{ cityCounty.zip }}</h3>
           <div v-if="population">Population: {{ formatNumber(population.total) }}</div>
         </div>
-        <!-- DECISION SCREEN -->
-        <Decide
-          v-if="showDecision"
-          v-bind="{
-            isPhone,
-            onUpdate: updateDecision,
-            continueGame,
-            ageGroups,
-            colorsByHealth,
-          }"
-        />
       </div>
       <div id="chartsPanel" class="panel" :style='{
         bottom: `${bottomHeight}px`,
@@ -163,6 +152,17 @@
           }"
         />
       </div>
+    <!-- DECISION SCREEN -->
+      <Decide
+        v-if="showDecision"
+        v-bind="{
+          isPhone,
+          onUpdate: updateDecision,
+          continueGame,
+          ageGroups,
+          colorsByHealth,
+        }"
+      />
     </div>
     <!-- ONLY SHOW FOOTNOTE METHODOLOGY ON DESKTOP -->
     <footer v-if="!isPhone" class='methodology label' :style="{width: `${width}px`}">

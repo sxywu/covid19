@@ -168,9 +168,11 @@ export default {
   margin-left: auto;
 }
 .content {
-  width: 520px;
+  width: 100%;
+  max-width: 520px;
   font-size: 18px;
   line-height: 1.5;
+  padding: 0 0.5rem;
   margin: auto;
 }
 
