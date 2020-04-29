@@ -1,9 +1,24 @@
 <template>
-  <div id="header" :style="{ height: `${height}px` }">
+  <div id="header" :class="$mq" :style="{ height: `${height}px` }">
+    <!-- ON PHONE -->
+    <div id="date" v-if="isPhone">
+      <h3 class="label">{{ $tc('week', 1, { count: '' }) }}</h3>
+      <h4>{{ week }}</h4>
+    </div>
+    <div id="date" v-if="isPhone">
+      <h3 class="label">{{ $t('day') }}</h3>
+      <h4>{{ day }}</h4>
+    </div>
+    <!-- ON BOTH -->
     <div class="item">
-      <img src="../assets/food.png" height="22" />
+      <!-- ON DESKTOP, show on side -->
+      <img v-if="!isPhone" src="../assets/food.png" height="22" />
       <div class="item-content">
-        <h3 class="label">{{ $t('food') }}</h3>
+        <h3 class="label">
+          <!-- ON PHONE, show on top of progress bar -->
+          <img v-if="isPhone" src="../assets/food-icon.png" height="15" />
+          {{ $t('food') }}
+        </h3>
         <ProgressBar
           v-bind="foodStatus"
           :className="foodStatus.value < 7 && 'red'"
@@ -11,24 +26,30 @@
       </div>
     </div>
     <div class="item">
-      <img src="../assets/exercise.png" height="22" />
+      <!-- ON DESKTOP, show on side -->
+      <img v-if="!isPhone" src="../assets/exercise.png" height="22" />
       <div class="item-content">
-        <h3 class="label">{{ $t('exercise') }}</h3>
+        <h3 class="label">
+          <!-- ON PHONE, show on top of progress bar -->
+          <img v-if="isPhone" src="../assets/runner.png" height="15" />
+          {{ $t('exercise') }}
+        </h3>
         <ProgressBar
           v-bind="exerciseStatus"
           :className="exerciseStatus.value < 2 && 'red'"
         />
       </div>
     </div>
-    <div id="date">
+    <!-- ON DESKTOP -->
+    <div id="date" v-if="!isPhone">
       <h3 class="label">{{ $tc('week', 1, { count: '' }) }}</h3>
       <h4>{{ week }}</h4>
     </div>
-    <div id="date">
+    <div id="date" v-if="!isPhone">
       <h3 class="label">{{ $t('day') }}</h3>
       <h4>{{ day }}</h4>
     </div>
-    <div class="item">
+    <div class="item" v-if="!isPhone">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="24"
@@ -46,7 +67,7 @@
         />
       </div>
     </div>
-    <div class="item">
+    <div class="item" v-if="!isPhone">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="22"
@@ -76,7 +97,7 @@ export default {
   components: {
     ProgressBar,
   },
-  props: ['height'],
+  props: ['isPhone', 'height'],
   computed: {
     day() {
       return this.$store.state.day
@@ -107,14 +128,14 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-#header {
+h3,
+h4 {
+  margin: 0;
+}
+// DESKTOP
+#header.lg, #header.md {
   display: grid;
   grid-template-columns: 1fr 1fr 80px 80px 1fr 1fr;
-
-  h3,
-  h4 {
-    margin: 0;
-  }
 }
 #date {
   display: flex;
@@ -157,6 +178,21 @@ export default {
   }
   progress {
     margin-top: 4px;
+  }
+}
+// PHONE
+#header.sm {
+  display: grid;
+  grid-template-columns: 60px 60px 1fr 1fr;
+
+  h4 {
+    font-size: 1.5rem;
+  }
+  .item {
+    padding: 0.5rem;
+  }
+  .item-content {
+    margin-left: 0;
   }
 }
 </style>

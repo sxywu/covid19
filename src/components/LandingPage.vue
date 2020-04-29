@@ -31,11 +31,8 @@
                 :class="{ 'zip-error': errors['zipCode'] }"
                 id="zip"
                 v-model="zipCode"
-                :placeholder="isPhone ?
-                  $t('landing.zipCodePlaceholderNoMobile') :
-                  $t('landing.zipCodePlaceholder')"
+                :placeholder="$t('landing.zipCodePlaceholder')"
                 pattern="/(^\d{5}$)|(^\d{5}-\d{4}$)/"
-                :disabled="isPhone"
               />
             </div>
             <span>{{ $t('or') }}</span>
@@ -48,7 +45,7 @@
                     name="communitySize"
                     :value="value"
                     v-model="communitySize"
-                    :disabled="isPhone || !!zipCode"
+                    :disabled="!!zipCode"
                   />
                   <label :for="id">{{ $t(id) }}</label>
                 </div>
@@ -57,14 +54,11 @@
           </div>
           <p style="text-align: center; max-width: 380px;"
             v-html="$t('landing.instruction2')"></p>
-          <button type="submit" class="playNowBtn" :disabled="isPhone">
+          <button type="submit" class="playNowBtn">
             {{ $t('landing.buttonCta') }}
           </button>
           <div v-if="errors['zipCode']" class="zipCodeError">
             {{ errors['zipCode'] }}
-          </div>
-          <div v-if="isPhone" class="mobileError">
-            {{ $t('landing.errors.noMobile') }}
           </div>
         </form>
       </div>
@@ -80,7 +74,6 @@
 <script>
 import _ from 'lodash'
 import Histogram from './Histogram'
-const isPhone = isMobile.phone
 
 export default {
   name: 'LandingPage',

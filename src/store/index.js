@@ -17,7 +17,7 @@ let prevInfected = []
 let dailyHealthStatus = []
 const totalPlayers = 20
 const foodStatus = {value: 18, maxValue: 18}
-const exerciseStatus = {value: 7, maxValue: 7}
+const exerciseStatus = {value: 10, maxValue: 10}
 const numTimesOut = _.times(8, numTimes => {
   return _.times(7, i => +(i < numTimes))
 })
@@ -540,11 +540,13 @@ export default new Vuex.Store({
       // then don't do anything more to the food & exercise
       if (day > state.totalDays) return
 
-      state.foodStatus.value -= 1 // for every day they don't get groceries
+      // for every day they don't get groceries
+      state.foodStatus.value = Math.max(0, state.foodStatus.value - 1)
       if (day % 3 === 0) {
-        state.exerciseStatus.value -= 1 // for every 3 days they don't go out
+        // for every 3 days they don't go out
+        state.exerciseStatus.value = Math.max(0, state.exerciseStatus.value - 1)
       }
-      if (!state.foodStatus.value || !state.exerciseStatus) {
+      if (state.foodStatus.value === 0 || state.exerciseStatus.value === 0) {
         state.currentPage = 'failed'
       }
     },

@@ -41,10 +41,6 @@ import chroma from 'chroma-js'
 import _ from 'lodash'
 import modifiedCollide from './ModifiedCollide'
 
-const personR = 5
-const houseSizes = [75, 85]
-const destSize = 120
-
 const houseImages = _.map(
   ['house-sm-left', 'house-sm-right', 'house-lg-left', 'house-lg-right'],
   (file) => require(`../assets/${file}.png`)
@@ -57,6 +53,7 @@ const destImages = _.map(
 export default {
   name: 'Community',
   props: [
+    'isPhone',
     'colorsByHealth',
     'width',
     'height',
@@ -71,7 +68,6 @@ export default {
     return {
       houses: [],
       destinations: [],
-      // links: null,
     }
   },
   computed: {
@@ -90,6 +86,11 @@ export default {
     center() {
       return { x: this.width / 2, y: this.height / 2 + this.top }
     },
+  },
+  created() {
+    this.personR = this.isPhone ? 3 : 5
+    this.houseSizes = this.isPhone ? [40, 50] : [75, 85]
+    this.destSize = this.isPhone ? 85 : 120
   },
   mounted() {
     this.ctx = this.$refs.canvas.getContext('2d')
@@ -148,7 +149,7 @@ export default {
         if (!group) {
           group = groups[groupIndex] = Object.assign(
             {
-              size: 2.5 * destSize,
+              size: 2.5 * this.destSize,
               dests: [],
             },
             i === 0 ? { fx: this.center.x, fy: this.center.y } : {}
@@ -157,7 +158,7 @@ export default {
         const destination = {
           id,
           group,
-          size: destSize,
+          size: this.destSize,
         }
         group.dests.push(destination)
         return destination
@@ -166,7 +167,7 @@ export default {
       houses = _.map(houses, (house, i) => {
         const source = {
           id: house.id,
-          size: houseSizes[house.numPeople < 3 ? 0 : 1],
+          size: this.houseSizes[house.numPeople < 3 ? 0 : 1],
           href: houseImages[house.numPeople < 3 ? _.random(1) : _.random(2, 3)],
         }
         _.each(house.destinations, (index) => {
@@ -204,8 +205,8 @@ export default {
           let dx = x
           let dy = y
           if (i > 0) {
-            dx += 0.95 * destSize * Math.cos(i * rad)
-            dy += 0.95 * destSize * Math.sin(i * rad)
+            dx += 0.95 * this.destSize * Math.cos(i * rad)
+            dy += 0.95 * this.destSize * Math.sin(i * rad)
           }
           // keep group if at least one is on screen
           Object.assign(dest, {
@@ -215,10 +216,10 @@ export default {
             fx: dx,
             fy: dy,
             onScreen:
-              -destSize / 2 < dx &&
-              dx < this.width + destSize / 2 &&
-              -destSize / 2 < dy &&
-              dy < this.height + destSize / 2,
+              -this.destSize / 2 < dx &&
+              dx < this.width + this.destSize / 2 &&
+              -this.destSize / 2 < dy &&
+              dy < this.height + this.destSize / 2,
           })
         })
       })
@@ -227,10 +228,10 @@ export default {
       _.each(houses, (d) =>
         Object.assign(d, {
           onScreen:
-            -houseSizes[1] / 2 < d.x &&
-            d.x < this.width + houseSizes[1] / 2 &&
-            -houseSizes[1] < d.y &&
-            d.y < this.height + houseSizes[1] / 2,
+            -this.houseSizes[1] / 2 < d.x &&
+            d.x < this.width + this.houseSizes[1] / 2 &&
+            -this.houseSizes[1] < d.y &&
+            d.y < this.height + this.houseSizes[1] / 2,
         })
       )
 
@@ -250,7 +251,7 @@ export default {
           house,
           x: house.x,
           y: house.y,
-          r: personR,
+          r: this.personR,
           color,
         })
       })
@@ -331,7 +332,7 @@ export default {
               color.alpha(1 - progress),
               x,
               y,
-              progress * 10 * personR
+              progress * 10 * this.personR
             )
           })
           if (elapsed > duration + stagger * this.colorChanges.length) t.stop()
@@ -364,7 +365,7 @@ export default {
     drawCircle(color, x, y, r) {
       this.ctx.fillStyle = color
       this.ctx.beginPath()
-      this.ctx.arc(x, y, r || personR, 0, 2 * Math.PI)
+      this.ctx.arc(x, y, r || this.personR, 0, 2 * Math.PI)
       this.ctx.fill()
     },
   },
