@@ -8,15 +8,16 @@ let apiService = {
   getGameById: noop,
   setGameById: noop,
 }
+const FIRESTORE_COLLECTION = 'games-v2'
 if (!isEmpty(App)) {
   let fireStore = App.firestore()
   apiService = {
     getAllGames: () => {
-      fireStore.collection('games')
+      fireStore.collection(FIRESTORE_COLLECTION)
     },
     getFilteredGames: ({filters = {}, limit = 100, cb = noop}) => {
       let query = fireStore
-        .collection('games')
+        .collection(FIRESTORE_COLLECTION)
         .limit(limit)
         .where('numDecisions', '==', 8)
 
@@ -33,13 +34,13 @@ if (!isEmpty(App)) {
     },
     getGameById: id => {
       return fireStore
-        .collection('games')
+        .collection(FIRESTORE_COLLECTION)
         .doc(id)
         .get()
     },
     setGameById: (id, state) => {
       return fireStore
-        .collection('games')
+        .collection(FIRESTORE_COLLECTION)
         .doc(id)
         .set(state)
     },
