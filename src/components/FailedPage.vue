@@ -2,8 +2,8 @@
   <div id="failed">
     <div class="content">
       <div class="item">
-        <img v-if="isFoodVariant" src="../assets/food-icon.png" />
-        <img v-else src="../assets/runner.png" />
+        <img v-if="isFoodVariant" src="../assets/food.png" />
+        <img v-else src="../assets/exercise.png" />
         <div class="item-content">
           <h3 v-if="isFoodVariant" class="label">{{ $t('food') }}</h3>
           <h3 v-else class="label">{{ $t('exercise') }}</h3>
