@@ -8,7 +8,7 @@ let apiService = {
   getGameById: noop,
   setGameById: noop,
   setGameByTeamName: noop,
-  getGamesByTeamName: noop,
+  getFilteredGamesWithDefault: noop,
 }
 const FIRESTORE_COLLECTION = 'games-v2'
 if (!isEmpty(App)) {
@@ -16,21 +16,23 @@ if (!isEmpty(App)) {
   let getAllGames = () => {
     fireStore.collection(FIRESTORE_COLLECTION)
   }
-  let getFilteredGames = ({
-    filters = {zipCode: 'Any', teamName: 'Any'},
-    limit = 10000,
-    cb = noop,
-  }) => {
+  let getFilteredGames = ({filters = {}, limit = 10000, cb = noop}) => {
     let query = fireStore
       .collection(FIRESTORE_COLLECTION)
       .limit(limit)
       .where('numDecisions', '==', 8)
-    if (filters.zipCode !== 'Any') {
+    if (filters.zipCode) {
       query = query.where('zipCode', '==', filters.zipCode)
     }
 
-    if (filters.teamName !== 'Any') {
+    if (filters.teamName) {
       query = query.where('teamName', '==', filters.teamName)
+    }
+
+    if (filters.locale && filters.locale !== 'en') {
+      query = query.where('locale', '==', filters.locale)
+    } else {
+      query = query.where('locale', '==', 'en')
     }
 
     query
@@ -68,9 +70,14 @@ if (!isEmpty(App)) {
         }
       })
   }
-  let getGamesByTeamName = ({teamName = '', cb = noop}) => {
+  let getFilteredGamesWithDefault = ({
+    filters = {},
+    limit = 10000,
+    cb = noop,
+  }) => {
     getFilteredGames({
-      filters: {teamName, zipCode: 'Any'},
+      filters,
+      limit,
       cb: teamCollection => {
         if (teamCollection.length === 0) {
           getFilteredGames({
@@ -89,7 +96,7 @@ if (!isEmpty(App)) {
     getGameById,
     setGameById,
     setGameByTeamName,
-    getGamesByTeamName,
+    getFilteredGamesWithDefault,
   }
 } else {
   console.warn('Firebase app not set up. This session will not be saved.')
