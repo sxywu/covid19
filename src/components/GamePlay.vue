@@ -361,6 +361,9 @@ export default {
   @include shadow;
 
   .gameContainer {
+    @include respond-to('small') {
+      position: static;
+    }
     position: relative;
     display: grid;
     height: 100%;

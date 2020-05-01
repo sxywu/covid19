@@ -35,7 +35,7 @@ export default {
     label: { default: 'Buy groceries' },
     byline: { default: 'Go to a supermarket' },
     icon: { default: GroceriesIcon },
-    index: {default: 0},
+    index: { default: 0 },
     updateDecision: Function,
   },
 }
@@ -43,7 +43,7 @@ export default {
 
 <style lang="scss" scoped>
 #decision {
-    @include respond-to('small') {
+  @include respond-to('small') {
     grid-template-columns: 2fr 1.5fr;
   }
   padding: 0;
@@ -73,16 +73,16 @@ export default {
 
   button {
     margin: 0 10px;
-    border: 1px solid $gray;
+    border: 1px solid $purple;
     border-radius: 4px;
     width: 40px;
     height: 40px;
-    background: $primary;
+    background: $purple;
     color: white;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 0;
+    line-height: 16px;
     cursor: pointer;
   }
 
@@ -93,7 +93,9 @@ export default {
 }
 
 .selected {
-  filter: invert(95%);
+  .action {
+    background: rgba(56%, 43%, 74%, 0.2);
+  }
 }
 
 .content {
@@ -108,6 +110,8 @@ export default {
 }
 
 .action {
+  padding: 8px 0;
+  border-radius: 4px;
   font-variant-numeric: tabular-nums;
   font-size: 20px;
   display: flex;

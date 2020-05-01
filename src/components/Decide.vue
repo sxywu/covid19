@@ -20,13 +20,13 @@
       <h1 class="header">{{ $tc('decide.h1.prevWeek', week) }}</h1>
       <div class="content">
         <p v-if="newCases">
-          <span v-html="
-            $tc('decide.prevTimes', prevWeekDecisions[0])
-          "/>, <span v-html="
-            $t('decide.avgTimes', {count: avgTimes})
-          "/> <span
+          <span v-html="$tc('decide.prevTimes', prevWeekDecisions[0])" />,
+          <span v-html="$t('decide.avgTimes', { count: avgTimes })" />
+          <span
             v-html="
-              $t('decide.newCasesTotal', { count: formatNumber(newCases.total) })
+              $t('decide.newCasesTotal', {
+                count: formatNumber(newCases.total),
+              })
             "
           />{{ newCases.avoided ? ',' : '.' }}
           <span
@@ -42,7 +42,12 @@
       <!-- DECISION -->
       <div class="decide">
         <h2>{{ $t('decide.h2Question') }}</h2>
-        <Decision v-for="activity in activities" v-bind="{ ...activity, updateDecision }" />
+        <div class="decisions">
+          <Decision
+            v-for="activity in activities"
+            v-bind="{ ...activity, updateDecision }"
+          />
+        </div>
         <button class="decideBtn mt3" @click="decided = true">
           {{ $t('decide.cta') }}
         </button>
@@ -51,17 +56,28 @@
 
     <!-- IF DECIDED, SHOW HISTOGRAM -->
     <div v-else>
-      <h1 class="header">
-        {{ $tc('decide.h1.numTimes', numTimes, { count: numTimes }) }}.
-      </h1>
-      <p class="body">{{ $t('decide.rest') }}</p>
-      <Histogram v-bind="{
-        type: 'weekly', numTimes: numTimes,
-        width: isPhone ? 340 : 700 }"
-      />
-      <button class="decideBtn mt3" @click="onUpdate(numTimes)">
-        {{ $t('decide.start') }}
-      </button>
+      <div class="decided">
+        <div>
+          <h1 class="header">
+            {{ $tc('decide.h1.numTimes', numTimes, { count: numTimes }) }}.
+          </h1>
+          <p class="body">{{ $t('decide.rest') }}</p>
+        </div>
+        <div class="py-3" />
+        <Histogram
+          v-bind="{
+            type: 'weekly',
+            numTimes: numTimes,
+            width: isPhone ? 340 : 700,
+          }"
+        />
+        <button
+          class="decideBtn startNextWeekBtn mt3"
+          @click="onUpdate(numTimes)"
+        >
+          {{ $t('decide.start') }}
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -82,21 +98,23 @@ export default {
   name: 'DecideArea',
   props: ['isPhone', 'onUpdate', 'continueGame', 'ageGroups', 'colorsByHealth'],
   components: {
-    Decision, Histogram,
+    Decision,
+    Histogram,
   },
   data() {
     return {
       numTimes: 0,
-      activities: _.map([
-        'groceries', 'exercise', 'small', 'large',
-      ], (key, index) => {
-        return {
-          label: this.$t(`decide.activities.${key}.label`),
-          byline: this.$t(`decide.activities.${key}.byline`),
-          icon: require(`../assets/${images[key]}`),
-          index,
+      activities: _.map(
+        ['groceries', 'exercise', 'small', 'large'],
+        (key, index) => {
+          return {
+            label: this.$t(`decide.activities.${key}.label`),
+            byline: this.$t(`decide.activities.${key}.byline`),
+            icon: require(`../assets/${images[key]}`),
+            index,
+          }
         }
-      }),
+      ),
       decisions: [0, 0, 0, 0],
       decided: false,
     }
@@ -124,14 +142,17 @@ export default {
       return _.map(this.$store.state.allDecisions, d => d[this.week - 1])
     },
     avgTimes() {
-      return _.chain(this.prevWeekDecisions).mean().round(2)
+      return _.chain(this.prevWeekDecisions)
+        .mean()
+        .round(2)
     },
     newCases() {
       if (!this.dailyHealthStatus) return
       const today = this.dailyHealthStatus[this.day - 1]
       const lastWeek = this.dailyHealthStatus[this.day - 7]
       const total = today.player.total - lastWeek.player.total
-      const alternateTotal = today.worstAlternate.total - lastWeek.worstAlternate.total
+      const alternateTotal =
+        today.worstAlternate.total - lastWeek.worstAlternate.total
       return {
         total,
         avoided: Math.max(alternateTotal - total, 0),
@@ -151,6 +172,11 @@ export default {
 
 <style lang="scss" scoped>
 #decideArea {
+  @include respond-to('small') {
+    z-index: 20;
+    top: 0;
+    align-items: flex-start;
+  }
   position: absolute;
   width: 100%;
   height: 100%;
@@ -163,24 +189,57 @@ export default {
 }
 
 .header {
-  margin-bottom: 30px;
+  font-size: 1.5rem;
+  margin-bottom: 16px;
   margin-right: auto;
   margin-left: auto;
 }
 .content {
   width: 100%;
-  max-width: 520px;
+  height: 100%;
+  max-width: 780px;
   font-size: 18px;
   line-height: 1.5;
   padding: 0 0.5rem;
   margin: auto;
 }
 
+.decisions {
+  @include respond-to('small') {
+    grid-template-columns: 1fr;
+    grid-gap: 8px;
+    padding: 0 8px;
+  }
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 1rem;
+}
+
+.decided {
+  @include respond-to('small') {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0 2rem;
+  }
+
+  height: 100%;
+}
+
+.startNextWeekBtn {
+  @include respond-to('small') {
+    position: fixed;
+    bottom: 1rem;
+  }
+}
+
 .decideBtn {
   background-color: $red;
   color: #fff;
   padding: 1rem 2rem;
-  margin: 2rem 0;
+  margin: 2rem auto;
   border: none;
   border-radius: 5px;
   box-shadow: 0 5px #d23658;
@@ -190,7 +249,8 @@ export default {
 }
 
 h2 {
-  margin: 2rem 0;
+  font-size: 1.5rem;
+  margin: 2rem 0 1.5rem;
 }
 
 h1,
@@ -198,5 +258,11 @@ h1,
   position: relative;
   z-index: 1000;
   background: rgba(255, 255, 255, 0.75);
+}
+.py-3 {
+  @include respond-to('small') {
+    padding: 3rem 0;
+  }
+  padding: 1rem 0;
 }
 </style>
