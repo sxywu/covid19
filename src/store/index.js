@@ -130,6 +130,7 @@ export default new Vuex.Store({
     gameId: '',
     createdAt: '',
     communitySizeSelection: '',
+    locale: 'en',
   },
   getters: {
     week({day}) {
@@ -594,6 +595,7 @@ export default new Vuex.Store({
       state.exerciseStatus = _.clone(exerciseStatus)
     },
     setGameIdAndCreatedAt(state) {
+      state.locale = i18n.locale
       state.gameId = uuidv4()
       state.createdAt = new Date()
     },
@@ -654,6 +656,7 @@ export default new Vuex.Store({
         pastPlayerIDs,
         communitySizeSelection,
         createdAt,
+        locale,
       },
     }) {
       const decisions = _.get(allDecisions, '[0]', [])
@@ -670,6 +673,7 @@ export default new Vuex.Store({
         zipCode,
         communitySizeSelection,
         createdAt,
+        locale,
       })
     },
     resetGame({commit, state}) {
