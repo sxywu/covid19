@@ -215,6 +215,11 @@ export default {
   grid-gap: 1rem;
 }
 
+.decide {
+  height: 100%;
+  background: rgba(255, 255, 255, 0.95);
+}
+
 .decided {
   @include respond-to('small') {
     min-height: 100vh;

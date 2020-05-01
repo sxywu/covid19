@@ -23,6 +23,8 @@ export default {
 
 <style lang="scss" scoped>
 #legend {
+  ul {
+  }
   ul,
   li {
     list-style-type: none;
@@ -46,14 +48,16 @@ export default {
 }
 
 #legend.sm {
+  overflow-x: auto;
   ul {
     width: 100%;
     display: grid;
     grid-column-gap: 0.5rem;
     grid-template-columns: repeat(3, min-content);
     white-space: nowrap;
-    justify-content: center;
+    justify-content: flex-start;
     margin: 0.25rem 0;
+    padding: 0 8px;
   }
   li {
     grid-template-columns: 14px 1fr;
