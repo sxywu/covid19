@@ -20,13 +20,13 @@
       <h1 class="header">{{ $tc('decide.h1.prevWeek', week) }}</h1>
       <div class="content">
         <p v-if="newCases">
-          <span v-html="
-            $tc('decide.prevTimes', prevWeekDecisions[0])
-          "/>, <span v-html="
-            $t('decide.avgTimes', {count: avgTimes})
-          "/> <span
+          <span v-html="$tc('decide.prevTimes', prevWeekDecisions[0])" />,
+          <span v-html="$t('decide.avgTimes', { count: avgTimes })" />
+          <span
             v-html="
-              $t('decide.newCasesTotal', { count: formatNumber(newCases.total) })
+              $t('decide.newCasesTotal', {
+                count: formatNumber(newCases.total),
+              })
             "
           />{{ newCases.avoided ? ',' : '.' }}
           <span
@@ -42,50 +42,12 @@
       <!-- DECISION -->
       <div class="decide">
         <h2>{{ $t('decide.h2Question') }}</h2>
-        <div class="numTimes">
-          <div class="times">
-            <label
-              v-for="{ value } in range"
-              for="range"
-              :key="value"
-              :style="{ fontWeight: value === +numTimes ? 'bold' : '' }"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="32"
-                height="32"
-                viewBox="0 0 32 32"
-              >
-                <g fill="none" fill-rule="evenodd" transform="translate(4)">
-                  <path
-                    fill="#000"
-                    fill-rule="nonzero"
-                    d="M12,31.826087 C12.1383625,31.826087 12.2710473,31.7710692 12.3688696,31.6732174 C12.8436522,31.2 24,19.9513043 24,12.0521739 C24,4.50730435 17.8987826,0 12,0 C6.10121739,0 0,4.50730435 0,12.0521739 C0,19.9513043 11.1563478,31.2 11.6311304,31.6732174 C11.7289527,31.7710692 11.8616375,31.826087 12,31.826087 Z"
-                  />
-                  <text
-                    fill="#FFF"
-                    font-size="15"
-                    :style="{ fontWeight: value === +numTimes ? 'bold' : '' }"
-                    letter-spacing="-.361"
-                  >
-                    <tspan x="7.5" y="18">{{ value }}</tspan>
-                  </text>
-                </g>
-              </svg>
-            </label>
-          </div>
-          <range-slider class="slider" min="0" max="7" v-model="numTimes" />
-          <div class="labels">
-            <div v-for="{ value, label } in range" :key="value">
-              <label
-                for="range"
-                :style="{ fontWeight: value <= +numTimes ? 'bold' : '' }"
-                v-html="label"
-              ></label>
-            </div>
-          </div>
+        <div class="decisions">
+          <Decision
+            v-for="activity in activities"
+            v-bind="{ ...activity, updateDecision }"
+          />
         </div>
-
         <button class="decideBtn mt3" @click="decided = true">
           {{ $t('decide.cta') }}
         </button>
@@ -94,14 +56,28 @@
 
     <!-- IF DECIDED, SHOW HISTOGRAM -->
     <div v-else>
-      <h1 class="header">
-        {{ $tc('decide.h1.numTimes', numTimes, { count: numTimes }) }}.
-      </h1>
-      <p class="body">{{ $t('decide.rest') }}</p>
-      <Histogram v-bind="{ type: 'weekly', numTimes: numTimes, width: 700 }" />
-      <button class="decideBtn mt3" @click="onUpdate(numTimes)">
-        {{ $t('decide.start') }}
-      </button>
+      <div class="decided">
+        <div>
+          <h1 class="header">
+            {{ $tc('decide.h1.numTimes', numTimes, { count: numTimes }) }}.
+          </h1>
+          <p class="body">{{ $t('decide.rest') }}</p>
+        </div>
+        <div class="py-3" />
+        <Histogram
+          v-bind="{
+            type: 'weekly',
+            numTimes: numTimes,
+            width: isPhone ? 340 : 700,
+          }"
+        />
+        <button
+          class="decideBtn startNextWeekBtn mt3"
+          @click="onUpdate(numTimes)"
+        >
+          {{ $t('decide.start') }}
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -109,32 +85,37 @@
 <script>
 import * as d3 from 'd3'
 import _ from 'lodash'
-import LineChart from './LineChart'
-import BarChart from './BarChart'
+import Decision from './Decision'
 import Histogram from './Histogram'
-import ProgressBar from './ProgressBar'
-import RangeSlider from 'vue-range-slider'
-import '../styles/slider.scss'
 
+const images = {
+  groceries: 'groceries.svg',
+  exercise: 'exercise.png',
+  small: 'small-gathering.svg',
+  large: 'large-gathering.svg',
+}
 export default {
   name: 'DecideArea',
-  props: ['onUpdate', 'continueGame', 'ageGroups', 'colorsByHealth'],
+  props: ['isPhone', 'onUpdate', 'continueGame', 'ageGroups', 'colorsByHealth'],
   components: {
-    LineChart,
-    BarChart,
+    Decision,
     Histogram,
-    ProgressBar,
-    RangeSlider,
   },
   data() {
     return {
       numTimes: 0,
-      range: _.times(8, i => {
-        return {
-          value: i,
-          label: this.$t(`decide.range.${i}`),
+      activities: _.map(
+        ['groceries', 'exercise', 'small', 'large'],
+        (key, index) => {
+          return {
+            label: this.$t(`decide.activities.${key}.label`),
+            byline: this.$t(`decide.activities.${key}.byline`),
+            icon: require(`../assets/${images[key]}`),
+            index,
+          }
         }
-      }),
+      ),
+      decisions: [0, 0, 0, 0],
       decided: false,
     }
   },
@@ -161,14 +142,17 @@ export default {
       return _.map(this.$store.state.allDecisions, d => d[this.week - 1])
     },
     avgTimes() {
-      return _.chain(this.prevWeekDecisions).mean().round(2)
+      return _.chain(this.prevWeekDecisions)
+        .mean()
+        .round(2)
     },
     newCases() {
       if (!this.dailyHealthStatus) return
       const today = this.dailyHealthStatus[this.day - 1]
       const lastWeek = this.dailyHealthStatus[this.day - 7]
       const total = today.player.total - lastWeek.player.total
-      const alternateTotal = today.worstAlternate.total - lastWeek.worstAlternate.total
+      const alternateTotal =
+        today.worstAlternate.total - lastWeek.worstAlternate.total
       return {
         total,
         avoided: Math.max(alternateTotal - total, 0),
@@ -176,6 +160,9 @@ export default {
     },
   },
   methods: {
+    updateDecision(count, index) {
+      this.decisions[index] = count
+    },
     formatNumber(number) {
       return d3.format(',')(number)
     },
@@ -185,6 +172,11 @@ export default {
 
 <style lang="scss" scoped>
 #decideArea {
+  @include respond-to('small') {
+    z-index: 20;
+    top: 0;
+    align-items: flex-start;
+  }
   position: absolute;
   width: 100%;
   height: 100%;
@@ -197,22 +189,62 @@ export default {
 }
 
 .header {
-  margin-bottom: 30px;
+  font-size: 1.5rem;
+  margin-bottom: 16px;
   margin-right: auto;
   margin-left: auto;
 }
 .content {
-  width: 520px;
+  width: 100%;
+  height: 100%;
+  max-width: 780px;
   font-size: 18px;
   line-height: 1.5;
+  padding: 0 0.5rem;
   margin: auto;
+}
+
+.decisions {
+  @include respond-to('small') {
+    grid-template-columns: 1fr;
+    grid-gap: 8px;
+    padding: 0 8px;
+  }
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 1rem;
+}
+
+.decide {
+  height: 100%;
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.decided {
+  @include respond-to('small') {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0 2rem;
+  }
+
+  height: 100%;
+}
+
+.startNextWeekBtn {
+  @include respond-to('small') {
+    position: fixed;
+    bottom: 1rem;
+  }
 }
 
 .decideBtn {
   background-color: $red;
   color: #fff;
   padding: 1rem 2rem;
-  margin: 2rem 0;
+  margin: 2rem auto;
   border: none;
   border-radius: 5px;
   box-shadow: 0 5px #d23658;
@@ -222,52 +254,8 @@ export default {
 }
 
 h2 {
-  margin: 2rem 0;
-}
-
-.numTimes {
-  margin: 0 auto 1rem auto;
-  display: flex;
-  flex-direction: column;
-  .times,
-  .labels {
-    margin: 0 auto;
-    width: 800px;
-    justify-content: flex-start;
-    display: grid;
-    grid-template-columns: repeat(8, 1fr);
-    grid-gap: 15px;
-    position: relative;
-  }
-
-  .labels {
-    label {
-      font-weight: 500;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      margin-top: 0.5rem;
-      font-size: 14px;
-      position: relative;
-    }
-    :not(:first-of-type):not(:last-of-type) {
-      label::before {
-        content: '';
-        position: absolute;
-        width: 2px;
-        height: 24px;
-        top: -24px;
-        pointer-events: none;
-        background: white;
-      }
-      label::after {
-        content: '&';
-        position: absolute;
-        padding-left: 7.5rem;
-      }
-    }
-  }
+  font-size: 1.5rem;
+  margin: 2rem 0 1.5rem;
 }
 
 h1,
@@ -275,5 +263,11 @@ h1,
   position: relative;
   z-index: 1000;
   background: rgba(255, 255, 255, 0.75);
+}
+.py-3 {
+  @include respond-to('small') {
+    padding: 3rem 0;
+  }
+  padding: 1rem 0;
 }
 </style>

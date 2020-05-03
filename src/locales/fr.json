@@ -36,12 +36,10 @@
     "instruction2": "Le jeu va être configuré avec les données réelles de ton quartier : la taille de la population ainsi que le nombre de lits en réanimation.",
     "zipCodeDisclaimer": "<sup>*Notre jeu n’est pour l’instant compatible qu’avec des codes postaux américains. ",
     "zipCodePlaceholder": "Bientôt disponible.",
-    "zipCodePlaceholderNoMobile": "Nous n’avons malheureusement pas encore de version mobile",
     "buttonCta": "Commencer le jeu",
     "errors": {
       "invalidZip": "Code postal invalide",
-      "zipNotFound": "Code postal non trouvé, essaye un autre code postal",
-      "noMobile": "Nous n’avons malheureusement pas encore de version mobile. Consulte le site depuis un ordinateur."
+      "zipNotFound": "Code postal non trouvé, essaye un autre code postal"
     }
   },
   "header": {

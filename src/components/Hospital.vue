@@ -1,12 +1,12 @@
 <template>
-  <div id="hospital">
-    <h3 class="label">{{ hospital && hospital.name }}</h3>
+  <div id="hospital" :class="$mq">
+    <h3 class="label">{{ hospital ? hospital.name : "Your Hospital" }}</h3>
     <div class="stats label">
       <div>
         {{ $t('hospital.beds', {filledBeds, totalAvailableBeds, totalBeds}) }}
       </div>
     </div>
-    <svg ref="svg">
+    <svg ref="svg" :width="width" :height="height">
       <clipPath id="bedClip">
         <path
           d="M17.72,116.38,130.36,55.75,186,87.22v15.24L78,163.75,17.39,128.3Z"
@@ -14,10 +14,17 @@
       </clipPath>
       <g v-for="d in beds" :transform="`translate(${d.x}, ${d.y})scale(${scale})`">
         <image :href="bedImage" />
-        <circle
+        <circle v-if="!isPhone"
           :cx="bedWidth / 2"
           :cy="bedHeight / 2"
           :r="d.r"
+          :fill="d.color"
+          clip-path="url(#bedClip)"
+        />
+        <rect v-if="isPhone"
+          :x="17"
+          :width="d.r"
+          :height="bedHeight"
           :fill="d.color"
           clip-path="url(#bedClip)"
         />
@@ -33,12 +40,13 @@ const bedImage = require('../assets/bed.png')
 const padding = 2
 export default {
   name: 'Hospital',
-  props: ['colorsByHealth', 'tl', 'phases', 'playTimeline'],
+  props: ['isPhone', 'colorsByHealth', 'tl', 'phases', 'playTimeline'],
   data() {
     return {
-      width: 0,
-      height: 0, // set once layout is calculated
+      width: null,
+      height: null, // set once layout is calculated
       bedWidth: 211,
+      filledWidth: 168,
       bedHeight: 197,
       bedScale: 1,
       beds: [],
@@ -119,26 +127,41 @@ export default {
       const {top, left, width, height} = this.$refs.svg.getBoundingClientRect()
       Object.assign(this.$data, {top, left, width, height})
 
-      // calculate bed scale according to svg dimensions
-      let {scale, perRow, numRows} = this.calculateBedScale(0.1, 0.3)
-      this.scale = scale
-      const scaledBedWidth = this.bedWidth * scale
-      const scaledBedHeight = this.bedHeight * scale
+      if (this.isPhone) {
+        // if phone, then just calculate 10 beds
+        this.maxBeds = 10
+        this.scale = (this.width / this.maxBeds) / this.bedWidth
+        this.beds = _.times(Math.min(this.totalAvailableBeds, this.maxBeds), i => {
+          return {
+            color: this.colorsByHealth[4],
+            x: Math.floor(i % this.maxBeds) * (this.scale * this.bedWidth),
+            y: 0, r: 0,
+          }
+        })
+        this.height = this.scale * this.bedHeight
+      } else {
+        // if desktop
+        // calculate bed scale according to svg dimensions
+        let {scale, perRow, numRows} = this.calculateBedScale(0.1, 0.3)
+        this.scale = scale
+        const scaledBedWidth = this.bedWidth * scale
+        const scaledBedHeight = this.bedHeight * scale
 
-      const rowPadding = _.clamp((this.height - numRows * scaledBedHeight) / numRows, 0, 10)
-      const columnPadding = _.clamp((this.width - perRow * scaledBedWidth) / perRow, 0, 10)
+        const rowPadding = _.clamp((this.height - numRows * scaledBedHeight) / numRows, 0, 10)
+        const columnPadding = _.clamp((this.width - perRow * scaledBedWidth) / perRow, 0, 10)
 
-      this.beds = _.times(this.showBeds, i => {
-        const isOther = this.includeOthers && i < (this.totalBeds - this.totalAvailableBeds)
-        return {
-          isOther,
-          color: this.colorsByHealth[isOther ? 0 : 4],
-          x: Math.floor(i % perRow) * (scaledBedWidth + columnPadding),
-          y: this.height - scaledBedHeight - Math.floor(i / perRow) * (scaledBedHeight + rowPadding), // have it start from bottom
-          r: isOther ? 100 : 0,
-        }
-      })
-      this.availableBeds = _.filter(this.beds, d => !d.isOther)
+        this.beds = _.times(this.showBeds, i => {
+          const isOther = this.includeOthers && i < (this.totalBeds - this.totalAvailableBeds)
+          return {
+            isOther,
+            color: this.colorsByHealth[isOther ? 0 : 4],
+            x: Math.floor(i % perRow) * (scaledBedWidth + columnPadding),
+            y: this.height - scaledBedHeight - Math.floor(i / perRow) * (scaledBedHeight + rowPadding), // have it start from bottom
+            r: isOther ? this.filledWidth : 0,
+          }
+        })
+        this.availableBeds = _.filter(this.beds, d => !d.isOther)
+      }
     },
     updateBeds() {
       if (!this.infected) return
@@ -146,14 +169,40 @@ export default {
         _.each(this.availableBeds, d => d.r = 0)
       }
 
-      this.tl.to(
-        this.availableBeds,
-        {
-          r: i => (i < this.filledBeds ? 100 : 0),
-          duration: this.phases[1],
-        },
-        `day${this.day}-1`,
-      )
+      if (this.isPhone) {
+        // phone
+        let filledIcons = this.filledBeds
+        let partialIcon = 0
+        if (this.totalAvailableBeds > 10) {
+          filledIcons = (this.filledBeds / this.totalAvailableBeds) * this.maxBeds
+          partialIcon = filledIcons - Math.floor(filledIcons)
+          filledIcons = Math.floor(filledIcons)
+        }
+        this.tl.to(
+          this.beds,
+          {
+            r: i => {
+              if (i < filledIcons) return this.filledWidth
+              if (i === filledIcons) {
+                return this.filledWidth * partialIcon
+              }
+              return 0
+            },
+            duration: this.phases[1],
+          },
+          `day${this.day}-1`,
+        )
+      } else {
+        // desktop
+        this.tl.to(
+          this.availableBeds,
+          {
+            r: i => (i < this.filledBeds ? this.filledWidth : 0),
+            duration: this.phases[1],
+          },
+          `day${this.day}-1`,
+        )
+      }
 
       this.playTimeline('hospital')
     },
@@ -186,7 +235,12 @@ svg {
   isolation: isolate;
 }
 
-circle {
+circle, rect {
   mix-blend-mode: multiply;
+}
+
+#hospital.sm {
+  border-top: 1px solid $gray;
+  padding: 0.5rem 0.75rem;
 }
 </style>

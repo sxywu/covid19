@@ -64,7 +64,7 @@ form {
   grid-template-columns: 8fr 2fr;
   align-items: center;
   max-width: 380px;
-  // margin: 0 auto;
+  margin: 0 auto;
   margin-bottom: 1rem;
 }
 input {
