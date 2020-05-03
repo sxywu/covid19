@@ -21,7 +21,7 @@
         />
         <LineChart
           v-bind="{
-            width: 280,
+            width: isPhone ? 340 : 450,
             height: 200,
             ageGroups,
             colorsByHealth,
@@ -29,7 +29,7 @@
         />
       </div>
       <p v-html="$t('end.together')"></p>
-      <Histogram v-bind="{type: 'all', width: 700}" />
+      <Histogram v-bind="{type: 'all', width: isPhone ? 300 : 700}" />
       <p v-html="$t('end.future')"></p>
 
       <p v-html="$t('end.influence')"></p>
@@ -55,7 +55,7 @@ import Footnotes from './Footnotes'
 
 export default {
   name: 'EndPage',
-  props: ['onUpdate', 'ageGroups', 'colorsByHealth'],
+  props: ['isPhone', 'onUpdate', 'ageGroups', 'colorsByHealth'],
   components: {
     BarChart,
     LineChart,
@@ -110,6 +110,10 @@ export default {
 <style lang="scss" scoped>
 #end {
   padding: 5rem 1.5rem 3rem 1.5rem;
+
+  @include respond-to('small') {
+    padding: 1rem;
+  }
 }
 
 .content {
@@ -124,6 +128,10 @@ export default {
   justify-content: center;
   border-radius: 5px;
   @include shadow;
+
+  @include respond-to('small') {
+    padding: 1rem 1.5rem;
+  }
 }
 
 header {
@@ -153,6 +161,10 @@ hr {
 .charts {
   display: grid;
   grid-template-columns: 1fr 1.5fr;
+
+  @include respond-to('small') {
+    grid-template-columns: 1fr;
+  }
 }
 
 .playBtn {
