@@ -1,9 +1,13 @@
 <template>
   <div id="failed">
+    <div class="image-content">
+      <img v-if="isFoodVariant" src="../assets/empty-fridge.png" />
+      <img v-else src="../assets/dirty-couch.png" />
+    </div>
     <div class="content">
       <div class="item">
-        <img v-if="isFoodVariant" src="../assets/food-icon.png" />
-        <img v-else src="../assets/runner.png" />
+        <img v-if="isFoodVariant" src="../assets/food.png" />
+        <img v-else src="../assets/exercise.png" />
         <div class="item-content">
           <h3 v-if="isFoodVariant" class="label">{{ $t('food') }}</h3>
           <h3 v-else class="label">{{ $t('exercise') }}</h3>
@@ -55,8 +59,12 @@ export default {
 
 <style lang="scss" scoped>
 #failed {
+  @include respond-to('small') {
+    align-items: initial;
+  }
   padding: 1.5rem;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: center;
   width: 100vw;
@@ -69,30 +77,51 @@ p {
   line-height: 1.5;
 }
 
+.image-content {
+  @include respond-to('medium') {
+    margin-right: 0;
+    margin-bottom: 1rem;
+    img {
+      padding: 1rem;
+    }
+  }
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  margin-right: 2em;
+  margin-bottom: 0;
+  img {
+    max-width: 300px;
+    width: 100%;
+  }
+}
+
 .content {
-  text-align: center;
-  width: 100%;
+  margin-left: 3em;
+  text-align: left;
   max-width: 500px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  @include respond-to('small') {
+    margin-left: 0;
+  }
 }
 
 .item {
-  padding: 1rem;
   display: flex;
   flex-direction: row;
-  align-items: center;
-  justify-content: center;
+  align-items: left;
+  justify-content: left;
   width: 100%;
 }
 
 .item-content {
-  margin-left: 0.75rem;
+  @include respond-to('medium') {
+    max-width: 100%;
+  }
   display: flex;
   align-items: flex-start;
-  justify-content: center;
+  justify-content: left;
   flex-direction: column;
   width: 100%;
   max-width: 300px;
@@ -132,6 +161,7 @@ progress[value]::-moz-progress-bar {
 }
 
 .playBtn {
+  max-width: 250px;
   background-color: $red;
   color: #fff;
   padding: 1rem 2rem;

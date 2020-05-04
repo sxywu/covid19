@@ -1,9 +1,10 @@
 <template>
-  <div id="gameplay" :style="{width: `${width}px`, height: `${height}px`}">
-    <div class="gameContainer">
+  <div id="gameplay" :class="$mq" :style="{width: `${width}px`, height: `${height}px`}">
+    <!-- FOR DESKTOP -->
+    <div v-if="!isPhone" class="gameContainer">
       <!-- TOP PANEL -->
       <div id="topPanel">
-        <Header v-bind="{height: topHeight}" />
+        <Header v-bind="{height: topHeight, isPhone}" />
       </div>
       <!-- COMMUNITY -->
       <div id="communityPanel">
@@ -78,7 +79,7 @@
         />
         <LineChart
           v-bind="{
-            width: 320,
+            width: 460,
             height: bottomHeight,
             ageGroups,
             colorsByHealth,
@@ -89,7 +90,86 @@
         />
       </div>
     </div>
-    <footer id='footNote' class='label' :style="{width: `${width}px`}">
+    <!-- FOR PHONE  -->
+    <div v-if="isPhone" class="gameContainer">
+      <div id="communityPanel" class="panel" :style="{top: `${topHeight}px`}">
+        <Community
+          v-bind="{
+            isPhone,
+            ...communityDimensions,
+            colorsByHealth,
+            tl,
+            phases,
+            playTimeline,
+            setGroups,
+          }"
+        />
+        <!-- POPULATION  -->
+        <div class="label" id="populationContainer">
+          <h3 v-if="cityCounty">{{ cityCounty.city }}, {{ cityCounty.state }} {{ cityCounty.zip }}</h3>
+          <div v-if="population">Population: {{ formatNumber(population.total) }}</div>
+        </div>
+      </div>
+      <div id="chartsPanel" class="panel" :style='{
+        bottom: `${bottomHeight}px`,
+        height: `${chartsHeight}px`,
+      }'>
+        <div>
+          <Legend v-bind="{healthStatus, colorsByHealth, isPhone}" />
+          <LineChart
+            v-bind="{
+              isPhone,
+              width,
+              height: 120,
+              ageGroups,
+              colorsByHealth,
+              tl,
+              phases,
+              playTimeline,
+            }"
+          />
+          <Hospital v-bind="{isPhone, colorsByHealth, tl, phases, playTimeline}" />
+          <BarChart
+            v-bind="{
+              isPhone,
+              width,
+              height: 120,
+              ageGroups,
+              colorsByHealth,
+              tl,
+              phases,
+              playTimeline,
+            }"
+          />
+          <div class="methodology label" v-html="$t('footnotes.fullMethodology')"></div>
+        </div>
+      </div>
+      <div id="topPanel" class="panel">
+        <Header v-bind="{height: topHeight, isPhone}" />
+      </div>
+      <div id="bottomPanel" class="panel" :style="{height: `${bottomHeight}px`}">
+        <CommunityStats
+          v-bind="{
+            isPhone,
+            tl, phases,
+            playTimeline,
+          }"
+        />
+      </div>
+    <!-- DECISION SCREEN -->
+      <Decide
+        v-if="showDecision"
+        v-bind="{
+          isPhone,
+          onUpdate: updateDecision,
+          continueGame,
+          ageGroups,
+          colorsByHealth,
+        }"
+      />
+    </div>
+    <!-- ONLY SHOW FOOTNOTE METHODOLOGY ON DESKTOP -->
+    <footer v-if="!isPhone" class='methodology label' :style="{width: `${width}px`}">
       <span v-html="$t('footnotes.fullMethodology')"></span>
     </footer>
   </div>
@@ -113,7 +193,6 @@ const maxWidth = 1320
 const maxHeight = 840
 const widthHeightRatio = maxWidth / maxHeight
 const padding = 40
-const needSetup = ['community', 'area', 'bar', 'hospital', 'stats']
 
 export default {
   name: 'GamePlay',
@@ -128,16 +207,19 @@ export default {
     Header,
     Legend,
   },
-  props: ['ageGroups', 'healthStatus', 'colorsByHealth'],
+  props: ['isPhone', 'ageGroups', 'healthStatus', 'colorsByHealth'],
   data() {
     return {
-      width: maxWidth,
-      height: maxHeight,
-      topHeight: 75,
+      width: this.isPhone ? window.innerWidth : maxWidth,
+      height: this.isPhone ? window.innerHeight : maxHeight,
+      topHeight: this.isPhone ? 55 : 75,
       rightWidth: 320,
-      bottomHeight: 180,
+      chartsHeight: 275,
+      bottomHeight: this.isPhone ? 55 : 180,
       tl: new gsap.timeline({ paused: true }),
       groups: [],
+      needSetup: this.isPhone ? ['area', 'stats', 'hospital'] :
+        ['community', 'area', 'bar', 'hospital', 'stats'],
       showDecision: false,
     }
   },
@@ -166,9 +248,10 @@ export default {
     communityDimensions() {
       return {
         top: 0,
-        left: this.topHeight,
-        width: this.width - this.rightWidth,
-        height: this.height - this.topHeight - this.bottomHeight,
+        left: 0,
+        width: this.width - (this.isPhone ? 0 : this.rightWidth),
+        height: this.height - this.bottomHeight - this.topHeight
+          - (this.isPhone ? this.chartsHeight : 0),
       }
     },
     minimapDimensions() {
@@ -187,8 +270,9 @@ export default {
     },
   },
   mounted() {
-    window.addEventListener('resize', this.calculateDimensions)
+    this.setupDone = []
     this.calculateDimensions()
+    window.addEventListener('resize', this.calculateDimensions)
   },
   destroyed() {
     window.removeEventListener('resize', this.calculateDimensions)
@@ -208,8 +292,12 @@ export default {
       this.groups = groups
     },
     calculateDimensions() {
-      this.width = Math.min(window.innerWidth - padding, maxWidth)
-      this.height = Math.min((1 / widthHeightRatio) * this.width, maxHeight)
+      this.width = window.innerWidth
+      this.height = window.innerHeight
+      if (!this.isPhone) {
+        this.width = Math.min(window.innerWidth - padding, maxWidth)
+        this.height = Math.min((1 / widthHeightRatio) * this.width, maxHeight)
+      }
     },
     updateDecision(numTimes) {
       this.showDecision = false
@@ -241,7 +329,7 @@ export default {
     },
     playTimeline(child) {
       this.setupDone.push(child)
-      if (_.difference(needSetup, this.setupDone).length) return
+      if (_.difference(this.needSetup, this.setupDone).length) return
 
       // if all children have been setup
       this.tl.add(() => {
@@ -269,85 +357,137 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-#gameplay {
+// DESKTOP
+#gameplay.lg, #gameplay.md {
   background: white;
   border-radius: 6px;
   overflow: hidden;
   @include shadow;
-}
 
-.gameContainer {
-  position: relative;
-  display: grid;
-  height: 100%;
-  grid-template-rows: 1fr 7fr 2fr;
-}
+  .gameContainer {
+    @include respond-to('small') {
+      position: static;
+    }
+    position: relative;
+    display: grid;
+    height: 100%;
+    grid-template-rows: 1fr 7fr 2fr;
+  }
 
-#topPanel {
-  grid-column: 1 / 3;
-  width: 100%;
-  top: 0;
-  border-bottom: 1px solid $gray;
-}
+  #topPanel {
+    grid-column: 1 / 3;
+    width: 100%;
+    top: 0;
+    border-bottom: 1px solid $gray;
+  }
 
-#communityPanel {
-  overflow: hidden;
-  display: grid;
-  grid-row-start: 2;
-  grid-row-end: 3;
-  position: relative;
-}
+  #communityPanel {
+    overflow: hidden;
+    display: grid;
+    grid-row-start: 2;
+    grid-row-end: 3;
+    position: relative;
+  }
 
-#rightPanel {
-  display: flex;
-  flex-direction: column;
-  grid-column: 2;
-  grid-row-start: 2;
-  grid-row-end: 4;
-  right: 0px;
-  bottom: 0px;
-  border-left: 1px solid $gray;
-}
+  #rightPanel {
+    display: flex;
+    flex-direction: column;
+    grid-column: 2;
+    grid-row-start: 2;
+    grid-row-end: 4;
+    right: 0px;
+    bottom: 0px;
+    border-left: 1px solid $gray;
+  }
 
-#bottomPanel {
-  display: grid;
-  grid-template-columns: 180px 1fr 1.5fr;
-  grid-row: 3;
-  padding: 1rem;
-  left: 0px;
-  bottom: 0px;
-  border-top: 1px solid $gray;
-}
+  #bottomPanel {
+    display: grid;
+    grid-template-columns: 180px 1fr 1.5fr;
+    grid-row: 3;
+    padding: 1rem;
+    left: 0px;
+    bottom: 0px;
+    border-top: 1px solid $gray;
+  }
 
-#minimapContainer {
-  position: relative;
-  align-self: flex-end;
-  margin-left: auto;
-  padding: 1rem;
-}
+  #minimapContainer {
+    position: relative;
+    align-self: flex-end;
+    margin-left: auto;
+    padding: 1rem;
+  }
 
-#populationContainer {
-  position: absolute;
-  align-self: flex-start;
-  margin: 1rem;
-  margin-right: auto;
-  background-color: rgba(255, 255, 255, 0.9);
-  padding: 5px;
-  border: 1px solid $gray;
-  border-radius: 3px;
+  #populationContainer {
+    position: absolute;
+    align-self: flex-start;
+    margin: 1rem;
+    margin-right: auto;
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 5px;
+    border: 1px solid $gray;
+    border-radius: 3px;
 
-  h3 {
-    margin: 0;
+    h3 {
+      margin: 0;
+    }
+  }
+
+  .panel {
+    position: absolute;
+  }
+
+  .methodology {
+    position: absolute;
+    text-align: right;
+    padding: 3px;
   }
 }
 
-.panel {
-  position: absolute;
-}
+#gameplay.sm {
+  background: white;
+  overflow: hidden;
 
-#footNote {
-  position: absolute;
-  text-align: right;
-  padding: 3px;
+  #topPanel {
+    top: 0;
+    border-bottom: 1px solid $gray;
+  }
+
+  #populationContainer {
+    position: absolute;
+    margin: 0.5rem 0.75rem;
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 5px;
+    border: 1px solid $gray;
+    border-radius: 3px;
+
+    h3 {
+      margin: 0;
+    }
+  }
+
+  #chartsPanel {
+    bottom: 0;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    border-top: 1px solid $gray;
+
+    .methodology {
+      padding: 0.5rem 0.75rem;
+      text-align: center;
+      border-top: 1px solid $gray;
+    }
+  }
+
+  #bottomPanel {
+    left: 0px;
+    bottom: 0px;
+    border-top: 1px solid $gray;
+  }
+
+  .panel {
+    width: 100%;
+    position: fixed;
+    background-color: white;
+  }
 }
 </style>

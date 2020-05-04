@@ -36,22 +36,22 @@
 
 <script>
 export default {
-  name: 'Share',
+  name: "Share",
   props: {
-    isCopied: { type: Boolean, default: false },
+    isCopied: { type: Boolean, default: false }
   },
   data: function() {
     return {
-      siteUrl: 'peopleofthepandemicgame.com',
-    }
+      siteUrl: "peopleofthepandemicgame.com"
+    };
   },
   methods: {
     onCopy: function(e) {
-      this.isCopied = true
-      e.preventDefault()
-    },
-  },
-}
+      this.isCopied = true;
+      e.preventDefault();
+    }
+  }
+};
 </script>
 
 <style lang="scss" scoped>

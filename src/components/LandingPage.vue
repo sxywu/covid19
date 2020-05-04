@@ -16,9 +16,12 @@
         <p>{{ $t('landing.explanation2') }}</p>
         <h2>{{ $t('landing.explanation3') }}</h2>
         <p>{{ $t('landing.explanation4') }}</p>
-        <Histogram v-bind="{
-          type: 'all', width: isPhone ? 300 : 700,
-        }" />
+        <Histogram
+          v-bind="{
+            type: 'all',
+            width: isPhone ? 300 : 700,
+          }"
+        />
         <p>{{ $t('landing.explanation5') }}</p>
         <hr />
         <h2 class="instructions" v-html="$t('landing.instruction1')"></h2>
@@ -31,47 +34,46 @@
                 :class="{ 'zip-error': errors['zipCode'] }"
                 id="zip"
                 v-model="zipCode"
-                :placeholder="isPhone ?
-                  $t('landing.zipCodePlaceholderNoMobile') :
-                  $t('landing.zipCodePlaceholder')"
+                :placeholder="$t('landing.zipCodePlaceholder')"
                 pattern="/(^\d{5}$)|(^\d{5}-\d{4}$)/"
-                :disabled="isPhone"
               />
             </div>
             <span>{{ $t('or') }}</span>
             <fieldset>
               <div class="communitySize">
-                <div v-for="{id, value} in communitySizes" class="radioWrapper">
+                <div
+                  v-for="{ id, value } in communitySizes"
+                  class="radioWrapper"
+                >
                   <input
                     type="radio"
                     :id="id"
                     name="communitySize"
                     :value="value"
                     v-model="communitySize"
-                    :disabled="isPhone || !!zipCode"
+                    :disabled="!!zipCode"
                   />
                   <label :for="id">{{ $t(id) }}</label>
                 </div>
               </div>
             </fieldset>
           </div>
-          <p style="text-align: center; max-width: 380px;"
-            v-html="$t('landing.instruction2')"></p>
-          <button type="submit" class="playNowBtn" :disabled="isPhone">
+          <p
+            style="text-align: center; max-width: 380px;"
+            v-html="$t('landing.instruction2')"
+          ></p>
+          <button type="submit" class="playNowBtn">
             {{ $t('landing.buttonCta') }}
           </button>
           <div v-if="errors['zipCode']" class="zipCodeError">
             {{ errors['zipCode'] }}
           </div>
-          <div v-if="isPhone" class="mobileError">
-            {{ $t('landing.errors.noMobile') }}
-          </div>
         </form>
       </div>
     </div>
 
-    <footer id='disclaimer'>
-      <h3 class='label'>{{ $t('footnotes.disclaimer' )}}</h3>
+    <footer id="disclaimer">
+      <h3 class="label">{{ $t('footnotes.disclaimer') }}</h3>
       <p v-html="$t('footnotes.fullDisclaimer')"></p>
     </footer>
   </div>
@@ -80,11 +82,10 @@
 <script>
 import _ from 'lodash'
 import Histogram from './Histogram'
-const isPhone = isMobile.phone
 
 export default {
   name: 'LandingPage',
-  components: {Histogram},
+  components: { Histogram },
   props: ['isPhone'],
   data() {
     return {
@@ -92,9 +93,9 @@ export default {
       zipCode: '',
       communitySize: '',
       communitySizes: [
-        {id: 'urban', value: 'Urban'},
-        {id: 'suburban', value: 'Suburban'},
-        {id: 'rural', value: 'Rural'},
+        { id: 'urban', value: 'Urban' },
+        { id: 'suburban', value: 'Suburban' },
+        { id: 'rural', value: 'Rural' },
       ],
       peopleImages: [
         require('../assets/person-1.svg'),
@@ -117,7 +118,7 @@ export default {
     startPlay(e) {
       if (!this.zipCode && this.communitySize) {
         this.zipCode = _.sample(
-          this.zipsByCommunitySize[this.communitySize.toLowerCase()],
+          this.zipsByCommunitySize[this.communitySize.toLowerCase()]
         ).zip
         this.$store.commit('setCommunitySizeSelection', this.communitySize)
       }
@@ -127,7 +128,7 @@ export default {
         this.$store.commit('setCurrentPage', 'game')
       }
     },
-    createFormError({condition, event, fieldName, errorMessage}) {
+    createFormError({ condition, event, fieldName, errorMessage }) {
       if (condition) {
         this.errors[fieldName] = errorMessage
         event.preventDefault()
@@ -162,6 +163,9 @@ export default {
 
 <style lang="scss" scoped>
 #landing {
+  @include respond-to('small') {
+    padding: 1rem;
+  }
   width: 100%;
   min-height: 100vh;
   display: flex;
@@ -170,9 +174,7 @@ export default {
   justify-content: center;
   padding: 5rem 2rem;
   background: linear-gradient(#fff 50%, $gray);
-  @include respond-to('small') {
-    padding: 2rem;
-  }
+
   .title {
     max-width: 80%;
     margin-top: 2em;
@@ -381,7 +383,8 @@ header {
     border-radius: 5px;
   }
 }
-.zipCodeError, .mobileError {
+.zipCodeError,
+.mobileError {
   padding-top: 0.5rem;
   color: $red;
 }
