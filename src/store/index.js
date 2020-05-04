@@ -17,10 +17,12 @@ let prevInfected = []
 let dailyHealthStatus = []
 const totalPlayers = 20
 const foodStatus = {value: 18, maxValue: 18}
-const exerciseStatus = {value: 10, maxValue: 10}
+const exerciseStatus = {value: 31, maxValue: 31}
 const numTimesOut = _.times(8, numTimes => {
   return _.times(7, i => +(i < numTimes))
 })
+const usualActivityLevel = [3, 5, 2, 1, 5] // food, exercise, small, large, work
+const bestActivityLevel = [1, 3, 0, 0, 0]
 
 function assignHealth(person, daysSinceInfection, prevInHospital) {
   // health statuses: 0 = healthy, 1 = recovered, 2 = infected+asymptomatic,
@@ -56,7 +58,7 @@ function healthAndDestination(
   daysSinceInfection,
   prevInfectious,
   prevInHospital,
-  playerGoesOut,
+  decisions,
   infectedDestinations,
   infectedHouses,
 ) {
@@ -67,17 +69,33 @@ function healthAndDestination(
   )
 
   let destination = -1 // default to home
-  if ((health < 3 || (health === 3 && Math.random() > 0.5)) && playerGoesOut) {
+  if ((health < 3 || (health === 3 && Math.random() > 0.5))) {
     // if they're healthy, recovered, or asymptomatic
     // or if they're mild symptom they have 50% (made up) likelihood of going out
-    // and the player decided to go out
-    destination = _.sample(houses[person.houseIndex].destinations)
+    const allDestinations = houses[person.houseIndex].destinations
+    _.each(decisions, (goOut, activity) => {
+      if (!goOut) return
+      let destinations
+      if (activity === 3) { // if large gathering
+        destinations = allDestinations
+        destination = _.sample(destinations)
+      } else if (activity === 4) { // if work
+        destinations = allDestinations
+        destination = _.sample(destinations)
+      } else {
+        destination = _.sample(allDestinations)
+        destinations = [destination]
+      }
 
-    if (infectious) {
-      // but if they're asymptomatic, add that as infected destination
-      infectedDestinations[destination] =
-        (infectedDestinations[destination] || 0) + 1
-    }
+      _.each(destinations, destination => {
+        // then go
+        if (infectious) {
+          // but if they're asymptomatic, add that as infected destination
+          infectedDestinations[destination] =
+            (infectedDestinations[destination] || 0) + (activity === 1 ? 0.1 : 1)
+        }
+      })
+    })
   }
 
   // and if they were infectious the previous day
@@ -300,6 +318,7 @@ export default new Vuex.Store({
             Object.assign(houses[i], {
               groupIndex,
               destinations: destIndicesInGroup,
+              work: _.sampleSize(destIndicesInGroup, _.random(1, 3)),
             }),
         )
       })
@@ -360,18 +379,25 @@ export default new Vuex.Store({
         // if this is first day of week
         // figure out number of times to go out
         if (dayOfWeek === 0) {
-          const numTimes = allDecisions[i % totalPlayers][week - 1]
-          let player = numTimesOut[7]
-          let bestAlternate = numTimesOut[7]
-          if (day <= totalDays && numTimes < 7) {
-            // if this is within first eight weeks
-            player = _.shuffle(numTimesOut[numTimes])
-          }
-          if (week > 1 && day <= totalDays) {
-            // for best alternate, have everyone go out the same amount in week 1
-            // and after week 1, only go out once a week
-            bestAlternate = _.shuffle(numTimesOut[1])
-          }
+          const decisions = allDecisions[i % totalPlayers][week - 1]
+          const player = _.map(decisions, (numTimes, activity) => {
+            if (day > totalDays) {
+              // week 8 on everyone goes back to business as usual
+              numTimes = usualActivityLevel[activity]
+            }
+            if (numTimes === 7 || numTimes === 0) return numTimesOut[numTimes]
+            return _.shuffle(numTimesOut[numTimes])
+          })
+          const bestAlternate = _.map(decisions, (numTimes, activity) => {
+            if (week < 1) {
+              // in first week, go business as usual
+              numTimes = usualActivityLevel[activity]
+            } else {
+              numTimes = bestActivityLevel[activity]
+            }
+            if (numTimes === 7 || numTimes === 0) return numTimesOut[numTimes]
+            return _.shuffle(numTimesOut[numTimes])
+          })
           weeklyDecision = {
             player,
             bestAlternate,
@@ -386,7 +412,7 @@ export default new Vuex.Store({
           daysSinceInfection,
           prevInfectious,
           prevInHospital,
-          weeklyDecision.player[dayOfWeek],
+          _.map(weeklyDecision.player, decisions => decisions[dayOfWeek]),
           infectedDestinations,
           infectedHouses,
         )
@@ -427,7 +453,7 @@ export default new Vuex.Store({
             prevBestAlternate.daysSinceInfection,
             prevBestAlternate.infectious,
             prevBestAlternate.inHospital,
-            weeklyDecision.bestAlternate[dayOfWeek],
+            _.map(weeklyDecision.bestAlternate, decisions => decisions[dayOfWeek]),
             bestAlternateDestinations,
             bestAlternateHouses,
           ),
@@ -529,6 +555,19 @@ export default new Vuex.Store({
       dailyHealthStatus.push(status)
       return dailyHealthStatus
     },
+    calculateActivityLevel() {
+      return function(decisions) {
+        return _.sumBy(decisions, (numTimes, activity) => {
+          if (activity === 1) return numTimes * 0.1 // exercise
+          if (activity === 3) return numTimes * 5 // large gathering
+          if (activity === 4) return numTimes * 2.5 // working
+          return numTimes // food & small gathering
+        })
+      }
+    },
+    usualActivityLevel(state, {calculateActivityLevel}) {
+      return calculateActivityLevel(usualActivityLevel)
+    },
   },
   mutations: {
     setCurrentPage(state, currentPage) {
@@ -542,10 +581,7 @@ export default new Vuex.Store({
 
       // for every day they don't get groceries
       state.foodStatus.value = Math.max(0, state.foodStatus.value - 1)
-      if (day % 3 === 0) {
-        // for every 3 days they don't go out
-        state.exerciseStatus.value = Math.max(0, state.exerciseStatus.value - 1)
-      }
+      state.exerciseStatus.value = Math.max(0, state.exerciseStatus.value - 1)
       if (state.foodStatus.value === 0 || state.exerciseStatus.value === 0) {
         state.currentPage = 'failed'
       }
@@ -566,24 +602,18 @@ export default new Vuex.Store({
       state.allDecisions = allDecisions
     },
     setDecision(state, decision) {
-      if (decision > 0) {
-        // if go out more than once, then they did exercise
-        state.exerciseStatus.value = Math.min(
-          state.exerciseStatus.value + 1,
-          state.exerciseStatus.maxValue,
-        )
-      }
-      if (decision > 1) {
+      const [food, exercise] = decision
+      if (food) {
         // if they go out twice, 2 weeks of groceries are taken care of
         state.foodStatus.value = Math.min(
-          state.foodStatus.value + 14,
+          state.foodStatus.value + 4 * food,
           state.foodStatus.maxValue,
         )
       }
-      if (decision > 2) {
-        // if they go out three times
+      if (exercise) {
+        // if go out more than once, then they did exercise
         state.exerciseStatus.value = Math.min(
-          state.exerciseStatus.value + 3,
+          state.exerciseStatus.value + exercise,
           state.exerciseStatus.maxValue,
         )
       }
@@ -632,16 +662,16 @@ export default new Vuex.Store({
         filters: {zipCode: 'Any'},
         limit: numPastPlayers,
         cb: data => {
-          const allDecisions = _.chain(data)
-            .map('decisions')
-            .filter()
-            .value()
+          const allDecisions = []
           // if there still aren't enough, then add in the rest assuming they go out every day
           _.times(numPastPlayers - allDecisions.length, i => {
-            allDecisions.push([7, 7, 7, 7, 7, 7, 7, 7])
+            const decisions = allDecisions[i] = []
+            _.times(8, i => {
+              decisions.push(usualActivityLevel)
+            })
           })
           // add this player's decision at beginning, assume they go out every day
-          allDecisions.unshift([7])
+          allDecisions.unshift([usualActivityLevel])
 
           commit('setAllDecisions', allDecisions)
           commit('setPastPlayerIDs', _.map(data, 'id'))

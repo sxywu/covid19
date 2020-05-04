@@ -73,7 +73,7 @@
         />
         <button
           class="decideBtn startNextWeekBtn mt3"
-          @click="onUpdate(numTimes)"
+          @click="onUpdate(decisions)"
         >
           {{ $t('decide.start') }}
         </button>
@@ -115,7 +115,7 @@ export default {
           }
         }
       ),
-      decisions: [0, 0, 0, 0],
+      decisions: [0, 0, 0, 0, 0],
       decided: false,
     }
   },

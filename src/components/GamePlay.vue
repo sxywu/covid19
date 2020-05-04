@@ -295,9 +295,9 @@ export default {
         this.height = Math.min((1 / widthHeightRatio) * this.width, maxHeight)
       }
     },
-    updateDecision(numTimes) {
+    updateDecision(decisions) {
       this.showDecision = false
-      this.$store.commit('setDecision', +numTimes)
+      this.$store.commit('setDecision', decisions)
       this.$store.dispatch('storeGame')
       this.updateDay()
     },
