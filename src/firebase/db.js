@@ -9,6 +9,7 @@ let apiService = {
   setGameById: noop,
   setGameByTeamName: noop,
   getFilteredGamesWithDefault: noop,
+  getTeamNames: noop,
 }
 const FIRESTORE_COLLECTION = 'games-v2'
 if (!isEmpty(App)) {
@@ -54,20 +55,16 @@ if (!isEmpty(App)) {
       .doc(id)
       .set(state)
   }
-  let setGameByTeamName = (teamName, state) => {
+  let getTeamNames = ({cb}) => {
     return fireStore
       .collection(FIRESTORE_COLLECTION)
-      .where('teamName', '==', teamName)
+      .where('teamName', '>', '')
       .get()
       .then(collectionSnapshot => {
-        let teamCollection = collectionSnapshot.docs.map(docSnapShot =>
-          docSnapShot.data(),
+        let teamCollection = collectionSnapshot.docs.map(
+          docSnapShot => docSnapShot.data().teamName,
         )
-        if (teamCollection.length === 0) {
-          setGameById(state.id, {...state, teamName})
-        } else {
-          throw 'That team name has been taken. Please enter another name.'
-        }
+        cb([...new Set(teamCollection)])
       })
   }
   let getFilteredGamesWithDefault = ({
@@ -95,8 +92,8 @@ if (!isEmpty(App)) {
     getFilteredGames,
     getGameById,
     setGameById,
-    setGameByTeamName,
     getFilteredGamesWithDefault,
+    getTeamNames,
   }
 } else {
   console.warn('Firebase app not set up. This session will not be saved.')
