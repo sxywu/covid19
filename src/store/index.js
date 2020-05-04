@@ -77,10 +77,7 @@ function healthAndDestination(
       if (!goOut) return
       let destinations
       if (activity === 3) { // if large gathering
-        destinations = allDestinations
-        destination = _.sample(destinations)
-      } else if (activity === 4) { // if work
-        destinations = allDestinations
+        destinations = _.sampleSize(allDestinations, _.random(1, 5))
         destination = _.sample(destinations)
       } else {
         destination = _.sample(allDestinations)
@@ -318,7 +315,7 @@ export default new Vuex.Store({
             Object.assign(houses[i], {
               groupIndex,
               destinations: destIndicesInGroup,
-              work: _.sampleSize(destIndicesInGroup, _.random(1, 3)),
+              work: _.sample(destIndicesInGroup)
             }),
         )
       })
@@ -398,9 +395,15 @@ export default new Vuex.Store({
             if (numTimes === 7 || numTimes === 0) return numTimesOut[numTimes]
             return _.shuffle(numTimesOut[numTimes])
           })
+          const worstAlternate = _.map(decisions, (numTimes, activity) => {
+            numTimes = usualActivityLevel[activity]
+            if (numTimes === 7 || numTimes === 0) return numTimesOut[numTimes]
+            return _.shuffle(numTimesOut[numTimes])
+          })
           weeklyDecision = {
             player,
             bestAlternate,
+            worstAlternate,
           }
         }
 
@@ -432,7 +435,7 @@ export default new Vuex.Store({
             prevWorstAlternate.daysSinceInfection,
             prevWorstAlternate.infectious,
             prevWorstAlternate.inHospital,
-            true,
+            _.map(weeklyDecision.worstAlternate, decisions => decisions[dayOfWeek]),
             worstAlternateDestinations,
             worstAlternateHouses,
           ),
