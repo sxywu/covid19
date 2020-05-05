@@ -35,7 +35,7 @@
       Copywriting
     </p>
     <p>
-      <strong>Laurent Mau, Rebecca Maumet, Robert Blundell</strong><br />
+      <strong>Laurent Maumet, Rebecca Maumet, Robert Blundell</strong><br />
       French Translation & Localization
     </p>
     <hr />
