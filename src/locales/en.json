@@ -103,7 +103,12 @@
     }
   },
   "hospital": {
+    "null": "Your Hospital",
     "beds": "{filledBeds} Filled / {totalAvailableBeds} Available ({totalBeds} Total Beds)"
+  },
+  "population": {
+    "city": "{city}, {state} {zip}",
+    "count": "Population: {count}"
   },
   "end": {
     "h1": "In the span of {week} weeks...",

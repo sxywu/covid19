@@ -32,8 +32,12 @@
         </div>
         <!-- POPULATION  -->
         <div class="label" id="populationContainer">
-          <h3 v-if="cityCounty">{{ cityCounty.city }}, {{ cityCounty.state }} {{ cityCounty.zip }}</h3>
-          <div v-if="population">Population: {{ formatNumber(population.total) }}</div>
+          <h3 v-if="cityCounty">{{ $t('population.city', {
+            ...cityCounty
+          }) }}</h3>
+          <div v-if="population">
+            {{ $t('population.count', {count: formatNumber(population.total)}) }}
+          </div>
         </div>
         <!-- DECISION SCREEN -->
         <Decide
@@ -102,8 +106,12 @@
         />
         <!-- POPULATION  -->
         <div class="label" id="populationContainer">
-          <h3 v-if="cityCounty">{{ cityCounty.city }}, {{ cityCounty.state }} {{ cityCounty.zip }}</h3>
-          <div v-if="population">Population: {{ formatNumber(population.total) }}</div>
+          <h3 v-if="cityCounty">{{ $t('population.city', {
+            ...cityCounty
+          }) }}</h3>
+          <div v-if="population">
+            {{ $t('population.count', {count: formatNumber(population.total)}) }}
+          </div>
         </div>
       </div>
       <div id="chartsPanel" class="panel" :style='{

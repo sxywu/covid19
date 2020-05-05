@@ -23,16 +23,20 @@
       Illustration & Visual Design
     </p>
     <p>
-      <strong><a href="https://www.ianjones.us/" target="_new">Ian Jones</a></strong>
-      Front & Backend Development
-    </p>
-    <p>
       <strong><a href="https://vojta.io/" target="_new">Vojta Holik</a></strong>
       UI Design & Development
     </p>
     <p>
+      <strong><a href="https://www.ianjones.us/" target="_new">Ian Jones</a></strong>
+      Front & Backend Development
+    </p>
+    <p>
       <strong>Topher Lin & Amy Langer</strong>
       Copywriting
+    </p>
+    <p>
+      <strong>Laurent Maumet, Rebecca Maumet, Robert Blundell</strong><br />
+      French Translation & Localization
     </p>
     <hr />
     <p v-html="$t('footnotes.egghead')"></p>

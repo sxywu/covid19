@@ -2,6 +2,10 @@
 node_modules
 /dist
 
+#extra data files
+public/fr/mismatched-population-zips.csv
+public/fr/repeated-zips.csv
+
 # local env files
 .env.local
 .env.*.local
@@ -22,5 +26,3 @@ yarn-error.log*
 
 # firebase
 admin-credentials.json
-public/fr/mismatched-population-zips.csv
-public/fr/repeated-zips.csv

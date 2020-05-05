@@ -25,7 +25,7 @@
         <p>{{ $t('landing.explanation5') }}</p>
         <hr />
         <h2 class="instructions" v-html="$t('landing.instruction1')"></h2>
-        <div v-html="$t('landing.zipCodeDisclaimer')"></div>
+        <div v-if="country === 'us'" v-html="$t('landing.zipCodeDisclaimer')"></div>
         <form @submit="startPlay">
           <div class="inputs">
             <div class="zipCode">
@@ -109,6 +109,9 @@ export default {
     },
     zipsByCommunitySize() {
       return this.$store.getters.zipsByCommunitySize
+    },
+    country() {
+      return this.$store.state.country
     },
   },
   methods: {
