@@ -328,7 +328,6 @@ export default new Vuex.Store({
             Object.assign(houses[i], {
               groupIndex,
               destinations: destIndicesInGroup,
-              work: _.sample(destIndicesInGroup)
             }),
         )
       })
@@ -573,7 +572,9 @@ export default new Vuex.Store({
     },
     calculateActivityLevel() {
       return function(decisions) {
-        return _.sumBy(decisions, (numTimes, activity) => {
+        let activity = -1
+        return _.sumBy(decisions, numTimes => {
+          activity += 1
           if (activity === 1) return numTimes * 0.1 // exercise
           if (activity === 3) return numTimes * 5 // large gathering
           if (activity === 4) return numTimes * 2.5 // working
@@ -583,6 +584,9 @@ export default new Vuex.Store({
     },
     usualActivityLevel(state, {calculateActivityLevel}) {
       return calculateActivityLevel(usualActivityLevel)
+    },
+    bestActivityLevel(state, {calculateActivityLevel}) {
+      return calculateActivityLevel(bestActivityLevel)
     },
   },
   mutations: {

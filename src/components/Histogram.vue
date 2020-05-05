@@ -16,8 +16,10 @@
       </g>
       <g
         class="label"
-        v-if="average.x"
-        :transform="`translate(${average.x}, ${height - margin.bottom})`"
+        v-if="annotations.average &&
+          annotations.average !== annotations.usual &&
+          annotations.average !== annotations.best"
+        :transform="`translate(${annotations.average}, ${height - margin.bottom})`"
       >
         <line :y2="margin.bottom * 0.8" stroke="#333" />
         <circle r="3" />
@@ -27,14 +29,29 @@
           text-anchor="middle"
           font-weight="bold"
         >
-          {{ $t('decide.average', {count: average.count}) }}
+          {{ $t('histogram.average') }}
         </text>
       </g>
+      <line :x1="margin.left" :x2="width - margin.right"
+        :y1="height - margin.bottom" :y2="height - margin.bottom" stroke="#333" />
+      <!-- ANNOTATIONS -->
       <g
-        class="axis label"
-        ref="xAxis"
-        :transform="`translate(0, ${height - margin.bottom})`"
-      />
+        class="label"
+        v-for="(x, key) in annotations"
+        v-if="x"
+        :transform="`translate(${x}, ${height - margin.bottom})`"
+      >
+        <line :y2="margin.bottom * 0.8" stroke="#333" />
+        <circle r="3" />
+        <text
+          :y="margin.bottom * 0.8 + 2"
+          dy="1em"
+          :text-anchor="key === 'best' ? 'start' : (key === 'usual' ? 'end' : 'middle')"
+          font-weight="bold"
+        >
+          {{ $t(`histogram.${key}`) }}
+        </text>
+      </g>
     </svg>
   </div>
 </template>
@@ -48,18 +65,18 @@ const images = [
   require('../assets/person-2.svg'),
 ]
 const imageRatio = 94 / 52
-const margin = { top: 20, right: 0, bottom: 40, left: 0 }
 export default {
   name: 'Histogram',
-  props: ['width', 'type', 'numTimes'],
+  props: ['isPhone', 'width', 'type', 'numTimes'],
   data() {
     return {
       height: 250,
       imageHeight: 25,
       imageHeight: 25 * imageRatio,
-      margin,
+      margin: this.isPhone ? { top: 20, right: 0, bottom: 40, left: 0 } :
+        { top: 20, right: 20, bottom: 40, left: 20 },
       people: [],
-      average: {},
+      annotations: {},
     }
   },
   computed: {
@@ -69,18 +86,20 @@ export default {
     allDecisions() {
       return this.$store.state.allDecisions
     },
+    calculateActivityLevel() {
+      return this.$store.getters.calculateActivityLevel
+    },
+    usualActivityLevel() {
+      return this.$store.getters.usualActivityLevel
+    },
+    bestActivityLevel() {
+      return this.$store.getters.bestActivityLevel
+    },
   },
   created() {
     this.xScale = d3
       .scaleLinear()
-      .domain([-0.5, 7.5])
-      .range([margin.left, this.width - margin.right])
-
-    this.xAxis = d3
-      .axisBottom()
-      .scale(this.xScale)
-      .tickSizeOuter(1)
-      .tickFormat(d => _.isInteger(d)? _.round(d) : '')
+      .range([this.margin.left, this.width - this.margin.right])
   },
   mounted() {
     this.calculatePeople()
@@ -94,36 +113,44 @@ export default {
     calculatePeople() {
       if (!this.allDecisions.length) return
 
-      const groupedPeople = _.chain(this.allDecisions)
+      let groupedPeople = _.chain(this.allDecisions)
         .map((d, i) => {
-          let numTimes = d[this.week] || this.numTimes
+          let activityLevel
           if (this.type === 'all') {
-            if (d.length !== 8) return
-            numTimes = _.round(d3.mean(d), 1)
+            if (d.length !== 8) return // if this is current player
+            activityLevel = _.chain(d)
+              .map(decisions => this.calculateActivityLevel(decisions))
+              .mean().round(1).value()
+          } else {
+            activityLevel = this.calculateActivityLevel(d[this.week])
           }
           return {
-            numTimes,
+            activityLevel,
             isPlayer: i === 0, // player is first
           }
-        })
-        .filter()
-        .groupBy('numTimes')
+        }).filter()
         .value()
+
+      // update x-scale
+      const maxActivityLevel = d3.max(groupedPeople, d => d.activityLevel)
+      this.xScale.domain([0, Math.max(maxActivityLevel, this.usualActivityLevel + 2)])
+      groupedPeople = _.groupBy(groupedPeople, 'activityLevel')
+
       const maxLength = _.chain(groupedPeople)
         .map(d => d.length).max().value()
-      this.imageHeight = _.clamp(Math.floor(this.height / maxLength), 40, 60)
+      this.imageHeight = _.clamp(Math.floor(this.height / maxLength), 30, 60)
       this.imageWidth = this.imageHeight / imageRatio
       this.height = Math.min(
         this.height,
-        this.imageHeight * maxLength + margin.top + margin.bottom
+        this.imageHeight * maxLength + this.margin.top + this.margin.bottom
       )
       this.people = _.chain(groupedPeople)
         .map(people => {
-          let y = this.height - margin.bottom
+          let y = this.height - this.margin.bottom
           return _.map(people, d => {
             y -= this.imageHeight
             return Object.assign(d, {
-              x: this.xScale(d.numTimes),
+              x: this.xScale(d.activityLevel),
               y,
               image: images[_.random(1)],
             })
@@ -131,13 +158,12 @@ export default {
         })
         .flatten()
         .value()
-      const average = d3.mean(this.people, d => d.numTimes)
-      this.average = {
-        count: _.round(average, 2),
-        x: this.xScale(average),
+      const average = d3.mean(this.people, d => d.activityLevel)
+      this.annotations = {
+        average: this.xScale(average),
+        usual: this.xScale(this.usualActivityLevel),
+        best: this.xScale(this.bestActivityLevel),
       }
-
-      d3.select(this.$refs.xAxis).call(this.xAxis)
     },
   },
 }
