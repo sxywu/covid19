@@ -25,12 +25,6 @@
     "severeSymptoms": "Severe Symptoms",
     "deceased": "Deceased"
   },
-  "activities": {
-    "food": "Food",
-    "exercise": "Exercise",
-    "small": "Small gathering",
-    "large": "Large gathering"
-  },
   "landing": {
     "explanation1": "You're in the first few days of a new viral spread. This virus can be transmitted before symptoms appear, and it has the potential to spread throughout the entire community—unless you take action now through physical distancing. The coming weeks are crucial for saving thousands of lives.",
     "explanation2": "But you can’t do this alone! It’ll take the cooperation of the entire community to slow the spread of this disease. Together, you’ll have to find ways to meet your individual needs while limiting your outings as much as possible.",

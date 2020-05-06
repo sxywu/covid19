@@ -39,12 +39,6 @@ export default {
         this.$t('healthStatus.severeSymptoms'),
         this.$t('healthStatus.deceased'),
       ],
-      activities: [
-        this.$t('activities.food'),
-        this.$t('activities.exercise'),
-        this.$t('activities.small'),
-        this.$t('activities.large'),
-      ],
       colorsByHealth: [
         '#B8D7E1',
         '#3BB2CA',
