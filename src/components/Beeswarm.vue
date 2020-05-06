@@ -7,8 +7,16 @@
         ref="xAxis"
         :transform="`translate(0, ${height - margin.bottom})`"
       />
+      <g class="label" :transform="`translate(0, ${height})`">
+        <text class="label" :x="margin.left" text-anchor="end" dy='.35em'>
+          Went out
+        </text>
+        <text class="label" :x="width - margin.right" text-anchor="start" dy='.35em'>
+          times
+        </text>
+      </g>
       <g v-for="(d, i) in people" :key="i"
-        :transform="`translate(${d.x - imageWidth / 2}, ${d.y})`">
+        :transform="`translate(${d.x - imageWidth / 2}, ${d.y - imageHeight / 2})`">
         <image
           :width="imageWidth"
           :height="imageHeight"
@@ -42,18 +50,22 @@ const imageWidth = 15
 const imageRatio = 94 / 52
 export default {
   name: 'Beeswarm',
-  props: ['isPhone', 'width', 'type', 'decision'],
+  props: ['isPhone', 'width', 'type', 'decisions'],
   data() {
+    const height = 250
+    const margin = { top: 20, right: 40, bottom: 20, left: 70 }
+    const perHeight = (height - margin.top - margin.bottom) / 4
+
     return {
-      height: 300,
+      height, margin,
       imageWidth,
       imageHeight: imageWidth * imageRatio,
-      margin: { top: 20, right: 0, bottom: 20, left: 80 },
       activities: _.map(
         ['groceries', 'exercise', 'small', 'large'],
-        (key, index) => {
+        (key, i) => {
           return {
             label: this.$t(`decide.activities.${key}.label`),
+            y: (i + 0.5) * perHeight + margin.top,
           }
         }
       ),
@@ -100,27 +112,28 @@ export default {
     calculatePeople() {
       if (!this.allDecisions.length) return
 
-      const perHeight = (this.height - this.margin.top - this.margin.bottom) / this.activities.length
       this.people = _.chain(this.activities)
-        .map((label, activity) => {
-          const forceY = (activity + 0.5) * perHeight + this.margin.top
+        .map(({y}, activity) => {
           return _.map(this.allDecisions, (weeklyDecisions, person) => {
-            let decision = (weeklyDecisions[this.week] || this.decision)[activity]
+            let decision
             if (this.type === 'all') {
               // if showing all weeks and first person doesn't have all 8 weeks
               if (weeklyDecisions.length !== 8) return
               decision = _.chain(weeklyDecisions)
                 .map(d => d[activity])
                 .mean().round(1).value()
+            } else {
+              decision = (weeklyDecisions[this.week] || this.decisions)[activity]
             }
             return {
               image: images[_.random(1)],
               isPlayer: person === 0,
               forceX: this.xScale(decision),
-              forceY,
+              forceY: y,
             }
           })
-        }).flatten().filter().value()
+        }).flatten().filter()
+        .sortBy(d => !!d.isPlayer).value()
 
       this.simulation.nodes(this.people)
       _.times(250, i => this.simulation.tick())
@@ -130,10 +143,10 @@ export default {
       d3.select(this.$refs.xAxis).select('path').remove()
       d3.select(this.$refs.xAxis).selectAll('line')
         .attr('stroke', '#cfcfcf')
-        .attr('stroke-dasharray', '5')
-
-      const perHeight = (this.height - this.margin.top - this.margin.bottom) / this.activities.length
-      _.each(this.activities, (d, i) => d.y = this.margin.top + (i + 0.5) * perHeight)
+        .attr('stroke-dasharray', '5 10')
+      d3.select(this.$refs.xAxis).selectAll('text')
+        .attr('y', this.margin.bottom)
+        .attr('dy', '.35em')
     },
   },
 }

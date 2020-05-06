@@ -59,7 +59,6 @@
       <div class="decided">
         <div>
           <h1 class="header">
-            {{ $tc('decide.h1.numTimes', numTimes, { count: numTimes }) }}.
           </h1>
           <p class="body">{{ $t('decide.rest') }}</p>
         </div>
@@ -67,7 +66,7 @@
         <Beeswarm
           v-bind="{
             type: 'weekly',
-            numTimes: numTimes,
+            decisions,
             width: isPhone ? 340 : 700,
           }"
         />
@@ -103,7 +102,6 @@ export default {
   },
   data() {
     return {
-      numTimes: 0,
       activities: _.map(
         ['groceries', 'exercise', 'small', 'large'],
         (key, index) => {
