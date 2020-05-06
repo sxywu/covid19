@@ -70,15 +70,20 @@ function healthAndDestination(
   if ((health < 3 || (health === 3 && Math.random() > 0.5))) {
     // if they're healthy, recovered, or asymptomatic
     // or if they're mild symptom they have 50% (made up) likelihood of going out
-    const allDestinations = houses[person.houseIndex].destinations
+    let {destinations} = houses[person.houseIndex]
     _.each(decisions, (goOut, activity) => {
-      if (!goOut) return
-      let destinations
+      // if decided not to go out for the activity
+      // or the activity is work but they're unemployed
+      if (!goOut || (activity === 4 && !person.work)) return
       if (activity === 3) { // if large gathering
-        destinations = _.sampleSize(allDestinations, _.random(1, 5))
+        destinations = _.sampleSize(destinations, _.random(1, 5))
         destination = _.sample(destinations)
       } else {
-        destination = _.sample(allDestinations)
+        if (activity === 4) { // if work
+          destination = person.work
+        } else {
+          destination = _.sample(destinations)
+        }
         destinations = [destination]
       }
 
@@ -247,6 +252,7 @@ export default new Vuex.Store({
         const house = {
           id: `house${houseIndex}`,
           numPeople: numPeopleInHouse,
+          people: [],
         }
         houses.push(house)
 
@@ -273,6 +279,7 @@ export default new Vuex.Store({
             hospitalIfSymptomatic,
             dieIfHospitalized,
             dieIfNotHospitalized,
+            employed,
           } = diseaseNumbers['ageGroups'][ageGroup]
           symptomaticIfInfected = +(Math.random() < symptomaticIfInfected)
           hospitalIfSymptomatic = +(
@@ -296,7 +303,9 @@ export default new Vuex.Store({
             hospitalIfSymptomatic,
             dieIfHospitalized,
             dieIfNotHospitalized,
+            work: Math.random() < employed,
           })
+          house.people.push(personIndex + i)
         })
 
         personIndex += numPeopleInHouse
@@ -319,15 +328,20 @@ export default new Vuex.Store({
             ),
           ),
         )
-        _.each(
-          housesIndicesInGroup,
-          i =>
-            houses[i] &&
-            Object.assign(houses[i], {
-              groupIndex,
-              destinations: destIndicesInGroup,
-            }),
-        )
+        _.each(housesIndicesInGroup, i => {
+          if (!houses[i]) return
+          // update house with destinations
+          Object.assign(houses[i], {
+            groupIndex,
+            destinations: destIndicesInGroup,
+          })
+          // update people's work
+          _.each(houses[i].people, i => {
+            Object.assign(people[i], {
+              work: people[i].work && _.sample(destIndicesInGroup),
+            })
+          })
+        })
       })
 
       return {people, houses, destinations, numGroups: numDestGroups}
@@ -583,7 +597,7 @@ export default new Vuex.Store({
       if (exercise) {
         // if go out more than once, then they did exercise
         state.exerciseStatus.value = Math.min(
-          state.exerciseStatus.value + exercise,
+          state.exerciseStatus.value + 3 * exercise,
           state.exerciseStatus.maxValue,
         )
       }
