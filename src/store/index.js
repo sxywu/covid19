@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import * as d3 from 'd3'
 import _ from 'lodash'
+import p5 from 'p5'
 import {apiService} from '../firebase/db'
 import {v4 as uuidv4} from 'uuid'
 import i18n from '../i18n'
@@ -635,13 +636,23 @@ export default new Vuex.Store({
         filters: {zipCode: 'Any'},
         limit: numPastPlayers,
         cb: data => {
-          const allDecisions = []
+          const allDecisions = _.chain(data)
+            .map(({decisions}) => JSON.parse(decisions))
+            .filter()
+            .value()
           // if there still aren't enough, then add in the rest assuming they go out every day
           _.times(numPastPlayers - allDecisions.length, i => {
-            const decisions = allDecisions[i] = []
+            const decisions = []
             _.times(8, i => {
-              decisions.push(usualActivityLevel)
+              const decision = _.map(usualActivityLevel, d => {
+                return _.chain(p5.prototype.randomGaussian(d, 1))
+                  .round()
+                  .clamp(0, 7)
+                  .value()
+              })
+              decisions.push(decision)
             })
+            allDecisions.push(decisions)
           })
           // add this player's decision at beginning, assume they go out every day
           allDecisions.unshift([usualActivityLevel])
