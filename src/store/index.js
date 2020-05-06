@@ -9,6 +9,7 @@ import i18n from '../i18n'
 Vue.use(Vuex)
 
 import diseaseNumbers from '../assets/diseaseNumbers.json'
+import numTimesOut from '../assets/numTimesOut.json'
 
 let populationsByZip = []
 let hospitalsByZip = []
@@ -18,9 +19,6 @@ let dailyHealthStatus = []
 const totalPlayers = 20
 const foodStatus = {value: 18, maxValue: 18}
 const exerciseStatus = {value: 31, maxValue: 31}
-const numTimesOut = _.times(8, numTimes => {
-  return _.times(7, i => +(i < numTimes))
-})
 const usualActivityLevel = [3, 5, 2, 1, 5] // food, exercise, small, large, work
 const bestActivityLevel = [1, 3, 0, 0, 0]
 
@@ -390,13 +388,13 @@ export default new Vuex.Store({
               // week 8 on everyone goes back to business as usual
               numTimes = usualActivityLevel[activity]
             }
-            if (numTimes === 7 || numTimes === 0) return numTimesOut[numTimes]
-            return _.shuffle(numTimesOut[numTimes])
+            if (numTimes === 7 || numTimes === 0) return numTimesOut[numTimes][0]
+            return _.sample(numTimesOut[numTimes])
           })
           const worstAlternate = _.map(decisions, (numTimes, activity) => {
             numTimes = usualActivityLevel[activity]
-            if (numTimes === 7 || numTimes === 0) return numTimesOut[numTimes]
-            return _.shuffle(numTimesOut[numTimes])
+            if (numTimes === 7 || numTimes === 0) return numTimesOut[numTimes][0]
+            return _.sample(numTimesOut[numTimes])
           })
           weeklyDecision = {
             player,
