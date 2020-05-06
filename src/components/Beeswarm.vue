@@ -1,38 +1,47 @@
 <template>
   <div id="beeswarm">
-    <svg :width="width" :height="height">
-      <!-- AXIS -->
-      <g
-        class="axis label"
-        ref="xAxis"
-        :transform="`translate(0, ${height - margin.bottom})`"
-      />
-      <g class="label" :transform="`translate(0, ${height})`">
-        <text class="label" :x="margin.left" text-anchor="end" dy='.35em'>
-          Went out
-        </text>
-        <text class="label" :x="width - margin.right" text-anchor="start" dy='.35em'>
-          times
-        </text>
-      </g>
-      <g v-for="(d, i) in people" :key="i"
-        :transform="`translate(${d.x - imageWidth / 2}, ${d.y - imageHeight / 2})`">
-        <image
-          :width="imageWidth"
-          :height="imageHeight"
-          :href="d.image"
-          opacity="0.75"
-        />
-        <image v-if="d.isPlayer"
-          :width="imageWidth" :height="imageHeight" href="../assets/star.svg" />
-      </g>
-    </svg>
     <div class="label">
-      <div class="annotation" v-for="d in activities" :style="{
-        top: `${d.y - 12}px`,
-        width: `${margin.left}px`,
-      }">
-        {{ d.label }}
+      <div class="legend" v-for="d in legend">
+        <svg :width="0.75 * imageWidth" :height="0.75 * imageHeight">
+          <image :width="0.75 * imageWidth" :height="0.75 * imageHeight"
+            :href="d.image" :opacity="d.opacity" />
+          <image v-if="d.star"
+            :width="0.75 * imageWidth" :height="0.75 * imageHeight" :href="starImage" />
+        </svg>
+        <span>{{ d.label }}</span>
+      </div>
+    </div>
+    <div class="container">
+      <svg :width="width" :height="height">
+        <!-- AXIS -->
+        <g
+          class="axis label"
+          ref="xAxis"
+          :transform="`translate(0, ${height - margin.bottom})`"
+        />
+        <g class="label" :transform="`translate(0, ${height})`">
+          <text class="label" :x="margin.left" text-anchor="end" dy='.35em'>
+            Went out
+          </text>
+          <text class="label" :x="width - margin.right" text-anchor="start" dy='.35em'>
+            times
+          </text>
+        </g>
+        <g v-for="(d, i) in people" :key="i"
+          :transform="`translate(${d.x - imageWidth / 2}, ${d.y - imageHeight / 2})`">
+          <image :width="imageWidth" :height="imageHeight"
+            :href="d.image" opacity="0.75" />
+          <image v-if="d.isPlayer"
+            :width="imageWidth" :height="imageHeight" :href="starImage" />
+        </g>
+      </svg>
+      <div class="label">
+        <div class="annotation" v-for="d in activities" :style="{
+          top: `${d.y - 12}px`,
+          width: `${margin.left}px`,
+        }">
+          {{ d.label }}
+        </div>
       </div>
     </div>
   </div>
@@ -46,6 +55,7 @@ const images = [
   require('../assets/person-1.svg'),
   require('../assets/person-2.svg'),
 ]
+const starImage = require('../assets/star.svg')
 const imageWidth = 15
 const imageRatio = 94 / 52
 export default {
@@ -53,13 +63,19 @@ export default {
   props: ['isPhone', 'width', 'type', 'decisions'],
   data() {
     const height = 250
-    const margin = { top: 20, right: 40, bottom: 20, left: 70 }
+    const margin = { top: 5, right: 40, bottom: 20, left: 70 }
     const perHeight = (height - margin.top - margin.bottom) / 4
 
     return {
       height, margin,
       imageWidth,
       imageHeight: imageWidth * imageRatio,
+      starImage,
+      legend: [
+        {label: "You", image: images[_.random(1)], star: true, opacity: 0.85},
+        {label: "Your Teammates", image: images[_.random(1)], star: false, opacity: 0.85},
+        {label: "NPC", image: images[_.random(1)], star: false, opacity: 0.25},
+      ],
       activities: _.map(
         ['groceries', 'exercise', 'small', 'large'],
         (key, i) => {
@@ -153,8 +169,23 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-#beeswarm {
+.container {
   position: relative;
+}
+
+.legend {
+  display: inline-block;
+  margin: 0 10px;
+
+  span {
+    display: inline-block;
+    margin-left: 5px;
+    vertical-align: bottom;
+  }
+}
+
+.label {
+  text-align: center;
 }
 
 svg {
