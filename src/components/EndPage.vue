@@ -29,7 +29,7 @@
         />
       </div>
       <p v-html="$t('end.together')"></p>
-      <Histogram v-bind="{type: 'all', width: isPhone ? 300 : 700}" />
+      <Histogram v-bind="{type: 'all', width: isPhone ? 300 : 700, activities}" />
       <p v-html="$t('end.future')"></p>
 
       <p v-html="$t('end.influence')"></p>
@@ -55,7 +55,7 @@ import Footnotes from './Footnotes'
 
 export default {
   name: 'EndPage',
-  props: ['isPhone', 'onUpdate', 'ageGroups', 'colorsByHealth'],
+  props: ['isPhone', 'onUpdate', 'ageGroups', 'colorsByHealth', 'activities'],
   components: {
     BarChart,
     LineChart,

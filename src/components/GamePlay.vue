@@ -169,6 +169,7 @@
           continueGame,
           ageGroups,
           colorsByHealth,
+          activities,
         }"
       />
     </div>
@@ -211,7 +212,7 @@ export default {
     Header,
     Legend,
   },
-  props: ['isPhone', 'ageGroups', 'healthStatus', 'colorsByHealth'],
+  props: ['isPhone', 'ageGroups', 'healthStatus', 'colorsByHealth', 'activities'],
   data() {
     return {
       width: this.isPhone ? window.innerWidth : maxWidth,

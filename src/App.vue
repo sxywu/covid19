@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <GamePlay v-bind="$data" v-show="currentPage === 'game'" />
-    <LandingPage v-bind="{isPhone}" v-if="currentPage === 'landing'" />
+    <LandingPage v-bind="$data" v-if="currentPage === 'landing'" />
     <EndPage v-bind="$data" v-if="currentPage === 'end'" />
     <FailedPage v-bind="$data" v-if="currentPage === 'failed'" />
   </div>
@@ -38,6 +38,12 @@ export default {
         this.$t('healthStatus.mildSymptoms'),
         this.$t('healthStatus.severeSymptoms'),
         this.$t('healthStatus.deceased'),
+      ],
+      activities: [
+        this.$t('activities.food'),
+        this.$t('activities.exercise'),
+        this.$t('activities.small'),
+        this.$t('activities.large'),
       ],
       colorsByHealth: [
         '#B8D7E1',

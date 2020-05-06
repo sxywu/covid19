@@ -20,6 +20,7 @@
           v-bind="{
             type: 'all',
             width: isPhone ? 300 : 700,
+            activities,
           }"
         />
         <p>{{ $t('landing.explanation5') }}</p>
@@ -86,7 +87,7 @@ import Histogram from './Histogram'
 export default {
   name: 'LandingPage',
   components: { Histogram },
-  props: ['isPhone'],
+  props: ['isPhone', 'activities'],
   data() {
     return {
       errors: {},

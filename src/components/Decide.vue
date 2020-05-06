@@ -69,6 +69,7 @@
             type: 'weekly',
             numTimes: numTimes,
             width: isPhone ? 340 : 700,
+            activities,
           }"
         />
         <button
@@ -96,7 +97,7 @@ const images = {
 }
 export default {
   name: 'DecideArea',
-  props: ['isPhone', 'onUpdate', 'continueGame', 'ageGroups', 'colorsByHealth'],
+  props: ['isPhone', 'onUpdate', 'continueGame', 'ageGroups', 'colorsByHealth', 'activities'],
   components: {
     Decision,
     Histogram,

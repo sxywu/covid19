@@ -67,7 +67,7 @@ const images = [
 const imageRatio = 94 / 52
 export default {
   name: 'Histogram',
-  props: ['isPhone', 'width', 'type', 'numTimes'],
+  props: ['isPhone', 'width', 'type', 'decision', 'activities'],
   data() {
     return {
       height: 250,
