@@ -621,8 +621,8 @@ export default new Vuex.Store({
     setAllDecisions(state, allDecisions) {
       state.allDecisions = allDecisions
     },
-    setDecision(state, decision) {
-      const [food, exercise] = decision
+    setDecisions(state, decisions) {
+      const [food, exercise] = decisions
       if (food) {
         // if they go out twice, 2 weeks of groceries are taken care of
         state.foodStatus.value = Math.min(
@@ -637,7 +637,7 @@ export default new Vuex.Store({
           state.exerciseStatus.maxValue,
         )
       }
-      state.allDecisions[0].push(decision) // update decision for current player
+      state.allDecisions[0].push(decisions) // update decisions for current player
     },
     setFoodStatus(state, foodStatus) {
       state.foodStatus = _.clone(foodStatus)
@@ -715,16 +715,16 @@ export default new Vuex.Store({
         createdAt,
       },
     }) {
-      const decisions = _.get(allDecisions, '[0]', [])
       apiService.setGameById(gameId, {
         id: gameId,
         // don't get dailyHealthStatus from getter, which will trigger
         // it (and thus `infected` that it relies on) to recalculate
         // instead, use the global variable which give the same thing back
         dailyHealthStatus,
-        decisions,
+        // stringify for the database
+        decisions: JSON.stringify(allDecisions[0] || []),
         // use this in db to filter by those that have gone through all 8 weeks
-        numDecisions: decisions.length,
+        numDecisions: (allDecisions[0] || []).length,
         pastPlayerIDs,
         zipCode,
         communitySizeSelection,

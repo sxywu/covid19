@@ -271,7 +271,7 @@ export default {
       // this.links = links
     },
     updateTimeline() {
-      if (!this.community && !this.people) return
+      if (!this.community && !this.people && !this.infected) return
       if (this.day === 1) {
         _.each(this.people, (d) => (d.color = this.colorsByHealth[0]))
       }

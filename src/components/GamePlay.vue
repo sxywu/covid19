@@ -305,7 +305,7 @@ export default {
     },
     updateDecision(decisions) {
       this.showDecision = false
-      this.$store.commit('setDecision', decisions)
+      this.$store.commit('setDecisions', decisions)
       this.$store.dispatch('storeGame')
       this.updateDay()
     },
