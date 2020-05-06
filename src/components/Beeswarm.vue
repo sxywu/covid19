@@ -5,7 +5,7 @@
         <svg :width="0.75 * imageWidth" :height="0.75 * imageHeight">
           <image :width="0.75 * imageWidth" :height="0.75 * imageHeight"
             :href="d.image" :opacity="d.opacity" />
-          <image v-if="d.star"
+          <image v-if="d.hasStar"
             :width="0.75 * imageWidth" :height="0.75 * imageHeight" :href="starImage" />
         </svg>
         <span>{{ d.label }}</span>
@@ -30,8 +30,8 @@
         <g v-for="(d, i) in people" :key="i"
           :transform="`translate(${d.x - imageWidth / 2}, ${d.y - imageHeight / 2})`">
           <image :width="imageWidth" :height="imageHeight"
-            :href="d.image" opacity="0.75" />
-          <image v-if="d.isPlayer"
+            :href="d.image" :opacity="d.opacity" />
+          <image v-if="d.hasStar"
             :width="imageWidth" :height="imageHeight" :href="starImage" />
         </g>
       </svg>
@@ -56,14 +56,14 @@ const images = [
   require('../assets/person-2.svg'),
 ]
 const starImage = require('../assets/star.svg')
-const imageWidth = 15
+const imageWidth = 16
 const imageRatio = 94 / 52
 export default {
   name: 'Beeswarm',
   props: ['isPhone', 'width', 'type', 'decisions'],
   data() {
     const height = 250
-    const margin = { top: 5, right: 40, bottom: 20, left: 70 }
+    const margin = { top: 10, right: 40, bottom: 20, left: 75 }
     const perHeight = (height - margin.top - margin.bottom) / 4
 
     return {
@@ -72,9 +72,9 @@ export default {
       imageHeight: imageWidth * imageRatio,
       starImage,
       legend: [
-        {label: "You", image: images[_.random(1)], star: true, opacity: 0.85},
-        {label: "Your Teammates", image: images[_.random(1)], star: false, opacity: 0.85},
-        {label: "NPC", image: images[_.random(1)], star: false, opacity: 0.25},
+        {label: "You", image: images[_.random(1)], hasStar: true, opacity: 0.85},
+        {label: "Your Teammates", image: images[_.random(1)], hasStar: false, opacity: 0.85},
+        {label: "NPC", image: images[_.random(1)], hasStar: false, opacity: 0.35},
       ],
       activities: _.map(
         ['groceries', 'exercise', 'small', 'large'],
@@ -94,6 +94,9 @@ export default {
     },
     allDecisions() {
       return this.$store.state.allDecisions
+    },
+    pastPlayers() {
+      return this.$store.state.pastPlayerIDs
     },
   },
   created() {
@@ -128,6 +131,7 @@ export default {
     calculatePeople() {
       if (!this.allDecisions.length) return
 
+      console.log(this.pastPlayers.length)
       this.people = _.chain(this.activities)
         .map(({y}, activity) => {
           return _.map(this.allDecisions, (weeklyDecisions, person) => {
@@ -143,13 +147,14 @@ export default {
             }
             return {
               image: images[_.random(1)],
-              isPlayer: person === 0,
+              hasStar: person === 0,
+              opacity: person > this.pastPlayers.length ? 0.35 : 0.85,
               forceX: this.xScale(decision),
               forceY: y,
             }
           })
         }).flatten().filter()
-        .sortBy(d => !!d.isPlayer).value()
+        .sortBy(d => (d.hasStar ? 1 : 0) + d.opacity).value()
 
       this.simulation.nodes(this.people)
       _.times(250, i => this.simulation.tick())
@@ -195,5 +200,6 @@ svg {
 .annotation {
   position: absolute;
   text-align: right;
+  font-weight: bold;
 }
 </style>
