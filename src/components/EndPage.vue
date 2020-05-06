@@ -50,7 +50,7 @@ import * as d3 from 'd3'
 import Share from './Share'
 import BarChart from './BarChart'
 import LineChart from './LineChart'
-import Histogram from './Histogram'
+import Beeswarm from './Beeswarm'
 import Footnotes from './Footnotes'
 
 export default {
@@ -59,7 +59,7 @@ export default {
   components: {
     BarChart,
     LineChart,
-    Histogram,
+    Beeswarm,
     Share,
     Footnotes,
   },

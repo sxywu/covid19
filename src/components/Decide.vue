@@ -64,7 +64,7 @@
           <p class="body">{{ $t('decide.rest') }}</p>
         </div>
         <div class="py-3" />
-        <Histogram
+        <Beeswarm
           v-bind="{
             type: 'weekly',
             numTimes: numTimes,
@@ -86,7 +86,7 @@
 import * as d3 from 'd3'
 import _ from 'lodash'
 import Decision from './Decision'
-import Histogram from './Histogram'
+import Beeswarm from './Beeswarm'
 
 const images = {
   groceries: 'groceries.svg',
@@ -99,7 +99,7 @@ export default {
   props: ['isPhone', 'onUpdate', 'continueGame', 'ageGroups', 'colorsByHealth'],
   components: {
     Decision,
-    Histogram,
+    Beeswarm,
   },
   data() {
     return {

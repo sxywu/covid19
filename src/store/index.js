@@ -534,24 +534,6 @@ export default new Vuex.Store({
       dailyHealthStatus.push(status)
       return dailyHealthStatus
     },
-    calculateActivityLevel() {
-      return function(decisions) {
-        let activity = -1
-        return _.sumBy(decisions, numTimes => {
-          activity += 1
-          if (activity === 1) return numTimes * 0.1 // exercise
-          if (activity === 3) return numTimes * 5 // large gathering
-          if (activity === 4) return numTimes * 2.5 // working
-          return numTimes // food & small gathering
-        })
-      }
-    },
-    usualActivityLevel(state, {calculateActivityLevel}) {
-      return calculateActivityLevel(usualActivityLevel)
-    },
-    bestActivityLevel(state, {calculateActivityLevel}) {
-      return calculateActivityLevel(bestActivityLevel)
-    },
   },
   mutations: {
     setCurrentPage(state, currentPage) {
