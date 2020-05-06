@@ -97,8 +97,7 @@
       "currentWeek": "Current Week",
       "types": {
         "player": "Your Decisions",
-        "worstAlternate": "Business As Usual",
-        "bestAlternate": "Minimal Outings"
+        "worstAlternate": "Business As Usual"
       }
     }
   },

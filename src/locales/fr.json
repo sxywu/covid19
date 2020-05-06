@@ -94,8 +94,7 @@
       "currentWeek": "semaine en cours",
       "types": {
         "player": "Tes décisions",
-        "worstAlternate": "Comme d’habitude",
-        "bestAlternate": "Sorties limitées"
+        "worstAlternate": "Comme d’habitude"
       }
     }
   },

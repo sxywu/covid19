@@ -359,7 +359,6 @@ export default new Vuex.Store({
             health,
             infectious,
             worstAlternate: {health, infectious, daysSinceInfection},
-            bestAlternate: {health, infectious, daysSinceInfection},
           }
         })
       }
@@ -368,8 +367,6 @@ export default new Vuex.Store({
       const infectedDestinations = []
       const worstAlternateHouses = [] // same as infectedHouses, but for worstAlternate scenario
       const worstAlternateDestinations = []
-      const bestAlternateHouses = [] // same as infectedHouses, but for worstAlternate scenario
-      const bestAlternateDestinations = []
       let numSevere = 0
       let numWorstAlternateSevere = 0
       let numBestAlternateSevere = 0
@@ -380,7 +377,6 @@ export default new Vuex.Store({
           inHospital: prevInHospital,
           daysSinceInfection,
           worstAlternate: prevWorstAlternate,
-          bestAlternate: prevBestAlternate,
           weeklyDecision,
         } = prevInfected[i]
 
@@ -397,16 +393,6 @@ export default new Vuex.Store({
             if (numTimes === 7 || numTimes === 0) return numTimesOut[numTimes]
             return _.shuffle(numTimesOut[numTimes])
           })
-          const bestAlternate = _.map(decisions, (numTimes, activity) => {
-            if (week < 1) {
-              // in first week, go business as usual
-              numTimes = usualActivityLevel[activity]
-            } else {
-              numTimes = bestActivityLevel[activity]
-            }
-            if (numTimes === 7 || numTimes === 0) return numTimesOut[numTimes]
-            return _.shuffle(numTimesOut[numTimes])
-          })
           const worstAlternate = _.map(decisions, (numTimes, activity) => {
             numTimes = usualActivityLevel[activity]
             if (numTimes === 7 || numTimes === 0) return numTimesOut[numTimes]
@@ -414,7 +400,6 @@ export default new Vuex.Store({
           })
           weeklyDecision = {
             player,
-            bestAlternate,
             worstAlternate,
           }
         }
@@ -459,27 +444,6 @@ export default new Vuex.Store({
             numWorstAlternateSevere <= totalAvailableBeds
         }
 
-        // and best case scenario
-        prevBestAlternate.daysSinceInfection += !!prevBestAlternate.daysSinceInfection
-        const bestAlternate = Object.assign(
-          healthAndDestination(
-            person,
-            houses,
-            prevBestAlternate.daysSinceInfection,
-            prevBestAlternate.infectious,
-            prevBestAlternate.inHospital,
-            _.map(weeklyDecision.bestAlternate, decisions => decisions[dayOfWeek]),
-            bestAlternateDestinations,
-            bestAlternateHouses,
-          ),
-          {daysSinceInfection: prevBestAlternate.daysSinceInfection},
-        )
-        if (bestAlternate.health === 4) {
-          numWorstAlternateSevere += 1
-          bestAlternate.inHospital =
-            numWorstAlternateSevere <= totalAvailableBeds
-        }
-
         return {
           index: i,
           house: person.houseIndex,
@@ -489,7 +453,6 @@ export default new Vuex.Store({
           destination,
           inHospital,
           worstAlternate,
-          bestAlternate,
           weeklyDecision,
         }
       })
@@ -520,17 +483,6 @@ export default new Vuex.Store({
             worstAlternateHouses,
           )
         }
-        if (person.bestAlternate.health === 0) {
-          // and like-wise for best alternate
-          infectPerson(
-            person.bestAlternate,
-            house,
-            person.bestAlternate.destination,
-            people[index].susceptibility,
-            bestAlternateDestinations,
-            bestAlternateHouses,
-          )
-        }
       })
 
       prevInfected = infected
@@ -541,7 +493,7 @@ export default new Vuex.Store({
       if (!infected) return
       // keeps track of all cumulative numbers for every scenario daily
       const status = {day}
-      const types = ['player', 'worstAlternate', 'bestAlternate']
+      const types = ['player', 'worstAlternate']
       const totalHealthStatus = [1, 2, 3, 4, 5]
       _.each(infected, d => {
         _.each(types, type => {
