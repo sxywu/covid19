@@ -397,12 +397,10 @@ export default new Vuex.Store({
         // if this is first day of week
         // figure out number of times to go out
         if (dayOfWeek === 0) {
-          const decisions = allDecisions[i % totalPlayers][week - 1]
+          // either use that week's decisions or if past week 8
+          // (and thus decisions is undefined) use usual activity level
+          const decisions = allDecisions[i % totalPlayers][week - 1] || usualActivityLevel
           const player = _.map(decisions, (numTimes, activity) => {
-            if (day > totalDays) {
-              // week 8 on everyone goes back to business as usual
-              numTimes = usualActivityLevel[activity]
-            }
             if (numTimes === 7 || numTimes === 0) return numTimesOut[numTimes][0]
             return _.sample(numTimesOut[numTimes])
           })
@@ -580,7 +578,7 @@ export default new Vuex.Store({
       if (exercise) {
         // if go out more than once, then they did exercise
         state.exerciseStatus.value = Math.min(
-          state.exerciseStatus.value + 3 * exercise,
+          state.exerciseStatus.value + 2 * exercise,
           state.exerciseStatus.maxValue,
         )
       }
