@@ -97,10 +97,6 @@ export default {
         { id: 'suburban', value: 'Suburban' },
         { id: 'rural', value: 'Rural' },
       ],
-      peopleImages: [
-        require('../assets/person-1.svg'),
-        require('../assets/person-2.svg'),
-      ],
     }
   },
   computed: {
