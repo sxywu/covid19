@@ -269,7 +269,7 @@ export default {
       }
     },
     phases() {
-      if (this.week === 1 || this.week === 8) return [1, 0.75, 1.25]
+      if (this.week === 1) return [1, 0.75, 1.25]
       return [0.5, 0.75, 0.75]
     },
   },
@@ -303,9 +303,9 @@ export default {
         this.height = Math.min((1 / widthHeightRatio) * this.width, maxHeight)
       }
     },
-    updateDecision(numTimes) {
+    updateDecision(decisions) {
       this.showDecision = false
-      this.$store.commit('setDecision', +numTimes)
+      this.$store.commit('setDecisions', decisions)
       this.$store.dispatch('storeGame')
       this.updateDay()
     },

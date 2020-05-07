@@ -16,7 +16,7 @@
         <p>{{ $t('landing.explanation2') }}</p>
         <h2>{{ $t('landing.explanation3') }}</h2>
         <p>{{ $t('landing.explanation4') }}</p>
-        <Histogram
+        <Beeswarm
           v-bind="{
             type: 'all',
             width: isPhone ? 300 : 700,
@@ -81,11 +81,11 @@
 
 <script>
 import _ from 'lodash'
-import Histogram from './Histogram'
+import Beeswarm from './Beeswarm'
 
 export default {
   name: 'LandingPage',
-  components: { Histogram },
+  components: { Beeswarm },
   props: ['isPhone'],
   data() {
     return {
@@ -96,10 +96,6 @@ export default {
         { id: 'urban', value: 'Urban' },
         { id: 'suburban', value: 'Suburban' },
         { id: 'rural', value: 'Rural' },
-      ],
-      peopleImages: [
-        require('../assets/person-1.svg'),
-        require('../assets/person-2.svg'),
       ],
     }
   },

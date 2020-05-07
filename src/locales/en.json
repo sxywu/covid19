@@ -67,10 +67,10 @@
         "label": "Exercise", "byline": "Go for a walk or a run"
       },
       "small": {
-        "label": "Small gathering", "byline": "Hang out with friends or family"
+        "label": "Small gatherings", "byline": "Hang out with friends or family"
       },
       "large": {
-        "label": "Large gathering", "byline": "Go to a party or attend a concert"
+        "label": "Large gatherings", "byline": "Go to a party or attend a concert"
       }
     },
     "cta": "Decide",
@@ -97,8 +97,7 @@
       "currentWeek": "Current Week",
       "types": {
         "player": "Your Decisions",
-        "worstAlternate": "Business As Usual",
-        "bestAlternate": "Minimal Outings"
+        "worstAlternate": "Business As Usual"
       }
     }
   },

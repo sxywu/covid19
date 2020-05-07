@@ -59,21 +59,20 @@
       <div class="decided">
         <div>
           <h1 class="header">
-            {{ $tc('decide.h1.numTimes', numTimes, { count: numTimes }) }}.
           </h1>
           <p class="body">{{ $t('decide.rest') }}</p>
         </div>
         <div class="py-3" />
-        <Histogram
+        <Beeswarm
           v-bind="{
             type: 'weekly',
-            numTimes: numTimes,
+            decisions,
             width: isPhone ? 340 : 700,
           }"
         />
         <button
           class="decideBtn startNextWeekBtn mt3"
-          @click="onUpdate(numTimes)"
+          @click="onUpdate(decisions)"
         >
           {{ $t('decide.start') }}
         </button>
@@ -86,7 +85,7 @@
 import * as d3 from 'd3'
 import _ from 'lodash'
 import Decision from './Decision'
-import Histogram from './Histogram'
+import Beeswarm from './Beeswarm'
 
 const images = {
   groceries: 'groceries.svg',
@@ -99,11 +98,10 @@ export default {
   props: ['isPhone', 'onUpdate', 'continueGame', 'ageGroups', 'colorsByHealth'],
   components: {
     Decision,
-    Histogram,
+    Beeswarm,
   },
   data() {
     return {
-      numTimes: 0,
       activities: _.map(
         ['groceries', 'exercise', 'small', 'large'],
         (key, index) => {
@@ -115,7 +113,7 @@ export default {
           }
         }
       ),
-      decisions: [0, 0, 0, 0],
+      decisions: [0, 0, 0, 0, 0],
       decided: false,
     }
   },

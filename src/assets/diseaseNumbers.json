@@ -5,35 +5,40 @@
             "symptomaticIfInfected": 0.50,
             "hospitalIfSymptomatic": 0.02,
             "dieIfHospitalized": 0.005,
-            "dieIfNotHospitalized": 0.01
+            "dieIfNotHospitalized": 0.01,
+            "employed": 0.95
         },
         "20": {
             "susceptibility": 0.008,
             "symptomaticIfInfected": 0.6,
             "hospitalIfSymptomatic": 0.16,
             "dieIfHospitalized": 0.01,
-            "dieIfNotHospitalized": 0.02
+            "dieIfNotHospitalized": 0.02,
+            "employed": 0.8
         },
         "40": {
             "susceptibility": 0.015,
             "symptomaticIfInfected": 0.7,
             "hospitalIfSymptomatic": 0.25,
             "dieIfHospitalized": 0.025,
-            "dieIfNotHospitalized": 0.05
+            "dieIfNotHospitalized": 0.05,
+            "employed": 0.8
         },
         "60": {
             "susceptibility": 0.025,
             "symptomaticIfInfected": 0.8,
             "hospitalIfSymptomatic": 0.37,
             "dieIfHospitalized": 0.1,
-            "dieIfNotHospitalized": 0.2
+            "dieIfNotHospitalized": 0.2,
+            "employed": 0.5
         },
         "80": {
             "susceptibility": 0.035,
             "symptomaticIfInfected": 0.85,
             "hospitalIfSymptomatic": 0.50,
             "dieIfHospitalized": 0.3,
-            "dieIfNotHospitalized": 0.6
+            "dieIfNotHospitalized": 0.6,
+            "employed": 0.05
         }
     }
 }
