@@ -104,7 +104,7 @@ function healthAndDestination(
   // add their house as infectious also
   if (prevInfectious) {
     infectedHouses[person.houseIndex] =
-      (infectedHouses[person.houseIndex] || 0) + 5
+      (infectedHouses[person.houseIndex] || 0) + 2
   }
 
   return {health, infectious, destination}
