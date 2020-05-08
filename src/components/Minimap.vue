@@ -68,6 +68,8 @@ export default {
   },
   methods: {
     setupPositions() {
+      if (!this.community) return
+
       // first calculate group positions
       const { x, y } = this.groups[0]
       const groups = _.union(
@@ -107,6 +109,8 @@ export default {
       }
     },
     colorMap() {
+      if (!this.infected || !this.people) return
+
       this.ctx.clearRect(0, 0, this.width, this.height)
       // go through and color
       _.chain(this.people)
