@@ -1,5 +1,6 @@
 <template>
   <div id="beeswarm">
+    <h3 class="label" v-html="$tc('beeswarm.h3', this.type === 'all' ? 8 : 1)" />
     <div class="container">
       <svg :width="width" :height="height">
         <!-- AXIS -->
@@ -9,11 +10,9 @@
           :transform="`translate(0, ${margin.top})`"
         />
         <g class="label">
-          <text class="label" :x="margin.left" text-anchor="end">
-            Went out
-          </text>
-          <text class="label" :x="width - margin.right" text-anchor="start">
-            times
+          <text class="label" v-for="d in axisLabels"
+            :x="d.x" :text-anchor="d.anchor" dy="1em">
+            {{ d.label }}
           </text>
         </g>
         <!-- PEOPLE -->
@@ -35,7 +34,7 @@
       </div>
     </div>
     <!-- LEGEND -->
-    <div class="label">
+    <div class="legends label">
       <div class="legend" v-for="d in legend">
         <svg :width="0.75 * imageWidth" :height="0.75 * imageHeight">
           <image :width="0.75 * imageWidth" :height="0.75 * imageHeight"
@@ -64,9 +63,13 @@ export default {
   name: 'Beeswarm',
   props: ['isPhone', 'width', 'type', 'decisions'],
   data() {
-    const height = 250
-    const margin = { top: 10, right: 40, bottom: 10, left: 85 }
+    const height = 240
+    const margin = { top: 20, right: 40, bottom: 0, left: 85 }
     const perHeight = (height - margin.top - margin.bottom) / 4
+    this.xScale = d3
+      .scaleLinear()
+      .domain([-0.5, 7.5])
+      .range([margin.left, this.width - margin.right])
 
     return {
       height, margin,
@@ -74,9 +77,18 @@ export default {
       imageHeight: imageWidth * imageRatio,
       starImage,
       legend: [
-        {label: "You", image: images[_.random(1)], hasStar: true, opacity: 0.85},
-        {label: "Your Teammates", image: images[_.random(1)], hasStar: false, opacity: 0.85},
-        {label: "NPC", image: images[_.random(1)], hasStar: false, opacity: 0.35},
+        {
+          label: this.$t('beeswarm.legend.you'), image: images[_.random(1)],
+          hasStar: true, opacity: 0.85,
+        },
+        {
+          label: this.$t('beeswarm.legend.teammates'), image: images[_.random(1)],
+          hasStar: false, opacity: 0.85,
+        },
+        {
+          label: this.$t('beeswarm.legend.npc'), image: images[_.random(1)],
+          hasStar: false, opacity: 0.35,
+        },
       ],
       activities: _.map(
         ['groceries', 'exercise', 'small', 'large'],
@@ -88,6 +100,16 @@ export default {
         }
       ),
       people: [],
+      axisLabels: [
+        {
+          label: this.$t('beeswarm.axis.out'), anchor: 'end',
+          x: this.xScale(0) - 8,
+        },
+        {
+          label: this.$t('beeswarm.axis.times'),
+          anchor: 'start', x: this.xScale(7) + 8,
+        },
+      ],
     }
   },
   computed: {
@@ -102,11 +124,6 @@ export default {
     },
   },
   created() {
-    this.xScale = d3
-      .scaleLinear()
-      .domain([-0.5, 7.5])
-      .range([this.margin.left, this.width - this.margin.right])
-
     this.xAxis = d3
       .axisBottom()
       .scale(this.xScale)
@@ -168,20 +185,24 @@ export default {
         .attr('stroke-dasharray', '5 10')
       d3.select(this.$refs.xAxis).selectAll('text')
         .attr('y', -this.margin.top)
-        .attr('dy', '0')
+        .attr('dy', '1em')
     },
   },
 }
 </script>
 
 <style lang="scss" scoped>
+h3 {
+  margin-bottom: 15px;
+}
+
 .container {
   position: relative;
 }
 
 .legend {
   display: inline-block;
-  margin: 0 10px;
+  margin: 10px 10px 0 10px;
 
   span {
     display: inline-block;

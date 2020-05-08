@@ -20,7 +20,7 @@
       <h1 class="header">{{ $tc('decide.h1.prevWeek', week) }}</h1>
       <div class="content">
         <p v-if="newCases">
-          <span v-html="$tc('decide.prevTimes', prevWeekDecisions[0])" />,
+          <span v-html="$tc('decide.prevTimes', playerPrevWeek.total, { ...playerPrevWeek })" />
           <span v-html="$t('decide.avgTimes', { count: avgTimes })" />
           <span
             v-html="
@@ -58,11 +58,9 @@
     <div v-else>
       <div class="decided">
         <div>
-          <h1 class="header">
-          </h1>
+          <h1 class="header">{{ $tc('decide.h1.numTimes', playerCurrentWeek, {count: playerCurrentWeek}) }}</h1>
           <p class="body">{{ $t('decide.rest') }}</p>
         </div>
-        <div class="py-3" />
         <Beeswarm
           v-bind="{
             type: 'weekly',
@@ -87,6 +85,7 @@ import _ from 'lodash'
 import Decision from './Decision'
 import Beeswarm from './Beeswarm'
 
+const activityKeys = ['groceries', 'exercise', 'small', 'large']
 const images = {
   groceries: 'groceries.svg',
   exercise: 'exercise.png',
@@ -102,17 +101,14 @@ export default {
   },
   data() {
     return {
-      activities: _.map(
-        ['groceries', 'exercise', 'small', 'large'],
-        (key, index) => {
-          return {
-            label: this.$t(`decide.activities.${key}.label`),
-            byline: this.$t(`decide.activities.${key}.byline`),
-            icon: require(`../assets/${images[key]}`),
-            index,
-          }
+      activities: _.map(activityKeys, (key, index) => {
+        return {
+          label: this.$t(`decide.activities.${key}.label`),
+          byline: this.$t(`decide.activities.${key}.byline`),
+          icon: require(`../assets/${images[key]}`),
+          index,
         }
-      ),
+      }),
       decisions: [0, 0, 0, 0, 0],
       decided: false,
     }
@@ -139,10 +135,20 @@ export default {
     prevWeekDecisions() {
       return _.map(this.$store.state.allDecisions, d => d[this.week - 1])
     },
+    playerPrevWeek() {
+      const max = _.maxBy(_.dropRight(this.prevWeekDecisions[0]))
+      const activity = _.indexOf(this.prevWeekDecisions[0], max)
+      return {
+        total: _.sum(this.prevWeekDecisions[0]),
+        max,
+        activity: this.$t(`decide.activities.${activityKeys[activity]}.label`).toLowerCase(),
+      }
+    },
     avgTimes() {
       return _.chain(this.prevWeekDecisions)
+        .map(decisions => _.sum(_.dropRight(decisions)))
         .mean()
-        .round(2)
+        .round(1)
     },
     newCases() {
       if (!this.dailyHealthStatus) return
@@ -155,6 +161,9 @@ export default {
         total,
         avoided: Math.max(alternateTotal - total, 0),
       }
+    },
+    playerCurrentWeek() {
+      return _.sum(this.decisions) || 0
     },
   },
   methods: {
@@ -195,7 +204,7 @@ export default {
 .content {
   width: 100%;
   height: 100%;
-  max-width: 780px;
+  max-width: 640px;
   font-size: 18px;
   line-height: 1.5;
   padding: 0 0.5rem;
@@ -210,7 +219,7 @@ export default {
   }
   display: grid;
   grid-template-columns: 1fr 1fr;
-  grid-gap: 1rem;
+  grid-gap: 0.5rem;
 }
 
 .decide {
@@ -253,7 +262,7 @@ export default {
 
 h2 {
   font-size: 1.5rem;
-  margin: 2rem 0 1.5rem;
+  margin: 1.5rem 0;
 }
 
 h1,
