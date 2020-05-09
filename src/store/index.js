@@ -149,7 +149,7 @@ export default new Vuex.Store({
     country: '',
     gameId: '',
     createdAt: '',
-    communitySizeSelection: '',
+    communitySize: '',
   },
   getters: {
     week({day}) {
@@ -554,8 +554,8 @@ export default new Vuex.Store({
     setZipCode(state, zipCode) {
       state.zipCode = '' + zipCode // stringify just in case
     },
-    setCommunitySizeSelection(state, communitySize) {
-      state.communitySizeSelection = communitySize
+    setCommunitySize(state, communitySize) {
+      state.communitySize = communitySize
     },
     setDataLoaded(state, dataLoaded) {
       state.dataLoaded = dataLoaded
@@ -666,7 +666,7 @@ export default new Vuex.Store({
         zipCode,
         gameId,
         pastPlayerIDs,
-        communitySizeSelection,
+        communitySize,
         createdAt,
       },
     }) {
@@ -682,7 +682,7 @@ export default new Vuex.Store({
         numDecisions: (allDecisions[0] || []).length,
         pastPlayerIDs,
         zipCode,
-        communitySizeSelection,
+        communitySize,
         createdAt,
       })
     },
@@ -691,13 +691,12 @@ export default new Vuex.Store({
       prevInfected = []
       dailyHealthStatus = []
 
-      const allDecisions = _.clone(state.allDecisions) // to avoid mutating?
-      allDecisions[0] = [7]
-      commit('setAllDecisions', allDecisions)
+      state.allDecisions[0] = [usualActivityLevel]
+      commit('setAllDecisions', state.allDecisions)
       commit('setDay', 0)
       commit('setFoodStatus', foodStatus)
       commit('setExerciseStatus', exerciseStatus)
-      commit('setCurrentPage', 'game')
+      commit('setCurrentPage', 'landing')
     },
   },
 })

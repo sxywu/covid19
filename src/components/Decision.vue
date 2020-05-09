@@ -56,7 +56,7 @@ export default {
   justify-content: space-between;
   border: 1px solid $gray;
   background: white;
-  padding: 1rem;
+  padding: 0.5rem 1rem;
   border-radius: 4px;
 
   h4 {

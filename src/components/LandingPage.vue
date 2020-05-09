@@ -100,6 +100,12 @@ export default {
     }
   },
   computed: {
+    existingZipCode() {
+      return this.$store.state.zipCode
+    },
+    existingCommunitySize() {
+      return this.$store.state.communitySize
+    },
     zips() {
       return this.$store.getters.allZips
     },
@@ -110,13 +116,30 @@ export default {
       return this.$store.state.country
     },
   },
+  mounted() {
+    this.updateZipAndCommunity()
+  },
+  watch: {
+    existingZipCode() {
+      this.updateZipAndCommunity()
+    },
+    existingCommunitySize() {
+      this.updateZipAndCommunity()
+    },
+  },
   methods: {
+    updateZipAndCommunity() {
+      this.communitySize = this.existingCommunitySize
+      if (!this.communitySize) {
+        this.zipCode = this.existingZipCode
+      }
+    },
     startPlay(e) {
       if (!this.zipCode && this.communitySize) {
         this.zipCode = _.sample(
           this.zipsByCommunitySize[this.communitySize.toLowerCase()]
         ).zip
-        this.$store.commit('setCommunitySizeSelection', this.communitySize)
+        this.$store.commit('setCommunitySize', this.communitySize)
       }
       if (this.checkFormValid(e)) {
         this.$store.commit('setGameIdAndCreatedAt')

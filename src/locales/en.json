@@ -48,12 +48,12 @@
   "decide": {
     "h1": {
       "prevWeek": "In the previous week...",
-      "numTimes": "You decided not to go out this week | You decided to go out once this week | You decided to go out {count} times this week",
+      "numTimes": "You decided not to go out this week... | You decided to go out once this week... | You decided to go out {count} times this week...",
       "8weeks": "You've been fighting the virus for 8 weeks"
     },
-    "prevTimes": "You didn't go out at all | You went out once | You went out <strong>{count}</strong> times",
-    "avgTimes": "and your community went out an average of <strong>{count}</strong> times.",
-    "newCasesTotal": "This led to <strong>{count}</strong> new cases in your community",
+    "prevTimes": "You didn't go out at all, | You went out once for {activity}, | You went out <strong>{total}</strong> times, including {max} times for {activity},",
+    "avgTimes": " and your community went out an average of <strong>{count}</strong> times.",
+    "newCasesTotal": "  This led to <strong>{count}</strong> new cases in your community",
     "newCasesAvoided": "<strong>{count} less</strong> than if you had continued with business as usual.",
     "foodLow": "Be careful! Your food is running low.",
     "exerciseLow": "Be careful!  You haven't exercised in a while.",
@@ -74,12 +74,24 @@
       }
     },
     "cta": "Decide",
-    "rest": "Here's what the rest of your community decided to do:",
+    "rest": "and here's what the rest of your team decided to do:",
     "average": "Average: {count} times",
     "start": "Start Next Week →",
     "businessAsUsual": "Your local government is now considering going back to business as usual.  Would you like to see what the next four weeks might look like if everyone in your community went out every day of the week again*?<p><sup>*you won't have to make any more decisions.</sup></p>",
     "start4weeks": "Start next four weeks →",
     "finish": "No, let's finish this"
+  },
+  "beeswarm": {
+    "h3": "Your team's outings by activity | Your team's outings by activity, averaged across {count} weeks",
+    "axis": {
+      "out": "Went out",
+      "times": "Times"
+    },
+    "legend": {
+      "you": "You",
+      "teammates": "Your teammates",
+      "npc": "NPC"
+    }
   },
   "communityStats": {
     "total": "total cases",
