@@ -32,8 +32,6 @@ if (!isEmpty(App)) {
 
     if (filters.locale && filters.locale !== 'en') {
       query = query.where('locale', '==', filters.locale)
-    } else {
-      query = query.where('locale', '==', 'en')
     }
 
     query
@@ -78,7 +76,7 @@ if (!isEmpty(App)) {
       cb: teamCollection => {
         if (teamCollection.length === 0) {
           getFilteredGames({
-            limit: 19,
+            limit: 100,
             cb,
           })
         } else {
