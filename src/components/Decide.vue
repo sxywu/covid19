@@ -133,7 +133,7 @@ export default {
       return this.$store.getters.dailyHealthStatus
     },
     prevWeekDecisions() {
-      return _.map(this.$store.state.allDecisions, d => d[this.week - 1])
+      return _.map(this.$store.getters.allDecisions, d => d[this.week - 1])
     },
     playerPrevWeek() {
       const max = _.maxBy(_.dropRight(this.prevWeekDecisions[0]))

@@ -89,7 +89,7 @@ export default {
       return this.formatNumber(avoided)
     },
     average() {
-      const mean = _.chain(this.$store.state.allDecisions)
+      const mean = _.chain(this.$store.getters.allDecisions)
         .map(d => d3.mean(d))
         .mean()
         .value()

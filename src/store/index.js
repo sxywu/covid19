@@ -19,6 +19,7 @@ let citiesByZip = []
 let prevInfected = []
 let dailyHealthStatus = []
 const totalPlayers = 20
+const numPastPlayers = totalPlayers - 1
 const foodStatus = {value: 18, maxValue: 18}
 const exerciseStatus = {value: 31, maxValue: 31}
 const usualActivityLevel = [3, 5, 2, 1, 5] // food, exercise, small, large, work
@@ -135,40 +136,15 @@ function infectPerson(
   })
 }
 
-function samplePastGames() {
-  const numPastPlayers = totalPlayers - 1
-  const sampledPlayers = _.sampleSize(allPastGames, numPastPlayers)
-  const allDecisions = _.map(sampledPlayers, 'decisions')
-  // if there still aren't enough, then add in the rest assuming they go out every day
-  _.times(numPastPlayers - allDecisions.length, i => {
-    const decisions = []
-    _.times(8, i => {
-      const decision = _.map(usualActivityLevel, d => {
-        return _.chain(p5.prototype.randomGaussian(d, 1))
-          .round()
-          .clamp(0, 7)
-          .value()
-      })
-      decisions.push(decision)
-    })
-    allDecisions.push(decisions)
-  })
-  // add this player's decision at beginning, assume they go out every day
-  allDecisions.unshift([usualActivityLevel])
-
-  return {sampledPlayers, allDecisions}
-}
-
 export default new Vuex.Store({
   state: {
     currentPage: 'landing',
     day: 0,
     zipCode: '',
     dataLoaded: false,
+    gamesLoaded: false,
     bedOccupancyRate: 0.66,
     totalDays: 8 * 7,
-    allDecisions: [],
-    pastPlayerIDs: [],
     foodStatus: {},
     exerciseStatus: {},
     country: '',
@@ -177,10 +153,41 @@ export default new Vuex.Store({
     communitySize: '',
     teamName: '',
     teamNames: [],
+    decisions: [usualActivityLevel],
   },
   getters: {
     week({day}) {
       return Math.ceil(day / 7)
+    },
+    sampledPastGames({gamesLoaded}) {
+      if (!gamesLoaded) return
+      return _.sampleSize(allPastGames, numPastPlayers)
+    },
+    otherDecisions(state, {sampledPastGames}) {
+      if (!sampledPastGames) return
+      const allDecisions = _.map(sampledPastGames, 'decisions')
+      // if there still aren't enough, then add in the rest assuming they go out every day
+      _.times(numPastPlayers - allDecisions.length, i => {
+        const decisions = []
+        _.times(8, i => {
+          const decision = _.map(usualActivityLevel, d => {
+            return _.chain(p5.prototype.randomGaussian(d, 1))
+              .round()
+              .clamp(0, 7)
+              .value()
+          })
+          decisions.push(decision)
+        })
+        allDecisions.push(decisions)
+      })
+      return allDecisions
+    },
+    allDecisions({decisions}, {otherDecisions}) {
+      if (!otherDecisions) return
+      return _.concat([decisions], otherDecisions)
+    },
+    pastPlayerIDs(state, {sampledPastGames}) {
+      return _.map(sampledPastGames, 'id')
     },
     allZips({dataLoaded}) {
       if (!dataLoaded) return
@@ -375,10 +382,10 @@ export default new Vuex.Store({
       return {people, houses, destinations, numGroups: numDestGroups}
     },
     infected(
-      {day, totalDays, allDecisions},
-      {week, community, totalAvailableBeds},
+      {day, totalDays},
+      {week, allDecisions, community, totalAvailableBeds},
     ) {
-      if (day < 1 || !community || !allDecisions.length) return
+      if (day < 1 || !community || !allDecisions) return
       // and if this is the same day as previous, then don't do anything
       const prevDailyHealth = _.last(dailyHealthStatus)
       if (prevDailyHealth && prevDailyHealth.day === day) return
@@ -565,6 +572,12 @@ export default new Vuex.Store({
     setCurrentPage(state, currentPage) {
       state.currentPage = currentPage
     },
+    setDataLoaded(state, dataLoaded) {
+      state.dataLoaded = dataLoaded
+    },
+    setGamesLoaded(state, gamesLoaded) {
+      state.gamesLoaded = gamesLoaded
+    },
     setDay(state, day) {
       state.day = day
       // if player decides to look at 4 more weeks of simulation
@@ -584,15 +597,6 @@ export default new Vuex.Store({
     setCommunitySize(state, communitySize) {
       state.communitySize = communitySize
     },
-    setDataLoaded(state, dataLoaded) {
-      state.dataLoaded = dataLoaded
-    },
-    setPastPlayerIDs(state, pastPlayerIDs) {
-      state.pastPlayerIDs = pastPlayerIDs
-    },
-    setAllDecisions(state, allDecisions) {
-      state.allDecisions = allDecisions
-    },
     setDecisions(state, decisions) {
       const [food, exercise] = decisions
       if (food) {
@@ -609,7 +613,7 @@ export default new Vuex.Store({
           state.exerciseStatus.maxValue,
         )
       }
-      state.allDecisions[0].push(decisions) // update decisions for current player
+      state.decisions.push(decisions) // update decisions for current player
     },
     setFoodStatus(state, foodStatus) {
       state.foodStatus = _.clone(foodStatus)
@@ -664,7 +668,7 @@ export default new Vuex.Store({
     getAllTeamNames({commit}) {
       apiService.getTeamNames({
         cb: teamNames => {
-          commit('setTeamNames', _.map(teamNames, d => d.toLowerCase()))
+          commit('setTeamNames', teamNames)
         },
       })
     },
@@ -686,23 +690,23 @@ export default new Vuex.Store({
             }
           })
 
-          const {sampledPlayers, allDecisions} = samplePastGames()
-          commit('setAllDecisions', allDecisions)
-          commit('setPastPlayerIDs', _.map(sampledPlayers, 'id'))
-          commit('setTeamName', sampledPlayers[0].teamName)
+          commit('setGamesLoaded', true)
+          commit('setTeamName', data[0].teamName)
         },
       })
     },
     storeGame({
       state: {
-        allDecisions,
         zipCode,
         gameId,
-        pastPlayerIDs,
         communitySize,
         createdAt,
         country,
         teamName,
+      },
+      getters: {
+        allDecisions,
+        pastPlayerIDs,
       },
     }) {
       apiService.setGameById(gameId, {

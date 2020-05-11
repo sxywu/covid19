@@ -120,10 +120,10 @@ export default {
       return this.$store.getters.week
     },
     allDecisions() {
-      return this.$store.state.allDecisions
+      return this.$store.getters.allDecisions
     },
     pastPlayers() {
-      return this.$store.state.pastPlayerIDs
+      return this.$store.getters.pastPlayerIDs
     },
   },
   created() {
@@ -151,7 +151,7 @@ export default {
   },
   methods: {
     calculatePeople() {
-      if (!this.allDecisions.length) return
+      if (!this.allDecisions || !this.pastPlayers) return
 
       this.people = _.chain(this.activities)
         .map(({y}, activity) => {

@@ -41,7 +41,7 @@
     "errors": {
       "invalidZip": "Invalid ZIP code",
       "zipNotFound": "ZIP code not found, please try a different one",
-      "invalidName": "Team name: minimum 5 characters, letters, numbers, dashes, and spaces only.",
+      "invalidName": "Team name: 5 to 32 characters, letters, numbers and dashes only.",
       "teamExists": "Team name exists"
     }
   },
