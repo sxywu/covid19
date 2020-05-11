@@ -240,13 +240,6 @@ export default {
   height: 100%;
 }
 
-.startNextWeekBtn {
-  @include respond-to('small') {
-    position: fixed;
-    bottom: 1rem;
-  }
-}
-
 .decideBtn {
   background-color: $red;
   color: #fff;
@@ -257,6 +250,15 @@ export default {
   box-shadow: 0 5px #d23658;
   &:hover {
     filter: brightness(0.9) contrast(1.2) saturate(0.9);
+  }
+}
+
+
+.startNextWeekBtn {
+  margin: 0 auto 1rem;
+  @include respond-to('small') {
+    position: fixed;
+    bottom: 1rem;
   }
 }
 
