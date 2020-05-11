@@ -18,13 +18,35 @@
         <p>{{ $t('landing.explanation4') }}</p>
         <!-- TEAM INPUT -->
         <form>
-          <div class="teamName">
-            <input
-              type="text"
-              :class="{ 'error': errors['teamName'] }"
-              v-model="newTeamName"
-              :placeholder="$t('landing.teamPlaceholder')"
-            />
+          <div class="inputs">
+            <div>
+              <div class="joinTeam">
+                <input
+                  type="checkbox"
+                  name="joinTeam"
+                  v-model="joinTeam"
+                />
+                <label>Join Team of Past Players</label>
+              </div>
+            </div>
+            <span>{{ $t('or') }}</span>
+            <div class="teamName">
+              <input
+                type="text"
+                :class="{ 'error': errors['teamName'] }"
+                v-model="newTeamName"
+                :placeholder="$t('landing.teamPlaceholder')"
+              />
+            </div>
+            <!-- TEAM NAME SUBTEXT -->
+            <div :style="{'grid-column': isPhone ? '' : '3/3'}">
+              <sup v-if="!errors['teamName']">
+                *alphanumeric characters, dashes, and spaces
+              </sup>
+              <sup v-if="errors['teamName']" class="teamNameError">
+                {{ errors['teamName'] }}
+              </sup>
+            </div>
           </div>
         </form>
         <Beeswarm
@@ -68,6 +90,10 @@
                 </div>
               </div>
             </fieldset>
+            <!-- ERROR -->
+            <sup v-if="errors['zipCode']" class="zipCodeError">
+              {{ errors['zipCode'] }}
+            </sup>
           </div>
           <p
             style="text-align: center; max-width: 380px;"
@@ -76,12 +102,6 @@
           <button type="submit" class="playNowBtn">
             {{ $t('landing.buttonCta') }}
           </button>
-          <div v-if="errors['teamName']" class="teamNameError">
-            {{ errors['teamName'] }}
-          </div>
-          <div v-if="errors['zipCode']" class="zipCodeError">
-            {{ errors['zipCode'] }}
-          </div>
         </form>
       </div>
     </div>
@@ -104,8 +124,9 @@ export default {
   data() {
     return {
       errors: {},
-      zipCode: '',
+      joinTeam: true,
       newTeamName: '',
+      zipCode: '',
       communitySize: '',
       communitySizes: [
         { id: 'urban', value: 'Urban' },
@@ -256,6 +277,8 @@ form {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  text-align: center;
+
   span {
     display: flex;
     align-items: center;
@@ -265,9 +288,9 @@ form {
     padding: 1.5rem 0;
     width: 100%;
     display: grid;
-    grid-template-columns: 1fr 0.15fr 1fr;
-    grid-gap: 1rem;
-    align-items: center;
+    grid-template-columns: 1fr 0.2fr 1fr;
+    grid-template-rows: repeat(2, min-content);
+    grid-gap: 0.5rem;
     @include respond-to('small') {
       grid-template-columns: 1fr;
       grid-template-rows: 1fr 0.5fr 1fr;
@@ -290,7 +313,6 @@ form {
       margin: 0;
       margin-bottom: 0.5rem;
       font-weight: bold;
-      text-align: center;
     }
     input {
       width: 100%;
@@ -321,16 +343,16 @@ form {
     font-weight: bold;
     margin-bottom: 0.5rem;
   }
-  .communitySize {
+  .communitySize, .joinTeam {
     width: 100%;
     display: grid;
     font-size: 1rem;
-    grid-template-columns: 1fr 1fr 1fr;
-    align-items: center;
-    text-align: center;
     border-radius: 5px;
     border: 1px solid rgba(0, 0, 0, 0.3);
     overflow: hidden;
+  }
+  .communitySize {
+    grid-template-columns: 1fr 1fr 1fr;
   }
   label {
     width: 100%;
@@ -344,24 +366,29 @@ form {
       border-right: 1px solid rgba(0, 0, 0, 0.3);
     }
   }
-  input[type='radio'] {
+  input[type='radio'],
+  input[type='checkbox'] {
     opacity: 0;
     position: absolute;
   }
-  input[type='radio'] + label {
+  input[type='radio'] + label,
+  input[type='checkbox'] + label {
     position: relative;
     display: inline-block;
     cursor: pointer;
   }
-  input[type='radio']:focus + label {
+  input[type='radio']:focus + label,
+  input[type='checkbox']:focus + label {
     outline: 1px dotted $aqua;
     outline: 5px auto -webkit-focus-ring-color;
   }
-  input[type='radio']:checked + label {
+  input[type='radio']:checked + label,
+  input[type='checkbox']:checked + label {
     background: $text;
     color: white;
   }
-  input[type='radio']:disabled + label {
+  input[type='radio']:disabled + label,
+  input[type='checkbox']:disabled + label {
     background: $gray;
     color: rgba(0, 0, 0, 0.3);
     cursor: not-allowed;
@@ -437,10 +464,7 @@ header {
 .zipCodeError,
 .teamNameError,
 .mobileError {
-  padding-top: 0.5rem;
   color: $red;
-  text-align: center;
-  max-width: 300px;
 }
 .playNowBtn {
   background-color: $red;
