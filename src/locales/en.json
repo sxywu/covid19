@@ -33,6 +33,7 @@
     "explanation5": "Your collective decisions will determine how many lives are lost or saved.",
     "instruction1": "To start, enter your <strong>zip code</strong>* or choose a <strong>community size</strong>.",
     "instruction2": "We’ll pull real data to set up the game with your community’s actual population and number of available hospital beds.",
+    "NPCDisclaimer": "for teams with less than 20 people, NPCs will fill in and go about business as usual.",
     "zipCodeDisclaimer": "<sup>*unfortunately, we currently only support US zip codes.</sup>",
     "zipCodePlaceholder": "Enter your zip code (e.g. 60617)",
     "buttonCta": "Start Playing →",

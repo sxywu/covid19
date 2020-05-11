@@ -34,7 +34,7 @@
       </div>
     </div>
     <!-- LEGEND -->
-    <div class="legends label">
+    <div class="legends">
       <div class="legend" v-for="d in legend">
         <svg :width="0.75 * imageWidth" :height="0.75 * imageHeight">
           <image :width="0.75 * imageWidth" :height="0.75 * imageHeight"
@@ -44,6 +44,9 @@
         </svg>
         <span>{{ d.label }}</span>
       </div>
+      <p>
+        <sup>*{{ $t('landing.NPCDisclaimer') }}</sup>
+      </p>
     </div>
   </div>
 </template>
@@ -86,7 +89,7 @@ export default {
           hasStar: false, opacity: 0.85,
         },
         {
-          label: this.$t('beeswarm.legend.npc'), image: images[_.random(1)],
+          label: this.$t('beeswarm.legend.npc') + '*', image: images[_.random(1)],
           hasStar: false, opacity: 0.35,
         },
       ],
@@ -192,6 +195,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+
 h3 {
   margin-bottom: 15px;
 }
@@ -200,14 +204,20 @@ h3 {
   position: relative;
 }
 
-.legend {
-  display: inline-block;
-  margin: 10px 10px 0 10px;
+.legends {
+  text-align: center;
+  max-width: 600px;
+  margin: auto;
 
-  span {
+  .legend {
     display: inline-block;
-    margin-left: 5px;
-    vertical-align: bottom;
+    margin: 10px 10px 0 10px;
+
+    span {
+      display: inline-block;
+      margin-left: 5px;
+      vertical-align: bottom;
+    }
   }
 }
 
