@@ -648,9 +648,9 @@ export default new Vuex.Store({
         }) // but everything else is formatted correctly
       }
       Promise.all([
-        d3.csv(`./${state.country}/population-by-zip-code.csv`, formatData),
-        d3.csv(`./${state.country}/hospitals-by-zip-code.csv`, formatData),
-        d3.csv(`./${state.country}/zip-to-city-county.csv`, formatData),
+        d3.csv(`/${state.country}/population-by-zip-code.csv`, formatData),
+        d3.csv(`/${state.country}/hospitals-by-zip-code.csv`, formatData),
+        d3.csv(`/${state.country}/zip-to-city-county.csv`, formatData),
       ]).then(([populations, hospitals, cities]) => {
         populationsByZip = populations
         hospitalsByZip = hospitals
