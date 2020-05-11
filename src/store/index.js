@@ -664,7 +664,7 @@ export default new Vuex.Store({
     getAllTeamNames({commit}) {
       apiService.getTeamNames({
         cb: teamNames => {
-          commit('setTeamNames', teamNames)
+          commit('setTeamNames', _.map(teamNames, d => d.toLowerCase()))
         },
       })
     },

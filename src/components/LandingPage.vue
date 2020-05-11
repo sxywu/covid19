@@ -41,7 +41,7 @@
             <!-- TEAM NAME SUBTEXT -->
             <div :style="{'grid-column': isPhone ? '' : '3/3'}">
               <sup v-if="!errors['teamName']">
-                *alphanumeric characters, dashes, and spaces
+                {{ $t('landing.errors.invalidName') }}
               </sup>
               <sup v-if="errors['teamName']" class="teamNameError">
                 {{ errors['teamName'] }}
@@ -99,9 +99,19 @@
             style="text-align: center; max-width: 380px;"
             v-html="$t('landing.instruction2')"
           ></p>
-          <button type="submit" class="playNowBtn">
+          <button type="submit" class="playNowBtn" :disabled="!enableSubmit">
             {{ $t('landing.buttonCta') }}
           </button>
+          <!-- ERROR MESSAGES -->
+          <div style="max-width: 320px">
+            <sup v-if="errors['teamName']" class="teamNameError">
+              {{ errors['teamName'] }}
+            </sup>
+            <br />
+            <sup v-if="errors['zipCode']" class="zipCodeError">
+              {{ errors['zipCode'] }}
+            </sup>
+          </div>
         </form>
       </div>
     </div>
@@ -117,6 +127,8 @@
 import _ from 'lodash'
 import Beeswarm from './Beeswarm'
 
+const validZip = /(^\d{5}$)|(^\d{5}-\d{4}$)/
+const validName = /^[a-z\d\-_\s]+$/i
 export default {
   name: 'LandingPage',
   components: { Beeswarm },
@@ -157,6 +169,12 @@ export default {
     teamNames() {
       return this.$store.state.teamNames
     },
+    enableSubmit() {
+      if (!this.zipCode && !this.communitySize) return false
+      if (this.zipCode && this.errors.zipCode) return false
+      if (this.newTeamName && this.errors.teamName) return false
+      return true
+    },
   },
   mounted() {
     this.updateZipAndCommunity()
@@ -168,12 +186,50 @@ export default {
     existingCommunitySize() {
       this.updateZipAndCommunity()
     },
+    zipCode() {
+      this.validateZip()
+    },
+    newTeamName() {
+      this.validateName()
+    },
   },
   methods: {
     updateZipAndCommunity() {
       this.communitySize = this.existingCommunitySize
       if (!this.communitySize) {
         this.zipCode = this.existingZipCode
+      }
+    },
+    validateZip() {
+      // check zip codes
+      this.createFormError({
+        condition: this.zipCode && !validZip.test(this.zipCode),
+        fieldName: 'zipCode',
+        errorMessage: this.$t('landing.errors.invalidZip'),
+      })
+      if (_.isEmpty(this.errors.zipCode)) {
+        this.createFormError({
+          condition: this.zipCode && !_.includes(this.zips, this.zipCode),
+          fieldName: 'zipCode',
+          errorMessage: this.$t('landing.errors.zipNotFound'),
+        })
+      }
+    },
+    validateName() {
+      this.createFormError({
+        condition: this.newTeamName &&
+          (this.newTeamName.length < 5 || !validName.test(this.newTeamName)),
+        fieldName: 'teamName',
+        errorMessage: this.$t('landing.errors.invalidName'),
+      })
+
+      // and if it is valid, check if the name already exists
+      if (_.isEmpty(this.errors.teamName)) {
+        this.createFormError({
+          condition: this.newTeamName && _.includes(this.teamNames, this.newTeamName.toLowerCase()),
+          fieldName: 'teamName',
+          errorMessage: this.$t('landing.errors.teamExists'),
+        })
       }
     },
     startPlay(e) {
@@ -183,63 +239,14 @@ export default {
         ).zip
         this.$store.commit('setCommunitySize', this.communitySize)
       }
-      if (this.checkFormValid(e)) {
-        this.$store.commit('setGameIdAndCreatedAt')
-        this.$store.commit('setZipCode', this.zipCode)
-        this.$store.commit('setCurrentPage', 'game')
-      }
+      this.$store.commit('setGameIdAndCreatedAt')
+      this.$store.commit('setZipCode', this.zipCode)
+      this.$store.commit('setCurrentPage', 'game')
     },
     createFormError({ condition, event, fieldName, errorMessage }) {
-      if (condition) {
-        this.errors[fieldName] = errorMessage
-        event.preventDefault()
-        return true
-      }
-    },
-    checkFormValid(e) {
-      this.errors = {}
-
-      // check zip codes
-      let validZip = /(^\d{5}$)|(^\d{5}-\d{4}$)/
-      this.createFormError({
-        event: e,
-        condition: !validZip.test(this.zipCode),
-        fieldName: 'zipCode',
-        errorMessage: this.$t('landing.errors.invalidZip'),
-      })
-      if (_.isEmpty(this.errors.zipCode)) {
-        this.createFormError({
-          event: e,
-          condition: !_.includes(this.zips, this.zipCode),
-          fieldName: 'zipCode',
-          errorMessage: this.$t('landing.errors.zipNotFound'),
-        })
-      }
-
-      // check team name but only if player
-      // has chosen to create a new one
-      if (this.newTeamName) {
-        let validName = /^[a-z\d\-_\s]+$/i
-        this.createFormError({
-          event: e,
-          condition: !validName.test(this.newTeamName),
-          fieldName: 'teamName',
-          errorMessage: this.$t('landing.errors.invalidName'),
-        })
-
-        // and if it is valid, check if the name already exists
-        if (_.isEmpty(this.errors.teamName)) {
-          this.createFormError({
-            event: e,
-            condition: _.includes(this.teamNames, this.newTeamName),
-            fieldName: 'teamName',
-            errorMessage: this.$t('landing.errors.teamExists'),
-          })
-        }
-      }
-
-      e.preventDefault()
-      return _.isEmpty(this.errors)
+      this.errors[fieldName] = condition ? errorMessage : null
+      // event.preventDefault()
+      return true
     },
   },
 }
