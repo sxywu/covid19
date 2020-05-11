@@ -21,8 +21,9 @@ let dailyHealthStatus = []
 const totalPlayers = 20
 const foodStatus = {value: 18, maxValue: 18}
 const exerciseStatus = {value: 31, maxValue: 31}
-const usualActivityLevel = [3, 5, 2, 1, 5] // food, exercise, small, large, work
-const bestActivityLevel = [1, 3, 0, 0, 0]
+const usualActivityLevel = [3, 5, 2, 5] // food, exercise, small, large
+const bestActivityLevel = [1, 3, 0, 0]
+const activityWeights = [0.3, 0.1, 1, 0.3]
 
 function assignHealth(person, daysSinceInfection, prevInHospital) {
   // health statuses: 0 = healthy, 1 = recovered, 2 = infected+asymptomatic,
@@ -76,16 +77,11 @@ function healthAndDestination(
     _.each(decisions, (goOut, activity) => {
       // if decided not to go out for the activity
       // or the activity is work but they're unemployed
-      if (!goOut || (activity === 4 && !person.work)) return
+      if (!goOut) return
       if (activity === 3) { // if large gathering
         destinations = _.sampleSize(destinations, _.random(1, 5))
         destination = _.sample(destinations)
       } else {
-        if (activity === 4) { // if work
-          destination = person.work
-        } else {
-          destination = _.sample(destinations)
-        }
         destinations = [destination]
       }
 
@@ -94,7 +90,7 @@ function healthAndDestination(
         if (infectious) {
           // but if they're asymptomatic, add that as infected destination
           infectedDestinations[destination] =
-            (infectedDestinations[destination] || 0) + (activity === 1 ? 0.1 : 1)
+            (infectedDestinations[destination] || 0) + activityWeights[activity]
         }
       })
     })
@@ -680,10 +676,11 @@ export default new Vuex.Store({
         filters: {teamName},
         cb: data => {
           allPastGames = _.map(data, ({id, teamName, decisions}) => {
-            return {
-              id, teamName,
-              decisions: JSON.parse(decisions),
-            }
+            decisions = _.map(JSON.parse(decisions), (d, i) => {
+              if (i === 0) return usualActivityLevel
+              return d.slice(0, 4)
+            })
+            return {id, teamName, decisions}
           })
 
           const {sampledPlayers, allDecisions} = samplePastGames()
