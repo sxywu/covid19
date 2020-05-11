@@ -16,6 +16,17 @@
         <p>{{ $t('landing.explanation2') }}</p>
         <h2>{{ $t('landing.explanation3') }}</h2>
         <p>{{ $t('landing.explanation4') }}</p>
+        <!-- TEAM INPUT -->
+        <form>
+          <div class="teamName">
+            <input
+              type="text"
+              :class="{ 'error': errors['teamName'] }"
+              v-model="newTeamName"
+              :placeholder="$t('landing.teamPlaceholder')"
+            />
+          </div>
+        </form>
         <Beeswarm
           v-bind="{
             type: 'all',
@@ -24,6 +35,7 @@
         />
         <p>{{ $t('landing.explanation5') }}</p>
         <hr />
+        <!-- ZIP CODE OR COMMUNITY SIZE -->
         <h2 class="instructions" v-html="$t('landing.instruction1')"></h2>
         <div v-if="country === 'us'" v-html="$t('landing.zipCodeDisclaimer')"></div>
         <form @submit="startPlay">
@@ -31,11 +43,10 @@
             <div class="zipCode">
               <input
                 type="number"
-                :class="{ 'zip-error': errors['zipCode'] }"
+                :class="{ 'error': errors['zipCode'] }"
                 id="zip"
                 v-model="zipCode"
                 :placeholder="$t('landing.zipCodePlaceholder')"
-                pattern="/(^\d{5}$)|(^\d{5}-\d{4}$)/"
               />
             </div>
             <span>{{ $t('or') }}</span>
@@ -65,6 +76,9 @@
           <button type="submit" class="playNowBtn">
             {{ $t('landing.buttonCta') }}
           </button>
+          <div v-if="errors['teamName']" class="teamNameError">
+            {{ errors['teamName'] }}
+          </div>
           <div v-if="errors['zipCode']" class="zipCodeError">
             {{ errors['zipCode'] }}
           </div>
@@ -91,6 +105,7 @@ export default {
     return {
       errors: {},
       zipCode: '',
+      newTeamName: '',
       communitySize: '',
       communitySizes: [
         { id: 'urban', value: 'Urban' },
@@ -114,6 +129,12 @@ export default {
     },
     country() {
       return this.$store.state.country
+    },
+    teamName() {
+      return this.$store.state.teamName
+    },
+    teamNames() {
+      return this.$store.state.teamNames
     },
   },
   mounted() {
@@ -156,6 +177,8 @@ export default {
     },
     checkFormValid(e) {
       this.errors = {}
+
+      // check zip codes
       let validZip = /(^\d{5}$)|(^\d{5}-\d{4}$)/
       this.createFormError({
         event: e,
@@ -163,7 +186,6 @@ export default {
         fieldName: 'zipCode',
         errorMessage: this.$t('landing.errors.invalidZip'),
       })
-
       if (_.isEmpty(this.errors.zipCode)) {
         this.createFormError({
           event: e,
@@ -171,6 +193,28 @@ export default {
           fieldName: 'zipCode',
           errorMessage: this.$t('landing.errors.zipNotFound'),
         })
+      }
+
+      // check team name but only if player
+      // has chosen to create a new one
+      if (this.newTeamName) {
+        let validName = /^[a-z\d\-_\s]+$/i
+        this.createFormError({
+          event: e,
+          condition: !validName.test(this.newTeamName),
+          fieldName: 'teamName',
+          errorMessage: this.$t('landing.errors.invalidName'),
+        })
+
+        // and if it is valid, check if the name already exists
+        if (_.isEmpty(this.errors.teamName)) {
+          this.createFormError({
+            event: e,
+            condition: _.includes(this.teamNames, this.newTeamName),
+            fieldName: 'teamName',
+            errorMessage: this.$t('landing.errors.teamExists'),
+          })
+        }
       }
 
       e.preventDefault()
@@ -229,7 +273,7 @@ form {
       grid-template-rows: 1fr 0.5fr 1fr;
     }
   }
-  .zipCode {
+  .zipCode, .teamName {
     input::-webkit-outer-spin-button,
     input::-webkit-inner-spin-button {
       -webkit-appearance: none;
@@ -258,7 +302,7 @@ form {
         background-color: $gray;
       }
     }
-    .zip-error {
+    .error {
       border: 1px solid $red;
     }
   }
@@ -390,28 +434,13 @@ header {
     padding: 1rem 2rem 2rem 2rem;
   }
 }
-.zipInput {
-  display: flex;
-  flex-direction: column;
-  strong {
-    margin-bottom: 5px;
-  }
-  input {
-    padding: 15px;
-    border: 1px solid lightgray;
-    border-radius: 5px;
-  }
-}
 .zipCodeError,
+.teamNameError,
 .mobileError {
   padding-top: 0.5rem;
   color: $red;
-}
-.zipCodeError {
-  text-align: justify;
-}
-.mobileError {
   text-align: center;
+  max-width: 300px;
 }
 .playNowBtn {
   background-color: $red;
