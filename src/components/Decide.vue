@@ -2,11 +2,11 @@
   <div id="decideArea">
     <!-- IF THIS IS EIGHT WEEK -->
     <div v-if="day === totalDays">
-      <h1 class="header">{{ $t('decide.h1.8weeks') }}</h1>
+      <h1 class="header">{{ $t('decide.h1.5weeks') }}</h1>
       <div class="content">
         <div v-html="$t('decide.businessAsUsual')"></div>
         <button class="decideBtn" @click="continueGame(true)">
-          {{ $t('decide.start4weeks') }}
+          {{ $t('decide.start5weeks') }}
         </button>
         <div>
           <a @click="continueGame(false)">

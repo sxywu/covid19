@@ -18,6 +18,7 @@ let hospitalsByZip = []
 let citiesByZip = []
 let prevInfected = []
 let dailyHealthStatus = []
+const totalWeeks = 5
 const totalPlayers = 20
 const numPastPlayers = totalPlayers - 1
 const foodStatus = {value: 18, maxValue: 18}
@@ -157,7 +158,8 @@ export default new Vuex.Store({
     zipCode: '',
     dataLoaded: false,
     bedOccupancyRate: 0.66,
-    totalDays: 8 * 7,
+    totalWeeks,
+    totalDays: totalWeeks * 7,
     foodStatus: {},
     exerciseStatus: {},
     country: '',
@@ -395,9 +397,9 @@ export default new Vuex.Store({
       if (!prevInfected.length) {
         // if this is the first day, seed infections
         prevInfected = _.map(people, (person, i) => {
-          // And then assign days for those randomly between 1 and 6.
+          // And then assign days for those randomly between 1 and 8.
           // We'll probably want to change this, but it gives us something to work with.
-          let daysSinceInfection = i % 1000 ? 0 : _.random(1, 4)
+          let daysSinceInfection = i % 400 ? 0 : _.random(1, 8)
           let {health, infectious} = assignHealth(person, daysSinceInfection)
 
           return {
@@ -748,6 +750,7 @@ export default new Vuex.Store({
       prevInfected = []
       dailyHealthStatus = []
 
+      commit('decisions', [usualActivityLevel])
       commit('setSampledPastGames', _.sampleSize(allPastGames, numPastPlayers))
 
       commit('setDay', 0)

@@ -116,6 +116,9 @@ export default {
     }
   },
   computed: {
+    totalWeeks() {
+      return this.$store.state.totalWeeks
+    },
     week() {
       return this.$store.getters.week
     },
@@ -159,7 +162,7 @@ export default {
             let decision
             if (this.type === 'all') {
               // if showing all weeks and first person doesn't have all 8 weeks
-              if (weeklyDecisions.length !== 8) return
+              if (weeklyDecisions.length < this.totalWeeks) return
               decision = _.chain(weeklyDecisions)
                 .map(d => d[activity])
                 .mean().round(1).value()

@@ -29,7 +29,7 @@
     "explanation1": "You're in the first few days of a new viral spread. This virus can be transmitted before symptoms appear, and it has the potential to spread throughout the entire community—unless you take action now through physical distancing. The coming weeks are crucial for saving thousands of lives.",
     "explanation2": "But you can’t do this alone! It’ll take the cooperation of the entire community to slow the spread of this disease. Together, you’ll have to find ways to meet your individual needs while limiting your outings as much as possible.",
     "explanation3": "You’ll play alongside 19 other real people.",
-    "explanation4": "These 19 people have played before you, and have made the weekly decisions you are about to.  Their decisions and yours together will determine how frequently people in your community leave their homes each week, for the duration of 8 weeks.",
+    "explanation4": "These 19 people have played before you, and have made the weekly decisions you are about to.  Their decisions and yours together will determine how frequently people in your community leave their homes each week, for the duration of five weeks.",
     "explanation5": "Your collective decisions will determine how many lives are lost or saved.",
     "instruction1": "To start, enter your <strong>zip code</strong>* or choose a <strong>community size</strong>.",
     "instruction2": "We’ll pull real data to set up the game with your community’s actual population and number of available hospital beds.",
@@ -55,7 +55,7 @@
     "h1": {
       "prevWeek": "In the previous week...",
       "numTimes": "You decided not to go out this week... | You decided to go out once this week... | You decided to go out {count} times this week...",
-      "8weeks": "You've been fighting the virus for 8 weeks"
+      "5weeks": "You've been fighting the virus for five weeks"
     },
     "prevTimes": "You didn't go out at all, | You went out once for {activity}, | You went out <strong>{total}</strong> times, including {max} times for {activity},",
     "avgTimes": " and your community went out an average of <strong>{count}</strong> times.",
@@ -83,8 +83,8 @@
     "rest": "and here's what the rest of your team decided to do:",
     "average": "Average: {count} times",
     "start": "Start Next Week →",
-    "businessAsUsual": "Your local government is now considering going back to business as usual.  Would you like to see what the next four weeks might look like if everyone in your community went out every day of the week again*?<p><sup>*you won't have to make any more decisions.</sup></p>",
-    "start4weeks": "Start next four weeks →",
+    "businessAsUsual": "Your local government is now considering going back to business as usual.  Would you like to see what the next three weeks might look like if everyone in your community went out every day of the week again*?<p><sup>*you won't have to make any more decisions.</sup></p>",
+    "start5weeks": "Start next three weeks →",
     "finish": "No, let's finish this"
   },
   "beeswarm": {

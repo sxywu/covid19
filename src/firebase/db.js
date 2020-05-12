@@ -21,7 +21,7 @@ if (!isEmpty(App)) {
     let query = fireStore
       .collection(FIRESTORE_COLLECTION)
       .limit(limit)
-      .where('numDecisions', '==', 8)
+      .where('numDecisions', '==', 5)
     if (filters.zipCode) {
       query = query.where('zipCode', '==', filters.zipCode)
     }
