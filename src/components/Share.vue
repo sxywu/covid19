@@ -37,12 +37,10 @@
 <script>
 export default {
   name: "Share",
-  props: {
-    isCopied: { type: Boolean, default: false }
-  },
   data: function() {
     return {
-      siteUrl: "peopleofthepandemicgame.com"
+      siteUrl: location.href,
+      isCopied: false,
     };
   },
   methods: {
