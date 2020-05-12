@@ -156,7 +156,6 @@ export default new Vuex.Store({
     day: 0,
     zipCode: '',
     dataLoaded: false,
-    gamesLoaded: false,
     bedOccupancyRate: 0.66,
     totalDays: 8 * 7,
     foodStatus: {},
@@ -168,19 +167,15 @@ export default new Vuex.Store({
     teamName: '', // team name from URL
     newTeamName: '', // new name player creates
     teamNames: [],
+    sampledPastGames: [],
     decisions: [usualActivityLevel],
   },
   getters: {
     week({day}) {
       return Math.ceil(day / 7)
     },
-    sampledPastGames({gamesLoaded}) {
-      if (!gamesLoaded) return
-      return _.sampleSize(allPastGames, numPastPlayers)
-    },
-    allDecisions({teamName, newTeamName, decisions}, {sampledPastGames}) {
-      if (!sampledPastGames) return
-      if (teamName || newTeamName) {
+    allDecisions({teamName, newTeamName, decisions, sampledPastGames}) {
+      if (teamName || newTeamName || !sampledPastGames.length) {
         // if player entered new name
         return _.concat([decisions], npcDecisions)
       }
@@ -191,7 +186,7 @@ export default new Vuex.Store({
         _.take(npcDecisions, numPastPlayers - sampledPastGames.length)
       )
     },
-    pastPlayerIDs({teamName, newTeamName}, {sampledPastGames}) {
+    pastPlayerIDs({teamName, newTeamName, sampledPastGames}) {
       return teamName || newTeamName ? [] : _.map(sampledPastGames, 'id')
     },
     allZips({dataLoaded}) {
@@ -580,9 +575,6 @@ export default new Vuex.Store({
     setDataLoaded(state, dataLoaded) {
       state.dataLoaded = dataLoaded
     },
-    setGamesLoaded(state, gamesLoaded) {
-      state.gamesLoaded = gamesLoaded
-    },
     setDay(state, day) {
       state.day = day
       // if player decides to look at 4 more weeks of simulation
@@ -643,6 +635,9 @@ export default new Vuex.Store({
     },
     setTeamNames(state, teamNames) {
       state.teamNames = teamNames
+    },
+    setSampledPastGames(state, sampledPastGames) {
+      state.sampledPastGames = sampledPastGames
     },
   },
   actions: {
@@ -709,7 +704,7 @@ export default new Vuex.Store({
             }
           })
 
-          commit('setGamesLoaded', true)
+          commit('setSampledPastGames', _.sampleSize(allPastGames, numPastPlayers))
           commit('setTeamName', data[0].teamName || '')
           dispatch('updateURL')
         },
@@ -751,6 +746,8 @@ export default new Vuex.Store({
       // reset prevInfected
       prevInfected = []
       dailyHealthStatus = []
+
+      commit('setSampledPastGames', _.sampleSize(allPastGames, numPastPlayers))
 
       commit('setDay', 0)
       commit('setFoodStatus', foodStatus)
