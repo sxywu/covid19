@@ -718,6 +718,7 @@ export default new Vuex.Store({
         createdAt,
         country,
         teamName,
+        newTeamName,
       },
       getters: {
         allDecisions,
@@ -739,7 +740,7 @@ export default new Vuex.Store({
         communitySize,
         createdAt,
         country,
-        teamName,
+        teamName: newTeamName || teamName,
       })
     },
     resetGame({commit, state}) {

@@ -252,6 +252,7 @@ export default {
         ).zip
         this.$store.commit('setCommunitySize', this.communitySize)
       }
+      this.$store.commit('setTeamName', this.newTeamName)
       this.$store.commit('setGameIdAndCreatedAt')
       this.$store.commit('setZipCode', this.zipCode)
       this.$store.commit('setCurrentPage', 'game')
