@@ -174,8 +174,8 @@ export default new Vuex.Store({
     week({day}) {
       return Math.ceil(day / 7)
     },
-    allDecisions({teamName, newTeamName, decisions, sampledPastGames}) {
-      if (teamName || newTeamName || !sampledPastGames.length) {
+    allDecisions({newTeamName, decisions, sampledPastGames}) {
+      if (newTeamName || !sampledPastGames.length) {
         // if player entered new name
         return _.concat([decisions], npcDecisions)
       }
@@ -186,8 +186,8 @@ export default new Vuex.Store({
         _.take(npcDecisions, numPastPlayers - sampledPastGames.length)
       )
     },
-    pastPlayerIDs({teamName, newTeamName, sampledPastGames}) {
-      return teamName || newTeamName ? [] : _.map(sampledPastGames, 'id')
+    pastPlayerIDs({newTeamName, sampledPastGames}) {
+      return newTeamName ? [] : _.map(sampledPastGames, 'id')
     },
     allZips({dataLoaded}) {
       if (!dataLoaded) return
