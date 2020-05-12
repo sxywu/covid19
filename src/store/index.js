@@ -25,6 +25,20 @@ const exerciseStatus = {value: 31, maxValue: 31}
 const usualActivityLevel = [3, 5, 2, 1, 5] // food, exercise, small, large, work
 const bestActivityLevel = [1, 3, 0, 0, 0]
 
+const npcDecisions = _.times(numPastPlayers, i => {
+  const decisions = []
+  _.times(8, i => {
+    const decision = _.map(usualActivityLevel, d => {
+      return _.chain(p5.prototype.randomGaussian(d, 1))
+        .round()
+        .clamp(0, 7)
+        .value()
+    })
+    decisions.push(decision)
+  })
+  return decisions
+})
+
 function assignHealth(person, daysSinceInfection, prevInHospital) {
   // health statuses: 0 = healthy, 1 = recovered, 2 = infected+asymptomatic,
   // 3 = infected+ symptomatic, 4 = hospitalized from infection, 5 = died from infection
@@ -151,7 +165,8 @@ export default new Vuex.Store({
     gameId: '',
     createdAt: '',
     communitySize: '',
-    teamName: '',
+    teamName: '', // team name from URL
+    newTeamName: '', // new name player creates
     teamNames: [],
     decisions: [usualActivityLevel],
   },
@@ -163,31 +178,21 @@ export default new Vuex.Store({
       if (!gamesLoaded) return
       return _.sampleSize(allPastGames, numPastPlayers)
     },
-    otherDecisions(state, {sampledPastGames}) {
+    allDecisions({teamName, newTeamName, decisions}, {sampledPastGames}) {
       if (!sampledPastGames) return
-      const allDecisions = _.map(sampledPastGames, 'decisions')
-      // if there still aren't enough, then add in the rest assuming they go out every day
-      _.times(numPastPlayers - allDecisions.length, i => {
-        const decisions = []
-        _.times(8, i => {
-          const decision = _.map(usualActivityLevel, d => {
-            return _.chain(p5.prototype.randomGaussian(d, 1))
-              .round()
-              .clamp(0, 7)
-              .value()
-          })
-          decisions.push(decision)
-        })
-        allDecisions.push(decisions)
-      })
-      return allDecisions
+      if (teamName || newTeamName) {
+        // if player entered new name
+        return _.concat([decisions], npcDecisions)
+      }
+      // else use past games
+      return _.concat(
+        [decisions],
+        _.map(sampledPastGames, 'decisions'),
+        _.take(npcDecisions, numPastPlayers - sampledPastGames.length)
+      )
     },
-    allDecisions({decisions}, {otherDecisions}) {
-      if (!otherDecisions) return
-      return _.concat([decisions], otherDecisions)
-    },
-    pastPlayerIDs(state, {sampledPastGames}) {
-      return _.map(sampledPastGames, 'id')
+    pastPlayerIDs({teamName, newTeamName}, {sampledPastGames}) {
+      return teamName || newTeamName ? [] : _.map(sampledPastGames, 'id')
     },
     allZips({dataLoaded}) {
       if (!dataLoaded) return
@@ -633,11 +638,25 @@ export default new Vuex.Store({
     setTeamName(state, teamName) {
       state.teamName = teamName
     },
+    setNewTeamName(state, newTeamName) {
+      state.newTeamName = newTeamName
+    },
     setTeamNames(state, teamNames) {
       state.teamNames = teamNames
     },
   },
   actions: {
+    updateURL({
+      state: {teamName, newTeamName},
+    }) {
+      // update URL
+      let url = location.origin
+      const name = newTeamName || teamName
+      if (name) {
+        url += `/#/team-${name}`
+      }
+      history.pushState({}, 'People of the Pandemic', url)
+    },
     getRawData({commit, state, dispatch}) {
       function formatData(obj) {
         let zip = obj.zip // make sure zip doesn't get turned into integers
@@ -675,9 +694,9 @@ export default new Vuex.Store({
     getPastGames({commit, dispatch}) {
       // first, see if there's a team name
       const url = document.URL.toLowerCase()
-      let teamName = null
+      let teamName = ''
       if (_.includes(url, 'team')) {
-        teamName = _.trim(url.split('/team/')[1])
+        teamName = _.trim(url.split('team-')[1])
       }
 
       apiService.getFilteredGamesWithDefault({
@@ -691,7 +710,8 @@ export default new Vuex.Store({
           })
 
           commit('setGamesLoaded', true)
-          commit('setTeamName', data[0].teamName)
+          commit('setTeamName', data[0].teamName || '')
+          dispatch('updateURL')
         },
       })
     },
@@ -731,11 +751,6 @@ export default new Vuex.Store({
       // reset prevInfected
       prevInfected = []
       dailyHealthStatus = []
-
-      const {sampledPlayers, allDecisions} = samplePastGames()
-      commit('setAllDecisions', allDecisions)
-      commit('setPastPlayerIDs', _.map(sampledPlayers, 'id'))
-      commit('setTeamName', sampledPlayers[0].teamName)
 
       commit('setDay', 0)
       commit('setFoodStatus', foodStatus)

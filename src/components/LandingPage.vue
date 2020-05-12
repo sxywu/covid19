@@ -24,9 +24,14 @@
                 <input
                   type="checkbox"
                   name="joinTeam"
-                  v-model="joinTeam"
+                  :disabled="!!newTeamName"
+                  checked
                 />
-                <label>Join Team of Past Players</label>
+                <label>{{
+                  teamName ?
+                    $t('landing.joinTeamName', {name: teamName}) :
+                    $t('landing.joinRandomTeam')
+                  }}</label>
               </div>
             </div>
             <span>{{ $t('or') }}</span>
@@ -53,6 +58,7 @@
           v-bind="{
             type: 'all',
             width: isPhone ? 300 : 700,
+            newTeam: true,
           }"
         />
         <p>{{ $t('landing.explanation5') }}</p>
@@ -128,7 +134,7 @@ import _ from 'lodash'
 import Beeswarm from './Beeswarm'
 
 const validZip = /(^\d{5}$)|(^\d{5}-\d{4}$)/
-const validName = /^[a-z\d\-_\s]+$/i
+const validName = /^[a-z\d\-_]+$/i
 export default {
   name: 'LandingPage',
   components: { Beeswarm },
@@ -136,7 +142,6 @@ export default {
   data() {
     return {
       errors: {},
-      joinTeam: true,
       newTeamName: '',
       zipCode: '',
       communitySize: '',
@@ -167,7 +172,7 @@ export default {
       return this.$store.state.teamName
     },
     teamNames() {
-      return this.$store.state.teamNames
+      return _.map(this.$store.state.teamNames, d => d.toLowerCase())
     },
     enableSubmit() {
       if (!this.zipCode && !this.communitySize) return false
@@ -191,6 +196,7 @@ export default {
     },
     newTeamName() {
       this.validateName()
+      this.updateName()
     },
   },
   methods: {
@@ -218,7 +224,8 @@ export default {
     validateName() {
       this.createFormError({
         condition: this.newTeamName &&
-          (this.newTeamName.length < 5 || !validName.test(this.newTeamName)),
+          (this.newTeamName.length < 5 || this.newTeamName.length > 32 ||
+            !validName.test(this.newTeamName)),
         fieldName: 'teamName',
         errorMessage: this.$t('landing.errors.invalidName'),
       })
@@ -230,6 +237,12 @@ export default {
           fieldName: 'teamName',
           errorMessage: this.$t('landing.errors.teamExists'),
         })
+      }
+    },
+    updateName() {
+      if (!this.newTeamName || !this.errors.teamName) {
+        this.$store.commit('setNewTeamName', this.newTeamName)
+        this.$store.dispatch('updateURL')
       }
     },
     startPlay(e) {

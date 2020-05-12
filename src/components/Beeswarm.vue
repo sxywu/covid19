@@ -177,7 +177,7 @@ export default {
         }).flatten().filter()
         .sortBy(d => (d.hasStar ? 1 : 0) + d.opacity).value()
 
-      this.simulation.nodes(this.people)
+      this.simulation.nodes(this.people).alpha(1)
       _.times(250, i => this.simulation.tick())
     },
     renderAxis() {
