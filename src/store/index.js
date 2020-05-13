@@ -23,6 +23,7 @@ const totalPlayers = 20
 const numPastPlayers = totalPlayers - 1
 const foodStatus = {value: 18, maxValue: 18}
 const exerciseStatus = {value: 31, maxValue: 31}
+const happinessStatus = {value: 31, maxValue: 31}
 const usualActivityLevel = [3, 5, 2, 1, 5] // food, exercise, small, large, work
 const bestActivityLevel = [1, 3, 0, 0, 0]
 
@@ -162,6 +163,7 @@ export default new Vuex.Store({
     totalDays: totalWeeks * 7,
     foodStatus: {},
     exerciseStatus: {},
+    happinessStatus: {},
     country: '',
     gameId: '',
     createdAt: '',
@@ -586,6 +588,7 @@ export default new Vuex.Store({
       // for every day they don't get groceries
       state.foodStatus.value = Math.max(0, state.foodStatus.value - 1)
       state.exerciseStatus.value = Math.max(0, state.exerciseStatus.value - 1)
+      state.happinessStatus.value = Math.max(1, state.happinessStatus.value - 1)
       if (state.foodStatus.value === 0 || state.exerciseStatus.value === 0) {
         state.currentPage = 'failed'
       }
@@ -597,19 +600,31 @@ export default new Vuex.Store({
       state.communitySize = communitySize
     },
     setDecisions(state, decisions) {
-      const [food, exercise] = decisions
+      const [food, exercise, small, large] = decisions
       if (food) {
         // if they go out twice, 2 weeks of groceries are taken care of
         state.foodStatus.value = Math.min(
-          state.foodStatus.value + 4 * food,
+          state.foodStatus.value + 6 * food,
           state.foodStatus.maxValue,
         )
       }
       if (exercise) {
         // if go out more than once, then they did exercise
         state.exerciseStatus.value = Math.min(
-          state.exerciseStatus.value + 2 * exercise,
+          state.exerciseStatus.value + 3 * exercise,
           state.exerciseStatus.maxValue,
+        )
+      }
+      if (small) {
+        state.happinessStatus.value = Math.min(
+          state.happinessStatus.value + 3 * small,
+          state.happinessStatus.maxValue,
+        )
+      }
+      if (large) {
+        state.happinessStatus.value = Math.min(
+          state.happinessStatus.value + 6 * large,
+          state.happinessStatus.maxValue,
         )
       }
       state.decisions.push(decisions) // update decisions for current player
@@ -619,6 +634,9 @@ export default new Vuex.Store({
     },
     setExerciseStatus(state, exerciseStatus) {
       state.exerciseStatus = _.clone(exerciseStatus)
+    },
+    setHappinessStatus(state, happinessStatus) {
+      state.happinessStatus = _.clone(happinessStatus)
     },
     setGameIdAndCreatedAt(state) {
       state.gameId = uuidv4()
@@ -679,6 +697,7 @@ export default new Vuex.Store({
         commit('setDataLoaded', true)
         commit('setFoodStatus', foodStatus)
         commit('setExerciseStatus', exerciseStatus)
+        commit('setHappinessStatus', happinessStatus)
       })
     },
     getAllTeamNames({commit}) {
@@ -756,6 +775,7 @@ export default new Vuex.Store({
       commit('setDay', 0)
       commit('setFoodStatus', foodStatus)
       commit('setExerciseStatus', exerciseStatus)
+      commit('setHappinessStatus', happinessStatus)
       commit('setCurrentPage', 'landing')
     },
   },

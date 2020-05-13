@@ -123,12 +123,6 @@ export default {
     week() {
       return this.$store.getters.week
     },
-    foodStatus() {
-      return this.$store.state.foodStatus
-    },
-    exerciseStatus() {
-      return this.$store.state.exerciseStatus
-    },
     dailyHealthStatus() {
       return this.$store.getters.dailyHealthStatus
     },
