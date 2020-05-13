@@ -74,7 +74,7 @@
             newTeam: true,
           }"
         />
-        <h2>{{ $t('landing.explanation5') }}</h2>
+        <p style="text-align: center" v-html="$t('landing.explanation5')" />
         <hr />
         <!-- ZIP CODE OR COMMUNITY SIZE -->
         <h2 class="instructions" v-html="$t('landing.instruction1')"></h2>
