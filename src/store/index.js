@@ -87,7 +87,7 @@ function healthAndDestination(
   )
 
   let destination = -1 // default to home
-  let personsDailyDestinations = [[],[],[],[]]
+  let personsDailyDestinations = []
   if ((health < 3 || (health === 3 && Math.random() > 0.5))) {
     // if they're healthy, recovered, or asymptomatic
     // or if they're mild symptom they have 50% (made up) likelihood of going out
@@ -106,7 +106,7 @@ function healthAndDestination(
         destination = _.sample(allDestinations)
         destinations = [destination]
       }
-      personsDailyDestinations[activity] = destinations 
+      personsDailyDestinations = personsDailyDestinations.concat(destinations)
 
       _.each(destinations, destination => {
         // then go
