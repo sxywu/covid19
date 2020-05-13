@@ -134,10 +134,10 @@
   "end": {
     "h1": "In the span of {week} weeks...",
     "closerLook": "Here's a closer look at the numbers:",
-    "numbers": "Your community had <strong>{total}</strong> total cases, including <strong>{deaths}</strong> deaths.  However, this is {avoided} less cases than if your community had gone on with business as usual, and you were able to collectively save {saved} lives.",
-    "together": "You may have felt that your decisions had little influence over the weeks—but in fact, your community was able to achieve these numbers precisely because of your decisions, compounded by the decision of the 19 others in your team:",
-    "future": "In turn, <strong>future players will be helped by the decisions you made today</strong>.",
-    "influence": "This is reflected in the real world: when <em>everyone</em> chooses to stay home as much as possible, the most infections are avoided. Slower infection rates mean that hospitals and first responders can better help the sickest members of our community.",
+    "numbers": "Your community had <strong>{total}</strong> total cases, including <strong>{deaths}</strong> deaths.  However, this is {avoided} less cases than if your community had gone on with business as usual, and your team was able to save {saved} lives.",
+    "together": "You may have felt that your decisions had little influence over the weeks—but in fact, your community was able to achieve these numbers precisely because of your decisions, compounded by the decision of everyone else in your team:",
+    "future": "In turn, <strong>your future teammates will be helped by the decisions you made today</strong>.",
+    "influence": "This is reflected in the real world: when <em>everyone</em> who can stay home chooses to stay home as much as possible, the most infections are avoided. Slower infection rates mean that hospitals and first responders can better help the sickest members of our community.",
     "share": "So, take a moment to share this game with your friends, family, and neighbors and work to flatten the curve, together."
   },
   "footnotes": {
