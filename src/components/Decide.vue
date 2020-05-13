@@ -109,7 +109,7 @@ export default {
           index,
         }
       }),
-      decisions: [0, 0, 0, 0, 0],
+      decisions: [0, 0, 0, 0],
       decided: false,
     }
   },
