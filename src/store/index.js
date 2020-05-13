@@ -87,21 +87,26 @@ function healthAndDestination(
   )
 
   let destination = -1 // default to home
+  let personsDailyDestinations = [[],[],[],[]]
   if ((health < 3 || (health === 3 && Math.random() > 0.5))) {
     // if they're healthy, recovered, or asymptomatic
     // or if they're mild symptom they have 50% (made up) likelihood of going out
-    let {destinations} = houses[person.houseIndex]
+
+    let allDestinations = houses[person.houseIndex].destinations
+    let destinations 
     _.each(decisions, (goOut, activity) => {
       // if decided not to go out for the activity
       // or the activity is work but they're unemployed
       if (!goOut) return
       if (activity === 3) { // if large gathering
-        destinations = _.sampleSize(destinations, _.random(1, 5))
+        destinations = _.sampleSize(allDestinations, _.random(1, 5))
         destination = _.sample(destinations)
+
       } else {
-        destination = _.sample(destinations)
+        destination = _.sample(allDestinations)
         destinations = [destination]
       }
+      personsDailyDestinations[activity] = destinations 
 
       _.each(destinations, destination => {
         // then go
@@ -121,20 +126,21 @@ function healthAndDestination(
     infectedHouses[person.houseIndex] =
       (infectedHouses[person.houseIndex] || 0) + 2
   }
-
-  return {health, infectious, destination}
+  return {health, infectious, destination, personsDailyDestinations}
 }
 
 function infectPerson(
   obj,
   house,
-  destination,
+  personsDailyDestinations,
   susceptibility,
   infectedDestinations,
   infectedHouses,
 ) {
-  const timesExposed =
-    (infectedDestinations[destination] || 0) + (infectedHouses[house] || 0)
+  let timesExposed = infectedHouses[house] || 0
+  personsDailyDestinations.forEach(destination => {
+    timesExposed += (infectedDestinations[destination] || 0) 
+  })
   // if didn't get exposed, don't need to update
   if (!timesExposed) return
   // ( 1 - ( ( 1 - susceptibility ) ^ number of exposures ) ) > random number from 0-1
@@ -452,7 +458,7 @@ export default new Vuex.Store({
 
         // calculate everyone's new health/infectiousness for current day
         daysSinceInfection += !!daysSinceInfection // if days = 0, don't add any, if >0 then add 1
-        const {health, infectious, destination} = healthAndDestination(
+        const {health, infectious, destination, personsDailyDestinations} = healthAndDestination(
           person,
           houses,
           daysSinceInfection,
@@ -471,6 +477,7 @@ export default new Vuex.Store({
 
         // now calculate for an worstAlternate scenario
         prevWorstAlternate.daysSinceInfection += !!prevWorstAlternate.daysSinceInfection
+
         const worstAlternate = Object.assign(
           healthAndDestination(
             person,
@@ -484,6 +491,7 @@ export default new Vuex.Store({
           ),
           {daysSinceInfection: prevWorstAlternate.daysSinceInfection},
         )
+
         if (worstAlternate.health === 4) {
           numWorstAlternateSevere += 1
           worstAlternate.inHospital =
@@ -497,6 +505,7 @@ export default new Vuex.Store({
           health,
           infectious,
           destination,
+          personsDailyDestinations,
           inHospital,
           worstAlternate,
           weeklyDecision,
@@ -504,14 +513,15 @@ export default new Vuex.Store({
       })
 
       // for each healthy person
-      _.each(infected, person => {
-        const {house, destination, index} = person
+      _.each(infected, (person, i) => {
+        const {house, destination, index, personsDailyDestinations} = person
+
         if (person.health === 0) {
           // if they're healthy in current game, calculate whether they get infected
           infectPerson(
             person,
             house,
-            destination,
+            personsDailyDestinations,
             people[index].susceptibility,
             infectedDestinations,
             infectedHouses,
@@ -523,7 +533,7 @@ export default new Vuex.Store({
           infectPerson(
             person.worstAlternate,
             house,
-            person.worstAlternate.destination,
+            person.worstAlternate.personsDailyDestinations,
             people[index].susceptibility,
             worstAlternateDestinations,
             worstAlternateHouses,
