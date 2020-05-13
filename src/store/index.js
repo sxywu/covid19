@@ -27,6 +27,7 @@ const happinessStatus = {value: 31, maxValue: 31}
 const usualActivityLevel = [3, 5, 2, 5] // food, exercise, small, large
 const bestActivityLevel = [1, 3, 0, 0]
 const activityWeights = [0.3, 0.1, 1, 0.3]
+const asymptomaticInfectiousness = 0.4
 
 const npcDecisions = _.times(numPastPlayers, i => {
   const decisions = []
@@ -59,10 +60,10 @@ function assignHealth(person, daysSinceInfection, prevInHospital) {
     newInfectious = 1
   } else if (daysSinceInfection >= 6) {
     newHealth = person.symptomaticIfInfected ? 3 : 2 // symptomatic or asymptomatic
-    newInfectious = 1 // and infectious
+    newInfectious = person.symptomaticIfInfected ? 1 : asymptomaticInfectiousness // and infectious
   } else if (daysSinceInfection >= 4) {
     newHealth = 2 // asymptomatic
-    newInfectious = 1 // and infectious
+    newInfectious = asymptomaticInfectiousness // and infectious
   } else if (daysSinceInfection > 0) {
     newHealth = 2 // asymptomatic
     newInfectious = 0 // and not infectious
@@ -112,7 +113,7 @@ function healthAndDestination(
         if (infectious) {
           // but if they're asymptomatic, add that as infected destination
           infectedDestinations[destination] =
-            (infectedDestinations[destination] || 0) + activityWeights[activity]
+            (infectedDestinations[destination] || 0) + (infectious * activityWeights[activity])
         }
       })
     })
@@ -123,7 +124,7 @@ function healthAndDestination(
   // add their house as infectious also
   if (prevInfectious) {
     infectedHouses[person.houseIndex] =
-      (infectedHouses[person.houseIndex] || 0) + 2
+      (infectedHouses[person.houseIndex] || 0) + (2 * infectious)
   }
   return {health, infectious, destination, allDestinations}
 }
