@@ -18,7 +18,7 @@ let hospitalsByZip = []
 let citiesByZip = []
 let prevInfected = []
 let dailyHealthStatus = []
-const totalWeeks = 1
+const totalWeeks = 5
 const totalPlayers = 20
 const numPastPlayers = totalPlayers - 1
 const foodStatus = {value: 18, maxValue: 18}
@@ -87,26 +87,25 @@ function healthAndDestination(
   )
 
   let destination = -1 // default to home
-  let personsDailyDestinations = [[],[],[],[]]
+  const potentialDests = houses[person.houseIndex].destinations
+  let allDestinations = []
   if ((health < 3 || (health === 3 && Math.random() > 0.5))) {
     // if they're healthy, recovered, or asymptomatic
     // or if they're mild symptom they have 50% (made up) likelihood of going out
 
-    let allDestinations = houses[person.houseIndex].destinations
-    let destinations 
+    let destinations
     _.each(decisions, (goOut, activity) => {
       // if decided not to go out for the activity
       // or the activity is work but they're unemployed
       if (!goOut) return
       if (activity === 3) { // if large gathering
-        destinations = _.sampleSize(allDestinations, _.random(1, 5))
+        destinations = _.sampleSize(potentialDests, _.random(1, 5))
         destination = _.sample(destinations)
-
       } else {
-        destination = _.sample(allDestinations)
+        destination = _.sample(potentialDests)
         destinations = [destination]
       }
-      personsDailyDestinations[activity] = destinations 
+      allDestinations = _.concat(allDestinations, destinations)
 
       _.each(destinations, destination => {
         // then go
@@ -126,21 +125,18 @@ function healthAndDestination(
     infectedHouses[person.houseIndex] =
       (infectedHouses[person.houseIndex] || 0) + 2
   }
-  return {health, infectious, destination, personsDailyDestinations}
+  return {health, infectious, destination, allDestinations}
 }
 
 function infectPerson(
   obj,
   house,
-  personsDailyDestinations,
   susceptibility,
   infectedDestinations,
   infectedHouses,
 ) {
   let timesExposed = infectedHouses[house] || 0
-  personsDailyDestinations.forEach(destination => {
-    timesExposed += (infectedDestinations[destination] || 0) 
-  })
+  timesExposed += _.sumBy(obj.allDestinations, d => infectedDestinations[d] || 0)
   // if didn't get exposed, don't need to update
   if (!timesExposed) return
   // ( 1 - ( ( 1 - susceptibility ) ^ number of exposures ) ) > random number from 0-1
@@ -461,7 +457,7 @@ export default new Vuex.Store({
 
         // calculate everyone's new health/infectiousness for current day
         daysSinceInfection += !!daysSinceInfection // if days = 0, don't add any, if >0 then add 1
-        const {health, infectious, destination, personsDailyDestinations} = healthAndDestination(
+        const {health, infectious, destination, allDestinations} = healthAndDestination(
           person,
           houses,
           daysSinceInfection,
@@ -508,7 +504,7 @@ export default new Vuex.Store({
           health,
           infectious,
           destination,
-          personsDailyDestinations,
+          allDestinations,
           inHospital,
           worstAlternate,
           weeklyDecision,
@@ -517,14 +513,13 @@ export default new Vuex.Store({
 
       // for each healthy person
       _.each(infected, (person, i) => {
-        const {house, destination, index, personsDailyDestinations} = person
+        const {house, destination, index} = person
 
         if (person.health === 0) {
           // if they're healthy in current game, calculate whether they get infected
           infectPerson(
             person,
             house,
-            personsDailyDestinations,
             people[index].susceptibility,
             infectedDestinations,
             infectedHouses,
@@ -536,7 +531,6 @@ export default new Vuex.Store({
           infectPerson(
             person.worstAlternate,
             house,
-            person.worstAlternate.personsDailyDestinations,
             people[index].susceptibility,
             worstAlternateDestinations,
             worstAlternateHouses,
