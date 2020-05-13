@@ -143,7 +143,7 @@
   },
   "footnotes": {
     "disclaimer": "Disclaimer",
-    "fullDisclaimer": "While we tried our best to get our numbers as close to COVID-19 numbers as possible, the COVID-19 numbers are still too new and moving too quickly.  Thus we want to emphasize that we're modeling <em>a</em> virus, not <em>the</em> virus.<br /><br />For more details, please see our <a href='https://observablehq.com/@osserman/people-of-the-pandemic-simulation-methodology' target='_new'>full methodology</a>.",
+    "fullDisclaimer": "While the disease spread in this game is modeled after COVID-19, it uses a simplified model not intended to be a precise forecast. We want to emphasize that we're modeling <em>a</em> virus, not <em>the</em> virus.<br /><br />For more details, please see our <a href='https://observablehq.com/@osserman/people-of-the-pandemic-simulation-methodology' target='_new'>full methodology</a>.",
     "methodology": "Methodology",
     "fullMethodology": "<a href='https://observablehq.com/@osserman/people-of-the-pandemic-simulation-methodology' target='_new'>Full Methodology</a>",
     "methodologyHere": "We've put a lot of thought and research into our simulation.<br />Read the full, detailed methodology <a href='https://observablehq.com/@osserman/people-of-the-pandemic-simulation-methodology' target='_new'>here</a>.",

@@ -552,7 +552,7 @@ header {
 
 #disclaimer {
   width: 100%;
-  max-width: 600px;
+  max-width: 500px;
   text-align: center;
   line-height: 1.5;
   margin: 40px auto;
