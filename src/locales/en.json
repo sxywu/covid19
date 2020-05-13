@@ -57,7 +57,7 @@
   "decide": {
     "h1": {
       "prevWeek": "In the previous week...",
-      "numTimes": "You decided not to go out this week... | You decided to go out once this week... | You decided to go out {count} times this week...",
+      "numTimes": "You decided not to go out this coming week... | You decided to go out once this coming week... | You decided to go out {count} times this coming week...",
       "5weeks": "You've been fighting the virus for five weeks"
     },
     "prevTimes": "You didn't go out at all, | You went out once for {activity}, | You went out <strong>{total}</strong> times, including {max} times for {activity},",

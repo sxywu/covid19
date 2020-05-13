@@ -1,6 +1,6 @@
 <template>
   <div id="beeswarm">
-    <h3 class="label" v-html="
+    <h3 class="label" v-if="this.type === 'all'" v-html="
       name ?
       $tc('beeswarm.hasName', this.type === 'all' ? 5 : 1, {name}) :
       $tc('beeswarm.noName', this.type === 'all' ? 5 : 1)
