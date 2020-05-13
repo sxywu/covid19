@@ -178,6 +178,9 @@ export default new Vuex.Store({
     week({day}) {
       return Math.ceil(day / 7)
     },
+    totalPlayers({sampledPastGames}) {
+      return allPastGames.length
+    },
     allDecisions({newTeamName, decisions, sampledPastGames}) {
       if (newTeamName || !sampledPastGames.length) {
         // if player entered new name

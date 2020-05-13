@@ -101,4 +101,8 @@ a {
 a:hover {
   border-bottom: 1px dashed;
 }
+
+.underline {
+  border-bottom: 1px solid;
+}
 </style>

@@ -43,6 +43,19 @@
                 :placeholder="$t('landing.teamPlaceholder')"
               />
             </div>
+            <!-- JOIN TEAM SUBTEXT -->
+            <div v-if="!isPhone && !newTeamName" style="grid-column: 1/1">
+              <sup v-if="teamName">
+                {{ $tc(
+                    'landing.joinTeamSubtext',
+                    pastPlayers.length === totalPlayers ? 1 : pastPlayers.length,
+                    {count: pastPlayers.length, total: totalPlayers}
+                  ) }}
+              </sup>
+              <sup v-else>
+                {{ $t('landing.joinRandomSubtext', {count: pastPlayers.length}) }}
+              </sup>
+            </div>
             <!-- TEAM NAME SUBTEXT -->
             <div :style="{'grid-column': isPhone ? '' : '3/3'}">
               <sup v-if="!errors['teamName']">
@@ -61,7 +74,7 @@
             newTeam: true,
           }"
         />
-        <p>{{ $t('landing.explanation5') }}</p>
+        <h2>{{ $t('landing.explanation5') }}</h2>
         <hr />
         <!-- ZIP CODE OR COMMUNITY SIZE -->
         <h2 class="instructions" v-html="$t('landing.instruction1')"></h2>
@@ -167,6 +180,12 @@ export default {
     },
     country() {
       return this.$store.state.country
+    },
+    totalPlayers() {
+      return this.$store.getters.totalPlayers
+    },
+    pastPlayers() {
+      return this.$store.getters.pastPlayerIDs
     },
     teamName() {
       return this.$store.state.teamName

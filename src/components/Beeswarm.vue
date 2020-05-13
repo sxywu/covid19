@@ -1,6 +1,10 @@
 <template>
   <div id="beeswarm">
-    <h3 class="label" v-html="$tc('beeswarm.h3', this.type === 'all' ? 8 : 1)" />
+    <h3 class="label" v-html="
+      name ?
+      $tc('beeswarm.hasName', this.type === 'all' ? 5 : 1, {name}) :
+      $tc('beeswarm.noName', this.type === 'all' ? 5 : 1)
+    " />
     <div class="container">
       <svg :width="width" :height="height">
         <!-- AXIS -->
@@ -35,7 +39,7 @@
     </div>
     <!-- LEGEND -->
     <div class="legends">
-      <div class="legend" v-for="d in legend">
+      <div class="legend label" v-for="d in legend">
         <svg :width="0.75 * imageWidth" :height="0.75 * imageHeight">
           <image :width="0.75 * imageWidth" :height="0.75 * imageHeight"
             :href="d.image" :opacity="d.opacity" />
@@ -116,6 +120,9 @@ export default {
     }
   },
   computed: {
+    name() {
+      return this.$store.state.newTeamName || this.$store.state.teamName
+    },
     totalWeeks() {
       return this.$store.state.totalWeeks
     },
