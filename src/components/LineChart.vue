@@ -43,7 +43,11 @@
       <!-- NOT ON PHONE -->
       <li v-if="!isPhone && week > 1">
         <span class="week"></span>
-        <span class="label"> {{ $t('lineChart.legend.currentWeek') }}</span>
+        <span class="label"> {{
+          day > totalDays ?
+          $t('lineChart.legend.normal') :
+          $t('lineChart.legend.currentWeek')
+        }}</span>
       </li>
     </ul>
   </div>
@@ -85,6 +89,9 @@ export default {
   computed: {
     day() {
       return this.$store.state.day
+    },
+    totalDays() {
+      return this.$store.state.totalDays
     },
     week() {
       return this.$store.getters.week
@@ -199,11 +206,18 @@ export default {
       if (this.day % 7 === 1 || !this.tl) {
         // if first day of week or isn't part of week animation
         // update rect and x axis right away
+        let x
+        let width
         const firstDay = (this.week - 1) * 7
-        Object.assign(this.rect, {
-          x: this.xScale(firstDay),
-          width: this.xScale(firstDay + 7) - this.xScale(firstDay),
-        })
+        if (this.day > this.totalDays) {
+          // than it's "back to normal"
+          x = this.xScale(this.totalDays)
+          width = this.xScale(firstDay + 7) - this.xScale(this.totalDays)
+        } else {
+          x = this.xScale(firstDay)
+          width = this.xScale(firstDay + 7) - this.xScale(firstDay)
+        }
+        Object.assign(this.rect, {x, width})
         d3.select(this.$refs.xAxis).call(this.xAxis)
 
         // and then recalculate all path points with new scale
