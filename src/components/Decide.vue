@@ -85,6 +85,7 @@ import _ from 'lodash'
 import Decision from './Decision'
 import Beeswarm from './Beeswarm'
 
+const usualActivityLevel = [3, 5, 2, 5]
 const activityKeys = ['groceries', 'exercise', 'small', 'large']
 const images = {
   groceries: 'groceries.svg',
@@ -103,13 +104,14 @@ export default {
     return {
       activities: _.map(activityKeys, (key, index) => {
         return {
+          default: usualActivityLevel[index],
           label: this.$t(`decide.activities.${key}.label`),
           byline: this.$t(`decide.activities.${key}.byline`),
           icon: require(`../assets/${images[key]}`),
           index,
         }
       }),
-      decisions: [0, 0, 0, 0],
+      decisions: _.clone(usualActivityLevel),
       decided: false,
     }
   },
