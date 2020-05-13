@@ -57,6 +57,7 @@ if (!isEmpty(App)) {
     return fireStore
       .collection(FIRESTORE_COLLECTION)
       .where('teamName', '>', '')
+      .where('numDecisions', '==', 5)
       .get()
       .then(collectionSnapshot => {
         let teamCollection = collectionSnapshot.docs.map(
