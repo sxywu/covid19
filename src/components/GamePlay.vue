@@ -68,7 +68,6 @@
         <Legend v-bind="{healthStatus, colorsByHealth}" />
         <BarChart
           v-bind="{
-            width: 300,
             height: bottomHeight,
             ageGroups,
             colorsByHealth,
@@ -136,7 +135,6 @@
           <BarChart
             v-bind="{
               isPhone,
-              width,
               height: 120,
               ageGroups,
               colorsByHealth,
@@ -376,7 +374,7 @@ export default {
     position: relative;
     display: grid;
     height: 100%;
-    grid-template-rows: 1fr 7fr 2fr;
+    grid-template-rows: min-content 1fr min-content;
   }
 
   #topPanel {
@@ -407,8 +405,9 @@ export default {
 
   #bottomPanel {
     display: grid;
-    grid-template-columns: 180px 1fr 1.5fr;
+    grid-template-columns: 0.75fr 1fr 1.25fr;
     grid-row: 3;
+    grid-gap: 1rem;
     padding: 1rem;
     left: 0px;
     bottom: 0px;

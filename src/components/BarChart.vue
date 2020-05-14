@@ -1,7 +1,7 @@
 <template>
   <div id="barChart" :class="$mq">
-    <svg :width="width" :height="height">
-      <text class="header label" dy="1em">{{ $t('barChart.label') }}</text>
+    <h3 class="label">{{ $t('barChart.label') }}</h3>
+    <svg ref="svg" :width="width" :height="height">
       <g class="label axis" ref="yAxis" :transform="`translate(${margin.left}, 0)`" />
       <g v-for="d in bars" v-if="d.height" :key="d.id" :transform="`translate(${d.x}, ${d.y})`">
         <rect :width="barWidth" :height="d.height" :fill="d.color" opacity="0.75" />
@@ -17,12 +17,11 @@ import * as d3 from 'd3'
 import _ from 'lodash'
 
 const healthStatus = [2, 3, 4, 5]
-const margin = { top: 30, right: 10, bottom: 20, left: 15 }
+const margin = { top: 30, right: 0, bottom: 20, left: 20 }
 export default {
   name: 'BarChart',
   props: [
     'isPhone',
-    'width',
     'height',
     'ageGroups',
     'colorsByHealth',
@@ -32,7 +31,7 @@ export default {
   ],
   data() {
     return {
-      svgWidth: this.width - (this.isPhone ? 15 : 0),
+      width: null,
       margin,
       bars: [],
       barWidth: 0,
@@ -45,15 +44,10 @@ export default {
       .order(d3.stackOrderNone)
       .offset(d3.stackOffsetNone)
 
-    this.xScale = d3
-      .scaleBand()
+    this.xScale = d3.scaleBand()
       .domain(_.values(this.ageGroups))
-      .range([margin.left, this.svgWidth - margin.right])
-      .padding(this.width > 300 ? 0.6 : 0.45)
-    this.yScale = d3
-      .scaleLinear()
+    this.yScale = d3.scaleLinear()
       .range([this.height - margin.bottom, margin.top])
-    this.barWidth = this.xScale.bandwidth()
 
     this.xAxis = d3
       .axisBottom()
@@ -64,10 +58,10 @@ export default {
       .scale(this.yScale)
       .ticks(this.isPhone ? 2 : 4)
       .tickSizeOuter(0)
-      .tickSizeInner(-this.svgWidth + margin.left + margin.right)
       .tickFormat(d => (d >= 1000 ? `${_.round(d / 1000, 1)}k` : d))
   },
   mounted() {
+    this.calculateDimensions()
     this.startBarChart()
     this.updateBarChart()
     this.animateBarChart()
@@ -98,11 +92,24 @@ export default {
       this.startBarChart()
     },
     infected() {
+      this.calculateDimensions()
       this.updateBarChart()
       this.animateBarChart()
     },
   },
   methods: {
+    calculateDimensions() {
+      const {width} = this.$refs.svg.getBoundingClientRect()
+      if (!width) return
+
+      Object.assign(this.$data, {width})
+
+      this.xScale.range([margin.left, this.width - margin.right])
+        .padding(this.width > 300 ? 0.55 : 0.45)
+      this.barWidth = this.xScale.bandwidth()
+
+      this.yAxis.tickSizeInner(-this.width + margin.left + margin.right)
+    },
     startBarChart() {
       if (!this.people) return
       // create bars so that can animate later
@@ -132,20 +139,20 @@ export default {
       const healthByAge = _.chain(this.people)
         .groupBy('ageGroup')
         .map((people, age) => {
-          return Object.assign(
-            _.reduce(
-              healthStatus,
-              (obj, health) => {
-                obj[health] = _.sumBy(
-                  people,
-                  ({ index }) => this.infected[index].health === health
-                )
-                return obj
-              },
-              {}
-            ),
-            { ageGroup: this.ageGroups[age] }
+          const healths = Object.assign(
+            { ageGroup: this.ageGroups[age]},
+            _.reduce(healthStatus, (obj, health) => {
+              obj[health] = 0
+              return obj
+            }, {})
           )
+          _.each(people, ({index}) => {
+            const health = this.infected[index].health
+            if (_.includes(healthStatus, health)) {
+              healths[health] += 1
+            }
+          })
+          return healths
         })
         .value()
 
@@ -226,10 +233,12 @@ export default {
 
 <style lang="scss" scoped>
 #barChart {
+  width: 100%;
   display: inline-block;
 }
 
 svg {
+  width: 100%;
   overflow: visible;
 }
 
