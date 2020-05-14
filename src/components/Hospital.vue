@@ -91,10 +91,8 @@ export default {
     hospital() {
       this.$nextTick(this.setupBeds)
     },
-    totalBeds() {
-      this.setupBeds()
-    },
     infected() {
+      this.setupBeds()
       this.updateBeds()
     },
   },
@@ -135,7 +133,7 @@ export default {
           return {
             color: this.colorsByHealth[4],
             x: Math.floor(i % this.maxBeds) * (this.scale * this.bedWidth),
-            y: 0, r: 0,
+            y: 0, r: this.beds[i] ? this.beds[i].r : 0,
           }
         })
         this.height = this.scale * this.bedHeight
@@ -157,7 +155,7 @@ export default {
             color: this.colorsByHealth[isOther ? 0 : 4],
             x: Math.floor(i % perRow) * (scaledBedWidth + columnPadding),
             y: this.height - scaledBedHeight - Math.floor(i / perRow) * (scaledBedHeight + rowPadding), // have it start from bottom
-            r: isOther ? this.filledWidth : 0,
+            r: isOther ? this.filledWidth : (this.beds[i] ? this.beds[i].r : 0),
           }
         })
         this.availableBeds = _.filter(this.beds, d => !d.isOther)

@@ -57,6 +57,7 @@ export default {
   created() {
     this.$store.commit('setCountry')
     this.$store.dispatch('getRawData')
+    this.$store.dispatch('getAllTeams')
     this.$store.dispatch('getPastGames')
   },
 }
@@ -99,5 +100,9 @@ a {
 }
 a:hover {
   border-bottom: 1px dashed;
+}
+
+.underline {
+  border-bottom: 1px solid;
 }
 </style>

@@ -41,6 +41,18 @@
       </div>
     </div>
     <!-- ON DESKTOP -->
+    <div class="item" v-if="!isPhone">
+      <img src="../assets/small-gathering.svg" height="22" />
+      <div class="item-content">
+        <h3 class="label">
+          {{ $t('happiness') }}
+        </h3>
+        <ProgressBar
+          v-bind="happinessStatus"
+          :className="happinessStatus.value < 2 && 'red'"
+        />
+      </div>
+    </div>
     <div id="date" v-if="!isPhone">
       <h3 class="label">{{ $tc('week', 1, { count: '' }) }}</h3>
       <h4>{{ week }}</h4>
@@ -111,6 +123,9 @@ export default {
     exerciseStatus() {
       return this.$store.state.exerciseStatus
     },
+    happinessStatus() {
+      return this.$store.state.happinessStatus
+    },
     infected() {
       return this.$store.getters.infected || []
     },
@@ -135,7 +150,7 @@ h4 {
 // DESKTOP
 #header.lg, #header.md {
   display: grid;
-  grid-template-columns: 1fr 1fr 80px 80px 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 80px 80px 1fr 1fr;
 }
 #date {
   display: flex;

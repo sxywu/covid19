@@ -1,49 +1,98 @@
 import {App} from './app'
 import 'firebase/firestore'
-import isEmpty from 'lodash/isEmpty'
+import _ from 'lodash'
 let noop = () => {}
 let apiService = {
   getAllGames: noop,
   getFilteredGames: noop,
   getGameById: noop,
   setGameById: noop,
+  setGameByTeamName: noop,
+  getFilteredGamesWithDefault: noop,
+  getTeamNames: noop,
 }
 const FIRESTORE_COLLECTION = 'games-v2'
-if (!isEmpty(App)) {
+if (!_.isEmpty(App)) {
   let fireStore = App.firestore()
+  let getAllGames = () => {
+    fireStore.collection(FIRESTORE_COLLECTION)
+  }
+  let getFilteredGames = ({filters = {}, limit = 10000, cb = noop}) => {
+    let query = fireStore
+      .collection(FIRESTORE_COLLECTION)
+      .limit(limit)
+      .where('numDecisions', '==', 5)
+    if (filters.zipCode) {
+      query = query.where('zipCode', '==', filters.zipCode)
+    }
+
+    if (filters.teamName) {
+      query = query.where('teamName', '==', filters.teamName)
+    }
+
+    if (filters.locale && filters.locale !== 'en') {
+      query = query.where('locale', '==', filters.locale)
+    }
+
+    query
+      .get()
+      .then(collectionSnapshot => {
+        cb(collectionSnapshot.docs.map(docSnapShot => docSnapShot.data()))
+      })
+      .catch(console.warn)
+  }
+  let getGameById = id => {
+    return fireStore
+      .collection(FIRESTORE_COLLECTION)
+      .doc(id)
+      .get()
+  }
+  let setGameById = (id, state) => {
+    return fireStore
+      .collection(FIRESTORE_COLLECTION)
+      .doc(id)
+      .set(state)
+  }
+  let getTeamNames = ({cb}) => {
+    return fireStore
+      .collection(FIRESTORE_COLLECTION)
+      .orderBy('teamName', 'desc')
+      .orderBy('createdAt', 'desc')
+      .where('teamName', '>', '')
+      .where('numDecisions', '==', 5)
+      .get()
+      .then(collectionSnapshot => {
+        let teamCollection = collectionSnapshot.docs.map(docSnapShot => docSnapShot.data())
+        cb(_.uniqBy(teamCollection, 'teamName'))
+      })
+  }
+  let getFilteredGamesWithDefault = ({
+    filters = {},
+    limit = 10000,
+    cb = noop,
+  }) => {
+    getFilteredGames({
+      filters,
+      limit,
+      cb: teamCollection => {
+        if (teamCollection.length === 0) {
+          getFilteredGames({
+            limit: 100,
+            cb,
+          })
+        } else {
+          cb(teamCollection)
+        }
+      },
+    })
+  }
   apiService = {
-    getAllGames: () => {
-      fireStore.collection(FIRESTORE_COLLECTION)
-    },
-    getFilteredGames: ({filters = {}, limit = 100, cb = noop}) => {
-      let query = fireStore
-        .collection(FIRESTORE_COLLECTION)
-        .limit(limit)
-        .where('numDecisions', '==', 8)
-
-      if (filters.zipCode !== 'Any') {
-        query = query.where('zipCode', '==', filters.zipCode)
-      }
-
-      query
-        .get()
-        .then(collectionSnapshot => {
-          cb(collectionSnapshot.docs.map(docSnapShot => docSnapShot.data()))
-        })
-        .catch(console.warn)
-    },
-    getGameById: id => {
-      return fireStore
-        .collection(FIRESTORE_COLLECTION)
-        .doc(id)
-        .get()
-    },
-    setGameById: (id, state) => {
-      return fireStore
-        .collection(FIRESTORE_COLLECTION)
-        .doc(id)
-        .set(state)
-    },
+    getAllGames,
+    getFilteredGames,
+    getGameById,
+    setGameById,
+    getFilteredGamesWithDefault,
+    getTeamNames,
   }
 } else {
   console.warn('Firebase app not set up. This session will not be saved.')

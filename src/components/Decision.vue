@@ -28,10 +28,11 @@ export default {
   name: 'Decision',
   data() {
     return {
-      value: 0,
+      value: this.default,
     }
   },
   props: {
+    default: { default: 0 },
     label: { default: 'Buy groceries' },
     byline: { default: 'Go to a supermarket' },
     icon: { default: GroceriesIcon },

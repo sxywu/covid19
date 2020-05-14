@@ -1,7 +1,7 @@
 <template>
   <div id="lineChart" :class="$mq">
-    <svg :width="svgWidth" :height="height">
-      <text class="header label" dy="1em">{{ $t('lineChart.label') }}</text>
+    <h3 class="label" style="grid-column: 1 / 3">{{ $t('lineChart.label') }}</h3>
+    <svg class="chart" ref="svg" :width="width" :height="height">
       <!-- WEEK -->
       <rect v-if="week > 1" :x="rect.x" :y="rect.y" :width="rect.width" :height="rect.height" />
       <!-- Y-AXIS -->
@@ -43,7 +43,11 @@
       <!-- NOT ON PHONE -->
       <li v-if="!isPhone && week > 1">
         <span class="week"></span>
-        <span class="label"> {{ $t('lineChart.legend.currentWeek') }}</span>
+        <span class="label"> {{
+          day > totalDays ?
+          $t('lineChart.legend.reopened') :
+          $t('lineChart.legend.currentWeek')
+        }}</span>
       </li>
     </ul>
   </div>
@@ -60,7 +64,6 @@ export default {
   name: 'LineChart',
   props: [
     'isPhone',
-    'width',
     'height',
     'ageGroups',
     'colorsByHealth',
@@ -71,7 +74,7 @@ export default {
   data() {
     const legendWidth = 140
     return {
-      svgWidth: this.width - legendWidth - 12, // 12 is for padding in CSS
+      width: null, // 12 is for padding in CSS
       legendWidth,
       legendSVGWidth: 20,
       // margin: this.isPhone ? {top: 30, right: 10, bottom: 20, left: 20} :
@@ -85,6 +88,9 @@ export default {
   computed: {
     day() {
       return this.$store.state.day
+    },
+    totalDays() {
+      return this.$store.state.totalDays
     },
     week() {
       return this.$store.getters.week
@@ -129,7 +135,6 @@ export default {
   },
   created() {
     this.xScale = d3.scaleLinear()
-      .range([this.margin.left, this.svgWidth - this.margin.right])
 
     this.yScale = d3.scaleLinear()
       .range([this.height - this.margin.bottom, this.margin.top])
@@ -147,10 +152,10 @@ export default {
       .scale(this.yScale)
       .ticks(this.isPhone ? 2 : 4)
       .tickFormat(d => (d >= 1000 ? `${_.round(d / 1000, 1)}k` : d))
-      .tickSizeInner(-this.svgWidth + this.margin.left + this.margin.right)
       .tickSizeOuter(0)
   },
   mounted() {
+    this.calculateDimensions()
     this.startLineChart()
     this.calculateLineChart()
     this.animateLineChart()
@@ -162,11 +167,21 @@ export default {
       }
     },
     dailyHealthStatus() {
+      this.calculateDimensions()
       this.calculateLineChart()
       this.animateLineChart()
     },
   },
   methods: {
+    calculateDimensions() {
+      const {width} = this.$refs.svg.getBoundingClientRect()
+      if (!width) return
+      Object.assign(this.$data, {width})
+
+      this.xScale.range([this.margin.left, this.width - this.margin.right])
+
+      this.yAxis.tickSizeInner(-this.width + this.margin.left + this.margin.right)
+    },
     startLineChart() {
       this.paths = _.chain(types)
         .map(type => {
@@ -183,7 +198,7 @@ export default {
           })
         }).flatten().value()
       this.rect = {
-        x: this.svgWidth - this.margin.right,
+        x: this.width - this.margin.right,
         y: this.margin.top,
         width: 0,
         height: this.height - this.margin.top - this.margin.bottom,
@@ -199,11 +214,18 @@ export default {
       if (this.day % 7 === 1 || !this.tl) {
         // if first day of week or isn't part of week animation
         // update rect and x axis right away
+        let x
+        let width
         const firstDay = (this.week - 1) * 7
-        Object.assign(this.rect, {
-          x: this.xScale(firstDay),
-          width: this.xScale(firstDay + 7) - this.xScale(firstDay),
-        })
+        if (this.day > this.totalDays) {
+          // than it's "back to normal"
+          x = this.xScale(this.totalDays)
+          width = this.xScale(firstDay + 7) - this.xScale(this.totalDays)
+        } else {
+          x = this.xScale(firstDay)
+          width = this.xScale(firstDay + 7) - this.xScale(firstDay)
+        }
+        Object.assign(this.rect, {x, width})
         d3.select(this.$refs.xAxis).call(this.xAxis)
 
         // and then recalculate all path points with new scale
@@ -286,18 +308,18 @@ export default {
 
 <style lang="scss" scoped>
 #lineChart {
+  width: 100%;
   display: inline-block;
   border-left: $gray;
   display: grid;
-  grid-template-columns: repeat(2, min-content);
+  grid-template-columns: auto 140px;
+  grid-template-rows: repeat(2, auto);
+  align-items: center;
 }
 
-svg {
+svg.chart {
+  width: 100%;
   overflow: visible;
-
-  .header {
-    font-weight: 700;
-  }
 
   rect {
     fill: $gray;
@@ -316,18 +338,20 @@ svg {
   }
 }
 
-ul,
-li {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  padding: 0.35rem 0;
-  align-items: center;
-}
-
 .legend {
+  margin: 0;
+  padding: 0;
   text-align: left;
+
+  ul,
+  li {
+    list-style-type: none;
+    padding: 0;
+  }
+  li {
+    padding: 0.35rem 0;
+    align-items: center;
+  }
 
   svg {
     vertical-align: middle;

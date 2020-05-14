@@ -16,14 +16,65 @@
         <p>{{ $t('landing.explanation2') }}</p>
         <h2>{{ $t('landing.explanation3') }}</h2>
         <p>{{ $t('landing.explanation4') }}</p>
+        <!-- TEAM INPUT -->
+        <form>
+          <div class="inputs">
+            <div>
+              <div class="joinTeam">
+                <input
+                  type="checkbox"
+                  name="joinTeam"
+                  :disabled="!!newTeamName"
+                  checked
+                />
+                <label v-html="teamName ?
+                    $t('landing.joinTeamName', {name: teamName}) :
+                    $t('landing.joinRandomTeam')" />
+              </div>
+            </div>
+            <span>{{ $t('or') }}</span>
+            <div class="teamName">
+              <input
+                type="text"
+                :class="{ 'error': errors['teamName'] }"
+                v-model="newTeamName"
+                :placeholder="$t('landing.teamPlaceholder')"
+              />
+            </div>
+            <!-- JOIN TEAM SUBTEXT -->
+            <div v-if="!isPhone && !newTeamName" style="grid-column: 1/1">
+              <sup v-if="teamName">
+                {{ $tc(
+                    'landing.joinTeamSubtext',
+                    pastPlayers.length === totalPlayers ? 1 : pastPlayers.length,
+                    {count: pastPlayers.length, total: totalPlayers}
+                  ) }}
+              </sup>
+              <sup v-else>
+                {{ $t('landing.joinRandomSubtext', {count: pastPlayers.length}) }}
+              </sup>
+            </div>
+            <!-- TEAM NAME SUBTEXT -->
+            <div :style="{'grid-column': isPhone ? '' : '3/3'}">
+              <sup v-if="!errors['teamName']">
+                {{ $t('landing.errors.invalidName') }}
+              </sup>
+              <sup v-if="errors['teamName']" class="teamNameError">
+                {{ errors['teamName'] }}
+              </sup>
+            </div>
+          </div>
+        </form>
         <Beeswarm
           v-bind="{
             type: 'all',
             width: isPhone ? 300 : 700,
+            newTeam: true,
           }"
         />
-        <p>{{ $t('landing.explanation5') }}</p>
+        <p style="text-align: center" v-html="$t('landing.explanation5')" />
         <hr />
+        <!-- ZIP CODE OR COMMUNITY SIZE -->
         <h2 class="instructions" v-html="$t('landing.instruction1')"></h2>
         <div v-if="country === 'us'" v-html="$t('landing.zipCodeDisclaimer')"></div>
         <form @submit="startPlay">
@@ -31,11 +82,10 @@
             <div class="zipCode">
               <input
                 type="number"
-                :class="{ 'zip-error': errors['zipCode'] }"
+                :class="{ 'error': errors['zipCode'] }"
                 id="zip"
                 v-model="zipCode"
                 :placeholder="$t('landing.zipCodePlaceholder')"
-                pattern="/(^\d{5}$)|(^\d{5}-\d{4}$)/"
               />
             </div>
             <span>{{ $t('or') }}</span>
@@ -57,16 +107,27 @@
                 </div>
               </div>
             </fieldset>
+            <!-- ERROR -->
+            <sup v-if="errors['zipCode']" class="zipCodeError">
+              {{ errors['zipCode'] }}
+            </sup>
           </div>
           <p
             style="text-align: center; max-width: 380px;"
             v-html="$t('landing.instruction2')"
           ></p>
-          <button type="submit" class="playNowBtn">
+          <button type="submit" class="playNowBtn" :disabled="!enableSubmit">
             {{ $t('landing.buttonCta') }}
           </button>
-          <div v-if="errors['zipCode']" class="zipCodeError">
-            {{ errors['zipCode'] }}
+          <!-- ERROR MESSAGES -->
+          <div style="max-width: 320px">
+            <sup v-if="errors['teamName']" class="teamNameError">
+              {{ errors['teamName'] }}
+            </sup>
+            <br />
+            <sup v-if="errors['zipCode']" class="zipCodeError">
+              {{ errors['zipCode'] }}
+            </sup>
           </div>
         </form>
       </div>
@@ -83,6 +144,8 @@
 import _ from 'lodash'
 import Beeswarm from './Beeswarm'
 
+const validZip = /(^\d{5}$)|(^\d{5}-\d{4}$)/
+const validName = /^[a-z\d\-_]+$/i
 export default {
   name: 'LandingPage',
   components: { Beeswarm },
@@ -90,6 +153,7 @@ export default {
   data() {
     return {
       errors: {},
+      newTeamName: '',
       zipCode: '',
       communitySize: '',
       communitySizes: [
@@ -115,6 +179,24 @@ export default {
     country() {
       return this.$store.state.country
     },
+    totalPlayers() {
+      return this.$store.getters.totalPlayers
+    },
+    pastPlayers() {
+      return this.$store.getters.pastPlayerIDs
+    },
+    teamName() {
+      return this.$store.state.teamName
+    },
+    teamNames() {
+      return _.map(this.$store.state.allTeams, d => d.teamName.toLowerCase())
+    },
+    enableSubmit() {
+      if (!this.zipCode && !this.communitySize) return false
+      if (this.zipCode && this.errors.zipCode) return false
+      if (this.newTeamName && this.errors.teamName) return false
+      return true
+    },
   },
   mounted() {
     this.updateZipAndCommunity()
@@ -126,12 +208,58 @@ export default {
     existingCommunitySize() {
       this.updateZipAndCommunity()
     },
+    zipCode() {
+      this.validateZip()
+    },
+    newTeamName() {
+      this.validateName()
+      this.updateName()
+    },
   },
   methods: {
     updateZipAndCommunity() {
       this.communitySize = this.existingCommunitySize
       if (!this.communitySize) {
         this.zipCode = this.existingZipCode
+      }
+    },
+    validateZip() {
+      // check zip codes
+      this.createFormError({
+        condition: this.zipCode && !validZip.test(this.zipCode),
+        fieldName: 'zipCode',
+        errorMessage: this.$t('landing.errors.invalidZip'),
+      })
+      if (_.isEmpty(this.errors.zipCode)) {
+        this.createFormError({
+          condition: this.zipCode && !_.includes(this.zips, this.zipCode),
+          fieldName: 'zipCode',
+          errorMessage: this.$t('landing.errors.zipNotFound'),
+        })
+      }
+    },
+    validateName() {
+      this.createFormError({
+        condition: this.newTeamName &&
+          (this.newTeamName.length < 5 || this.newTeamName.length > 32 ||
+            !validName.test(this.newTeamName)),
+        fieldName: 'teamName',
+        errorMessage: this.$t('landing.errors.invalidName'),
+      })
+
+      // and if it is valid, check if the name already exists
+      if (_.isEmpty(this.errors.teamName)) {
+        this.createFormError({
+          condition: this.newTeamName && _.includes(this.teamNames, this.newTeamName.toLowerCase()),
+          fieldName: 'teamName',
+          errorMessage: this.$t('landing.errors.teamExists'),
+        })
+      }
+    },
+    updateName() {
+      if (!this.newTeamName || !this.errors.teamName) {
+        this.$store.commit('setNewTeamName', this.newTeamName)
+        this.$store.dispatch('updateURL')
       }
     },
     startPlay(e) {
@@ -141,40 +269,17 @@ export default {
         ).zip
         this.$store.commit('setCommunitySize', this.communitySize)
       }
-      if (this.checkFormValid(e)) {
-        this.$store.commit('setGameIdAndCreatedAt')
-        this.$store.commit('setZipCode', this.zipCode)
-        this.$store.commit('setCurrentPage', 'game')
+      if (this.newTeamName) {
+        this.$store.commit('setTeamName', this.newTeamName)
       }
+      this.$store.commit('setGameIdAndCreatedAt')
+      this.$store.commit('setZipCode', this.zipCode)
+      this.$store.commit('setCurrentPage', 'game')
     },
     createFormError({ condition, event, fieldName, errorMessage }) {
-      if (condition) {
-        this.errors[fieldName] = errorMessage
-        event.preventDefault()
-        return true
-      }
-    },
-    checkFormValid(e) {
-      this.errors = {}
-      let validZip = /(^\d{5}$)|(^\d{5}-\d{4}$)/
-      this.createFormError({
-        event: e,
-        condition: !validZip.test(this.zipCode),
-        fieldName: 'zipCode',
-        errorMessage: this.$t('landing.errors.invalidZip'),
-      })
-
-      if (_.isEmpty(this.errors.zipCode)) {
-        this.createFormError({
-          event: e,
-          condition: !_.includes(this.zips, this.zipCode),
-          fieldName: 'zipCode',
-          errorMessage: this.$t('landing.errors.zipNotFound'),
-        })
-      }
-
-      e.preventDefault()
-      return _.isEmpty(this.errors)
+      this.errors[fieldName] = condition ? errorMessage : null
+      // event.preventDefault()
+      return true
     },
   },
 }
@@ -212,6 +317,8 @@ form {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  text-align: center;
+
   span {
     display: flex;
     align-items: center;
@@ -221,15 +328,15 @@ form {
     padding: 1.5rem 0;
     width: 100%;
     display: grid;
-    grid-template-columns: 1fr 0.15fr 1fr;
-    grid-gap: 1rem;
-    align-items: center;
+    grid-template-columns: 1fr 0.2fr 1fr;
+    grid-template-rows: repeat(2, min-content);
+    grid-gap: 0.5rem;
     @include respond-to('small') {
       grid-template-columns: 1fr;
       grid-template-rows: 1fr 0.5fr 1fr;
     }
   }
-  .zipCode {
+  .zipCode, .teamName {
     input::-webkit-outer-spin-button,
     input::-webkit-inner-spin-button {
       -webkit-appearance: none;
@@ -246,7 +353,6 @@ form {
       margin: 0;
       margin-bottom: 0.5rem;
       font-weight: bold;
-      text-align: center;
     }
     input {
       width: 100%;
@@ -258,7 +364,7 @@ form {
         background-color: $gray;
       }
     }
-    .zip-error {
+    .error {
       border: 1px solid $red;
     }
   }
@@ -277,16 +383,16 @@ form {
     font-weight: bold;
     margin-bottom: 0.5rem;
   }
-  .communitySize {
+  .communitySize, .joinTeam {
     width: 100%;
     display: grid;
     font-size: 1rem;
-    grid-template-columns: 1fr 1fr 1fr;
-    align-items: center;
-    text-align: center;
     border-radius: 5px;
     border: 1px solid rgba(0, 0, 0, 0.3);
     overflow: hidden;
+  }
+  .communitySize {
+    grid-template-columns: 1fr 1fr 1fr;
   }
   label {
     width: 100%;
@@ -300,24 +406,29 @@ form {
       border-right: 1px solid rgba(0, 0, 0, 0.3);
     }
   }
-  input[type='radio'] {
+  input[type='radio'],
+  input[type='checkbox'] {
     opacity: 0;
     position: absolute;
   }
-  input[type='radio'] + label {
+  input[type='radio'] + label,
+  input[type='checkbox'] + label {
     position: relative;
     display: inline-block;
     cursor: pointer;
   }
-  input[type='radio']:focus + label {
+  input[type='radio']:focus + label,
+  input[type='checkbox']:focus + label {
     outline: 1px dotted $aqua;
     outline: 5px auto -webkit-focus-ring-color;
   }
-  input[type='radio']:checked + label {
+  input[type='radio']:checked + label,
+  input[type='checkbox']:checked + label {
     background: $text;
     color: white;
   }
-  input[type='radio']:disabled + label {
+  input[type='radio']:disabled + label,
+  input[type='checkbox']:disabled + label {
     background: $gray;
     color: rgba(0, 0, 0, 0.3);
     cursor: not-allowed;
@@ -390,28 +501,10 @@ header {
     padding: 1rem 2rem 2rem 2rem;
   }
 }
-.zipInput {
-  display: flex;
-  flex-direction: column;
-  strong {
-    margin-bottom: 5px;
-  }
-  input {
-    padding: 15px;
-    border: 1px solid lightgray;
-    border-radius: 5px;
-  }
-}
 .zipCodeError,
+.teamNameError,
 .mobileError {
-  padding-top: 0.5rem;
   color: $red;
-}
-.zipCodeError {
-  text-align: justify;
-}
-.mobileError {
-  text-align: center;
 }
 .playNowBtn {
   background-color: $red;
@@ -459,7 +552,7 @@ header {
 
 #disclaimer {
   width: 100%;
-  max-width: 600px;
+  max-width: 500px;
   text-align: center;
   line-height: 1.5;
   margin: 40px auto;

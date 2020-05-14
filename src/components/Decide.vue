@@ -1,12 +1,12 @@
 <template>
-  <div id="decideArea">
+  <div id="decideArea" :class="$mq">
     <!-- IF THIS IS EIGHT WEEK -->
     <div v-if="day === totalDays">
-      <h1 class="header">{{ $t('decide.h1.8weeks') }}</h1>
+      <h1 class="header">{{ $t('decide.h1.5weeks') }}</h1>
       <div class="content">
         <div v-html="$t('decide.businessAsUsual')"></div>
         <button class="decideBtn" @click="continueGame(true)">
-          {{ $t('decide.start4weeks') }}
+          {{ $t('decide.start5weeks') }}
         </button>
         <div>
           <a @click="continueGame(false)">
@@ -85,6 +85,7 @@ import _ from 'lodash'
 import Decision from './Decision'
 import Beeswarm from './Beeswarm'
 
+const defaultActivityLevel = [0, 0, 0, 0]
 const activityKeys = ['groceries', 'exercise', 'small', 'large']
 const images = {
   groceries: 'groceries.svg',
@@ -103,13 +104,14 @@ export default {
     return {
       activities: _.map(activityKeys, (key, index) => {
         return {
+          default: defaultActivityLevel[index],
           label: this.$t(`decide.activities.${key}.label`),
           byline: this.$t(`decide.activities.${key}.byline`),
           icon: require(`../assets/${images[key]}`),
           index,
         }
       }),
-      decisions: [0, 0, 0, 0, 0],
+      decisions: _.clone(defaultActivityLevel),
       decided: false,
     }
   },
@@ -123,17 +125,11 @@ export default {
     week() {
       return this.$store.getters.week
     },
-    foodStatus() {
-      return this.$store.state.foodStatus
-    },
-    exerciseStatus() {
-      return this.$store.state.exerciseStatus
-    },
     dailyHealthStatus() {
       return this.$store.getters.dailyHealthStatus
     },
     prevWeekDecisions() {
-      return _.map(this.$store.state.allDecisions, d => d[this.week - 1])
+      return _.map(this.$store.getters.allDecisions, d => d[this.week - 1])
     },
     playerPrevWeek() {
       const max = _.maxBy(_.dropRight(this.prevWeekDecisions[0]))
@@ -179,11 +175,6 @@ export default {
 
 <style lang="scss" scoped>
 #decideArea {
-  @include respond-to('small') {
-    z-index: 20;
-    top: 0;
-    align-items: flex-start;
-  }
   position: absolute;
   width: 100%;
   height: 100%;
@@ -193,6 +184,8 @@ export default {
   border: 1px solid $gray;
   background: rgba(255, 255, 255, 0.95);
   text-align: center;
+  overflow-x: hidden;
+  overflow-y: scroll;
 }
 
 .header {
@@ -240,13 +233,6 @@ export default {
   height: 100%;
 }
 
-.startNextWeekBtn {
-  @include respond-to('small') {
-    position: fixed;
-    bottom: 1rem;
-  }
-}
-
 .decideBtn {
   background-color: $red;
   color: #fff;
@@ -257,6 +243,15 @@ export default {
   box-shadow: 0 5px #d23658;
   &:hover {
     filter: brightness(0.9) contrast(1.2) saturate(0.9);
+  }
+}
+
+
+.startNextWeekBtn {
+  margin: 0 auto 1rem;
+  @include respond-to('small') {
+    position: fixed;
+    bottom: 1rem;
   }
 }
 
@@ -276,5 +271,16 @@ h1,
     padding: 3rem 0;
   }
   padding: 1rem 0;
+}
+
+#decideArea.sm {
+  position: fixed;
+  z-index: 20;
+  top: 0;
+  align-items: flex-start;
+}
+
+#decideArea.md {
+  align-items: start;
 }
 </style>

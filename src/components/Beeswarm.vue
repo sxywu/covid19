@@ -1,6 +1,10 @@
 <template>
   <div id="beeswarm">
-    <h3 class="label" v-html="$tc('beeswarm.h3', this.type === 'all' ? 8 : 1)" />
+    <h3 class="label" v-if="this.type === 'all'" v-html="
+      name ?
+      $tc('beeswarm.hasName', this.type === 'all' ? 5 : 1, {name}) :
+      $tc('beeswarm.noName', this.type === 'all' ? 5 : 1)
+    " />
     <div class="container">
       <svg :width="width" :height="height">
         <!-- AXIS -->
@@ -34,8 +38,8 @@
       </div>
     </div>
     <!-- LEGEND -->
-    <div class="legends label">
-      <div class="legend" v-for="d in legend">
+    <div class="legends">
+      <div class="legend label" v-for="d in legend">
         <svg :width="0.75 * imageWidth" :height="0.75 * imageHeight">
           <image :width="0.75 * imageWidth" :height="0.75 * imageHeight"
             :href="d.image" :opacity="d.opacity" />
@@ -44,6 +48,9 @@
         </svg>
         <span>{{ d.label }}</span>
       </div>
+      <p>
+        <sup>*{{ $t('landing.NPCDisclaimer') }}</sup>
+      </p>
     </div>
   </div>
 </template>
@@ -86,7 +93,7 @@ export default {
           hasStar: false, opacity: 0.85,
         },
         {
-          label: this.$t('beeswarm.legend.npc'), image: images[_.random(1)],
+          label: this.$t('beeswarm.legend.npc') + '*', image: images[_.random(1)],
           hasStar: false, opacity: 0.35,
         },
       ],
@@ -113,14 +120,20 @@ export default {
     }
   },
   computed: {
+    name() {
+      return this.$store.state.newTeamName || this.$store.state.teamName
+    },
+    totalWeeks() {
+      return this.$store.state.totalWeeks
+    },
     week() {
       return this.$store.getters.week
     },
     allDecisions() {
-      return this.$store.state.allDecisions
+      return this.$store.getters.allDecisions
     },
     pastPlayers() {
-      return this.$store.state.pastPlayerIDs
+      return this.$store.getters.pastPlayerIDs
     },
   },
   created() {
@@ -148,7 +161,7 @@ export default {
   },
   methods: {
     calculatePeople() {
-      if (!this.allDecisions.length) return
+      if (!this.allDecisions || !this.pastPlayers) return
 
       this.people = _.chain(this.activities)
         .map(({y}, activity) => {
@@ -156,7 +169,7 @@ export default {
             let decision
             if (this.type === 'all') {
               // if showing all weeks and first person doesn't have all 8 weeks
-              if (weeklyDecisions.length !== 8) return
+              if (weeklyDecisions.length < this.totalWeeks) return
               decision = _.chain(weeklyDecisions)
                 .map(d => d[activity])
                 .mean().round(1).value()
@@ -174,7 +187,7 @@ export default {
         }).flatten().filter()
         .sortBy(d => (d.hasStar ? 1 : 0) + d.opacity).value()
 
-      this.simulation.nodes(this.people)
+      this.simulation.nodes(this.people).alpha(1)
       _.times(250, i => this.simulation.tick())
     },
     renderAxis() {
@@ -192,6 +205,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+
 h3 {
   margin-bottom: 15px;
 }
@@ -200,14 +214,20 @@ h3 {
   position: relative;
 }
 
-.legend {
-  display: inline-block;
-  margin: 10px 10px 0 10px;
+.legends {
+  text-align: center;
+  max-width: 600px;
+  margin: auto;
 
-  span {
+  .legend {
     display: inline-block;
-    margin-left: 5px;
-    vertical-align: bottom;
+    margin: 10px 10px 0 10px;
+
+    span {
+      display: inline-block;
+      margin-left: 5px;
+      vertical-align: bottom;
+    }
   }
 }
 

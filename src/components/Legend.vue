@@ -24,6 +24,7 @@ export default {
 <style lang="scss" scoped>
 #legend {
   ul {
+    white-space: nowrap;
   }
   ul,
   li {
@@ -54,7 +55,6 @@ export default {
     display: grid;
     grid-column-gap: 0.5rem;
     grid-template-columns: repeat(3, min-content);
-    white-space: nowrap;
     justify-content: flex-start;
     margin: 0.25rem 0;
     padding: 0 8px;

@@ -68,7 +68,6 @@
         <Legend v-bind="{healthStatus, colorsByHealth}" />
         <BarChart
           v-bind="{
-            width: 300,
             height: bottomHeight,
             ageGroups,
             colorsByHealth,
@@ -79,7 +78,6 @@
         />
         <LineChart
           v-bind="{
-            width: 460,
             height: bottomHeight,
             ageGroups,
             colorsByHealth,
@@ -123,7 +121,6 @@
           <LineChart
             v-bind="{
               isPhone,
-              width,
               height: 120,
               ageGroups,
               colorsByHealth,
@@ -136,7 +133,6 @@
           <BarChart
             v-bind="{
               isPhone,
-              width,
               height: 120,
               ageGroups,
               colorsByHealth,
@@ -216,7 +212,7 @@ export default {
     return {
       width: this.isPhone ? window.innerWidth : maxWidth,
       height: this.isPhone ? window.innerHeight : maxHeight,
-      topHeight: this.isPhone ? 55 : 75,
+      topHeight: this.isPhone? 55 : 75,
       rightWidth: 320,
       chartsHeight: 275,
       bottomHeight: this.isPhone ? 55 : 180,
@@ -269,8 +265,8 @@ export default {
       }
     },
     phases() {
-      if (this.week === 1) return [1, 0.75, 1.25]
-      return [0.5, 0.75, 0.75]
+      if (this.week === 1) return [1, 0.5, 1]
+      return [0.5, 0.5, 0.5]
     },
   },
   mounted() {
@@ -302,6 +298,7 @@ export default {
         this.width = Math.min(window.innerWidth - padding, maxWidth)
         this.height = Math.min((1 / widthHeightRatio) * this.width, maxHeight)
       }
+      this.rightWidth = Math.max(this.width * 0.25, 280)
     },
     updateDecision(decisions) {
       this.showDecision = false
@@ -311,6 +308,7 @@ export default {
     },
     continueGame(cont) {
       this.showDecision = false
+      this.$store.dispatch('storeGame')
       if (cont) {
         // if after 8 weeks, player decides to continue
         this.updateDay()
@@ -375,7 +373,8 @@ export default {
     position: relative;
     display: grid;
     height: 100%;
-    grid-template-rows: 1fr 7fr 2fr;
+    grid-template-columns: auto min-content;
+    grid-template-rows: min-content 1fr min-content;
   }
 
   #topPanel {
@@ -406,8 +405,9 @@ export default {
 
   #bottomPanel {
     display: grid;
-    grid-template-columns: 180px 1fr 1.5fr;
+    grid-template-columns: min-content 1fr 1.25fr;
     grid-row: 3;
+    grid-gap: 1rem;
     padding: 1rem;
     left: 0px;
     bottom: 0px;

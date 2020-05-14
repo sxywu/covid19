@@ -1,12 +1,13 @@
 {
   "title": "People of the Pandemic",
-  "subtitle": "A global pandemic has arrived in your backyard.",
+  "subtitle": "A hyperlocal cooperative simulation game.",
   "or": "or",
   "urban": "Urban",
   "suburban": "Suburban",
   "rural": "Rural",
   "food": "Food",
   "exercise": "Exercise",
+  "happiness": "Happiness",
   "week": "week",
   "day": "day",
   "available": "available",
@@ -26,19 +27,27 @@
     "deceased": "Deceased"
   },
   "landing": {
-    "explanation1": "You're in the first few days of a new viral spread. This virus can be transmitted before symptoms appear, and it has the potential to spread throughout the entire community—unless you take action now through physical distancing. The coming weeks are crucial for saving thousands of lives.",
+    "explanation1": "A global pandemic has arrived in your backyard. This virus can be transmitted before symptoms appear, and it has the potential to spread throughout the entire community—unless you take action now through physical distancing. Every week is crucial for saving thousands of lives.",
     "explanation2": "But you can’t do this alone! It’ll take the cooperation of the entire community to slow the spread of this disease. Together, you’ll have to find ways to meet your individual needs while limiting your outings as much as possible.",
-    "explanation3": "You’ll play alongside 19 other real people.",
-    "explanation4": "These 19 people have played before you, and have made the weekly decisions you are about to.  Their decisions and yours together will determine how frequently people in your community leave their homes each week, for the duration of 8 weeks.",
-    "explanation5": "Your collective decisions will determine how many lives are lost or saved.",
+    "explanation3": "You will play alongside a team of real people.",
+    "explanation4": "Your teammates have played before you, and have made the weekly decisions you are about to.  Their decisions and yours together will determine how frequently people in your community leave their homes each week, for the duration of five weeks.",
+    "explanation5": "Your collective decisions will determine how many lives are lost or saved.<br /><strong>Together, your goal is to save as many lives as possible.</strong>",
     "instruction1": "To start, enter your <strong>zip code</strong>* or choose a <strong>community size</strong>.",
     "instruction2": "We’ll pull real data to set up the game with your community’s actual population and number of available hospital beds.",
+    "joinTeamName": "Join Team <span class='underline'>{name}</span>",
+    "joinTeamSubtext": "You will play alongside {count} of your teammates. | You will play alongside {count} of your {total} teammates.",
+    "joinRandomTeam": "Join Team of Past Players",
+    "joinRandomSubtext": "You will play alongside {count} other real people.",
+    "teamPlaceholder": "Create Your Own Team",
+    "NPCDisclaimer": "for teams with less than 20 people, NPCs will fill in and go about business as usual.",
     "zipCodeDisclaimer": "<sup>*unfortunately, we currently only support US zip codes.</sup>",
     "zipCodePlaceholder": "Enter your zip code (e.g. 60617)",
     "buttonCta": "Start Playing →",
     "errors": {
       "invalidZip": "Invalid ZIP code",
-      "zipNotFound": "ZIP code not found, please try a different one"
+      "zipNotFound": "ZIP code not found, please try a different one",
+      "invalidName": "Team name: 5 to 32 characters, letters, numbers and dashes only.",
+      "teamExists": "Team name exists"
     }
   },
   "header": {
@@ -48,8 +57,8 @@
   "decide": {
     "h1": {
       "prevWeek": "In the previous week...",
-      "numTimes": "You decided not to go out this week... | You decided to go out once this week... | You decided to go out {count} times this week...",
-      "8weeks": "You've been fighting the virus for 8 weeks"
+      "numTimes": "You decided not to go out this coming week... | You decided to go out once this coming week... | You decided to go out {count} times this coming week...",
+      "5weeks": "You've been fighting the virus for five weeks"
     },
     "prevTimes": "You didn't go out at all, | You went out once for {activity}, | You went out <strong>{total}</strong> times, including {max} times for {activity},",
     "avgTimes": " and your community went out an average of <strong>{count}</strong> times.",
@@ -70,19 +79,20 @@
         "label": "Small gatherings", "byline": "Hang out with friends or family"
       },
       "large": {
-        "label": "Large gatherings", "byline": "Go to a party or attend a concert"
+        "label": "Large gatherings", "byline": "Go to school or work"
       }
     },
     "cta": "Decide",
     "rest": "and here's what the rest of your team decided to do:",
     "average": "Average: {count} times",
     "start": "Start Next Week →",
-    "businessAsUsual": "Your local government is now considering going back to business as usual.  Would you like to see what the next four weeks might look like if everyone in your community went out every day of the week again*?<p><sup>*you won't have to make any more decisions.</sup></p>",
-    "start4weeks": "Start next four weeks →",
+    "businessAsUsual": "Your community has become restless and your local government is under pressure to reopen.  Would you like to see what the next four weeks might look like if everyone in your community went back to business as usual*?<p><sup>*you won't have to make any more decisions.</sup></p>",
+    "start5weeks": "Start next four weeks →",
     "finish": "No, let's finish this"
   },
   "beeswarm": {
-    "h3": "Your team's outings by activity | Your team's outings by activity, averaged across {count} weeks",
+    "hasName": "Team <span class='underline'>{name}</span>'s outings by activity | Team <span class='underline'>{name}</span>'s outings by activity, averaged across {count} weeks",
+    "noName": "Your team's outings by activity | Your team's outings by activity, averaged across {count} weeks",
     "axis": {
       "out": "Went out",
       "times": "Times"
@@ -107,6 +117,7 @@
       "total": "{count} Infected",
       "5": "No Deaths | One Death | {count} Deaths",
       "currentWeek": "Current Week",
+      "reopened": "Reopened",
       "types": {
         "player": "Your Decisions",
         "worstAlternate": "Business As Usual"
@@ -123,16 +134,17 @@
   },
   "end": {
     "h1": "In the span of {week} weeks...",
-    "closerLook": "Here's a closer look at the numbers:",
-    "numbers": "Your community had <strong>{total}</strong> total cases, including <strong>{deaths}</strong> deaths.  However, this is {avoided} less cases than if your community had gone on with business as usual, and you were able to collectively save {saved} lives.",
-    "together": "You may have felt that your decisions had little influence over the weeks—but in fact, your community was able to achieve these numbers precisely because of your decisions, compounded by the decision of the 19 others in your team:",
-    "future": "In turn, <strong>future players will be helped by the decisions you made today</strong>.",
-    "influence": "This is reflected in the real world: when <em>everyone</em> chooses to stay home as much as possible, the most infections are avoided. Slower infection rates mean that hospitals and first responders can better help the sickest members of our community.",
-    "share": "So, take a moment to share this game with your friends, family, and neighbors and work to flatten the curve, together."
+    "numbers": "Your community suffered <strong>{deaths}</strong> deaths, but were able to save <strong>{saved}</strong> lives—{percent}% of potential deaths.",
+    "otherTeams": "Together, your team was able to save more lives than <strong>{percentBetter}%</strong> of other teams.",
+    "decisionsTogether": "This is because of the decisions you collectively made:",
+    "closerLook": "Which led to the following numbers:",
+    "together": "You may have felt that your decisions had little influence over the weeks—but in fact, your community was able to achieve these numbers precisely because of your decisions, compounded by the decision of everyone else in your team. In turn, <strong>your future teammates will be helped by the decisions you made today</strong>.",
+    "influence": "This is reflected in the real world: when everyone who <em>can</em> stay home chooses to stay home as much as possible, the most infections are avoided. Slower infection rates mean that hospitals and first responders can better help the sickest members of our community.  And though it may take many more weeks for your community to fully reopen, the longer that everyone chooses to stay home, the more lives that might be saved in the meantime.",
+    "share": "So, take a moment to invite your friends, family, and neighbors to your team, and <strong>work together to save as many lives as possible</strong>, both in-game and in the real world."
   },
   "footnotes": {
     "disclaimer": "Disclaimer",
-    "fullDisclaimer": "While we tried our best to get our numbers as close to COVID-19 numbers as possible, the COVID-19 numbers are still too new and moving too quickly.  Thus we want to emphasize that we're modeling <em>a</em> virus, not <em>the</em> virus.<br /><br />For more details, please see our <a href='https://observablehq.com/@osserman/people-of-the-pandemic-simulation-methodology' target='_new'>full methodology</a>.",
+    "fullDisclaimer": "While the disease spread in this game is modeled after COVID-19, it uses a simplified model not intended to be a precise forecast. We want to emphasize that we're modeling <em>a</em> virus, not <em>the</em> virus.<br /><br />For more details, please see our <a href='https://observablehq.com/@osserman/people-of-the-pandemic-simulation-methodology' target='_new'>full methodology</a>.",
     "methodology": "Methodology",
     "fullMethodology": "<a href='https://observablehq.com/@osserman/people-of-the-pandemic-simulation-methodology' target='_new'>Full Methodology</a>",
     "methodologyHere": "We've put a lot of thought and research into our simulation.<br />Read the full, detailed methodology <a href='https://observablehq.com/@osserman/people-of-the-pandemic-simulation-methodology' target='_new'>here</a>.",
@@ -150,7 +162,7 @@
     "buttonCta": "Play Again"
   },
   "share": {
-    "heading": "Share this game and tell others to #stayhome",
+    "heading": "Invite others to join your team.",
     "buttonCta": "Copy",
     "success": "Copied"
   }
