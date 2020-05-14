@@ -1,6 +1,6 @@
 import {App} from './app'
 import 'firebase/firestore'
-import isEmpty from 'lodash/isEmpty'
+import _ from 'lodash'
 let noop = () => {}
 let apiService = {
   getAllGames: noop,
@@ -12,7 +12,7 @@ let apiService = {
   getTeamNames: noop,
 }
 const FIRESTORE_COLLECTION = 'games-v2'
-if (!isEmpty(App)) {
+if (!_.isEmpty(App)) {
   let fireStore = App.firestore()
   let getAllGames = () => {
     fireStore.collection(FIRESTORE_COLLECTION)
@@ -56,14 +56,14 @@ if (!isEmpty(App)) {
   let getTeamNames = ({cb}) => {
     return fireStore
       .collection(FIRESTORE_COLLECTION)
+      .orderBy('teamName', 'desc')
+      .orderBy('createdAt', 'desc')
       .where('teamName', '>', '')
       .where('numDecisions', '==', 5)
       .get()
       .then(collectionSnapshot => {
-        let teamCollection = collectionSnapshot.docs.map(
-          docSnapShot => docSnapShot.data().teamName,
-        )
-        cb([...new Set(teamCollection)])
+        let teamCollection = collectionSnapshot.docs.map(docSnapShot => docSnapShot.data())
+        cb(_.uniqBy(teamCollection, 'teamName'))
       })
   }
   let getFilteredGamesWithDefault = ({
