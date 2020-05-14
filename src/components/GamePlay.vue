@@ -311,6 +311,7 @@ export default {
     },
     continueGame(cont) {
       this.showDecision = false
+      this.$store.dispatch('storeGame')
       if (cont) {
         // if after 8 weeks, player decides to continue
         this.updateDay()
