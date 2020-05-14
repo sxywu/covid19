@@ -45,7 +45,7 @@
         <span class="week"></span>
         <span class="label"> {{
           day > totalDays ?
-          $t('lineChart.legend.normal') :
+          $t('lineChart.legend.reopened') :
           $t('lineChart.legend.currentWeek')
         }}</span>
       </li>

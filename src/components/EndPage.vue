@@ -3,12 +3,17 @@
     <div class="content">
       <header>
         <h1>{{ $t('end.h1', {week}) }}</h1>
-        <p v-html="$t('end.numbers', {
-          total: formatNumber(lastHealthStatus.player.total),
-          deaths: formatNumber(lastHealthStatus.player[5] || 0),
-          saved, avoided
-        })"></p>
+        <p>
+          <span v-html="$t('end.numbers', {
+            deaths: formatNumber(lastHealthStatus.player[5] || 0),
+            saved: formatNumber(saved), percent,
+          })"></span>  <span v-if="percentBetter" v-html="$t('end.otherTeams', {
+            percentBetter,
+          })"></span>
+        </p>
       </header>
+      <p>{{ $t('end.decisionsTogether') }}</p>
+      <Beeswarm v-bind="{type: 'all', width: isPhone ? 300 : 700}" />
       <p>{{ $t('end.closerLook') }}</p>
       <div class="charts">
         <BarChart
@@ -28,14 +33,14 @@
           }"
         />
       </div>
-      <p v-html="$t('end.together')"></p>
-      <Beeswarm v-bind="{type: 'all', width: isPhone ? 300 : 700}" />
-      <p v-html="$t('end.future')"></p>
+      <hr />
 
+      <p v-html="$t('end.together')"></p>
       <p v-html="$t('end.influence')"></p>
       <p v-html="$t('end.share')"></p>
       <Share />
       <hr />
+
       <button @click="playAgain" class="playBtn">{{ $t('failed.buttonCta') }}</button>
     </div>
 
@@ -65,28 +70,45 @@ export default {
   },
   computed: {
     week() {
-      return this.$store.getters.week
+      return this.$store.state.totalWeeks
+    },
+    lastDay() {
+      return this.$store.state.totalDays - 1
     },
     lastHealthStatus() {
-      return _.last(this.$store.getters.dailyHealthStatus) || {}
+      return this.$store.getters.dailyHealthStatus[this.lastDay] || {}
     },
     saved() {
       if (!this.lastHealthStatus) return
-      const saved = Math.max(
+      return Math.max(
         this.lastHealthStatus.worstAlternate[5] -
           this.lastHealthStatus.player[5] || 0,
         0
       )
-      return this.formatNumber(saved)
     },
-    avoided() {
+    percent() {
       if (!this.lastHealthStatus) return
-      const avoided = Math.max(
-        this.lastHealthStatus.worstAlternate.total -
-          this.lastHealthStatus.player.total,
-        0
+      const percent = 100 * _.clamp(
+        this.saved / this.lastHealthStatus.worstAlternate[5],
+        0, 1
       )
-      return this.formatNumber(avoided)
+      return _.round(percent, 2)
+    },
+    percentBetter() {
+      const otherTeamPercents = _.chain(this.$store.state.allTeams)
+        .map(({dailyHealthStatus}) => {
+          const {player, worstAlternate} = dailyHealthStatus[this.lastDay]
+          const saved = Math.max(worstAlternate[5] - player[5] || 0, 0)
+          const percent = 100 * _.clamp(saved / worstAlternate[5], 0, 1)
+          return _.round(percent, 2)
+        }).sortBy().value()
+      let moreThan = 0
+      _.some(otherTeamPercents, percent => {
+        if (this.percent < percent) return true
+        moreThan += 1
+      })
+
+      return _.round(100 * (moreThan / otherTeamPercents.length))
     },
     average() {
       const mean = _.chain(this.$store.getters.allDecisions)
@@ -137,7 +159,7 @@ export default {
 header {
   position: relative;
   z-index: 1000;
-  max-width: 500px;
+  max-width: 600px;
   p {
     text-align: center;
   }

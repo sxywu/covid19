@@ -1,6 +1,6 @@
 {
   "title": "People of the Pandemic",
-  "subtitle": "A localized cooperative simulation game.",
+  "subtitle": "A hyperlocal cooperative simulation game.",
   "or": "or",
   "urban": "Urban",
   "suburban": "Suburban",
@@ -86,7 +86,7 @@
     "rest": "and here's what the rest of your team decided to do:",
     "average": "Average: {count} times",
     "start": "Start Next Week →",
-    "businessAsUsual": "Your local government is now considering going back to business as usual.  Would you like to see what the next four weeks might look like if everyone in your community went about like normal again*?<p><sup>*you won't have to make any more decisions.</sup></p>",
+    "businessAsUsual": "Your community has become restless and your local government is under pressure to reopen.  Would you like to see what the next four weeks might look like if everyone in your community went back to business as usual*?<p><sup>*you won't have to make any more decisions.</sup></p>",
     "start5weeks": "Start next four weeks →",
     "finish": "No, let's finish this"
   },
@@ -117,7 +117,7 @@
       "total": "{count} Infected",
       "5": "No Deaths | One Death | {count} Deaths",
       "currentWeek": "Current Week",
-      "normal": "Back to normal",
+      "reopened": "Reopened",
       "types": {
         "player": "Your Decisions",
         "worstAlternate": "Business As Usual"
@@ -134,12 +134,13 @@
   },
   "end": {
     "h1": "In the span of {week} weeks...",
-    "closerLook": "Here's a closer look at the numbers:",
-    "numbers": "Your community had <strong>{total}</strong> total cases, including <strong>{deaths}</strong> deaths.  However, this is {avoided} less cases than if your community had gone on with business as usual, and your team was able to save {saved} lives.",
-    "together": "You may have felt that your decisions had little influence over the weeks—but in fact, your community was able to achieve these numbers precisely because of your decisions, compounded by the decision of everyone else in your team:",
-    "future": "In turn, <strong>your future teammates will be helped by the decisions you made today</strong>.",
-    "influence": "This is reflected in the real world: when <em>everyone</em> who can stay home chooses to stay home as much as possible, the most infections are avoided. Slower infection rates mean that hospitals and first responders can better help the sickest members of our community.",
-    "share": "So, take a moment to share this game with your friends, family, and neighbors and work to flatten the curve, together."
+    "numbers": "Your community suffered <strong>{deaths}</strong> deaths, but were able to save <strong>{saved}</strong> lives—{percent}% of potential deaths.",
+    "otherTeams": "Together, your team was able to save more lives than <strong>{percentBetter}%</strong> of other teams.",
+    "decisionsTogether": "This is because of the decisions you collectively made:",
+    "closerLook": "Which led to the following numbers:",
+    "together": "You may have felt that your decisions had little influence over the weeks—but in fact, your community was able to achieve these numbers precisely because of your decisions, compounded by the decision of everyone else in your team. In turn, <strong>your future teammates will be helped by the decisions you made today</strong>.",
+    "influence": "This is reflected in the real world: when everyone who <em>can</em> stay home chooses to stay home as much as possible, the most infections are avoided. Slower infection rates mean that hospitals and first responders can better help the sickest members of our community.  And though it may take many more weeks for your community to fully reopen, the longer that everyone chooses to stay home, the more lives that might be saved in the meantime.",
+    "share": "So, take a moment to invite your friends, family, and neighbors to your team, and <strong>work together to save as many lives as possible, both in-game and in the real world</strong>."
   },
   "footnotes": {
     "disclaimer": "Disclaimer",
@@ -161,7 +162,7 @@
     "buttonCta": "Play Again"
   },
   "share": {
-    "heading": "Share this game and tell others to #stayhome",
+    "heading": "Invite others to join your team.",
     "buttonCta": "Copy",
     "success": "Copied"
   }
