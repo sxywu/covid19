@@ -170,7 +170,7 @@ export default new Vuex.Store({
     communitySize: '',
     teamName: '', // team name from URL
     newTeamName: '', // new name player creates
-    teamNames: [],
+    allTeams: [],
     sampledPastGames: [],
     decisions: [usualActivityLevel],
   },
@@ -604,6 +604,9 @@ export default new Vuex.Store({
     setCommunitySize(state, communitySize) {
       state.communitySize = communitySize
     },
+    resetDecisions(state, decisions) {
+      state.decisions = decisions
+    },
     setDecisions(state, decisions) {
       const [food, exercise, small, large] = decisions
       if (food) {
@@ -658,8 +661,8 @@ export default new Vuex.Store({
     setNewTeamName(state, newTeamName) {
       state.newTeamName = newTeamName
     },
-    setTeamNames(state, teamNames) {
-      state.teamNames = teamNames
+    setAllTeams(state, allTeams) {
+      state.allTeams = allTeams
     },
     setSampledPastGames(state, sampledPastGames) {
       state.sampledPastGames = sampledPastGames
@@ -705,10 +708,10 @@ export default new Vuex.Store({
         commit('setHappinessStatus', happinessStatus)
       })
     },
-    getAllTeamNames({commit}) {
+    getAllTeams({commit}) {
       apiService.getTeamNames({
-        cb: teamNames => {
-          commit('setTeamNames', teamNames)
+        cb: allTeams => {
+          commit('setAllTeams', allTeams)
         },
       })
     },
@@ -770,12 +773,15 @@ export default new Vuex.Store({
         teamName: newTeamName || teamName,
       })
     },
-    resetGame({commit, state}) {
+    resetGame({commit, dispatch, state}) {
       // reset prevInfected
       prevInfected = []
       dailyHealthStatus = []
 
-      commit('decisions', [usualActivityLevel])
+      dispatch('getAllTeams')
+      dispatch('getPastGames')
+      
+      commit('resetDecisions', [usualActivityLevel])
       commit('setSampledPastGames', _.sampleSize(allPastGames, numPastPlayers))
 
       commit('setDay', 0)
