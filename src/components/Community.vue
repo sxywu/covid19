@@ -276,9 +276,9 @@ export default {
         _.each(this.people, (d) => (d.color = this.colorsByHealth[0]))
       }
       if (this.week === 1) {
-        this.simulation.velocityDecay(0.45)
-      } else {
         this.simulation.velocityDecay(0.4)
+      } else {
+        this.simulation.velocityDecay(0.32)
       }
 
       const [duration1, duration2, duration3] = this.phases
