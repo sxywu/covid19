@@ -22,7 +22,7 @@ const totalWeeks = 5
 const totalPlayers = 20
 const numPastPlayers = totalPlayers - 1
 const foodStatus = {value: 18, maxValue: 18}
-const exerciseStatus = {value: 31, maxValue: 31}
+const exerciseStatus = {value: 18, maxValue: 18}
 const happinessStatus = {value: 31, maxValue: 31}
 const usualActivityLevel = [3, 5, 2, 5] // food, exercise, small, large
 const bestActivityLevel = [1, 3, 0, 0]
@@ -616,7 +616,7 @@ export default new Vuex.Store({
       if (exercise) {
         // if go out more than once, then they did exercise
         state.exerciseStatus.value = Math.min(
-          state.exerciseStatus.value + 3 * exercise,
+          state.exerciseStatus.value + 6 * exercise,
           state.exerciseStatus.maxValue,
         )
       }
