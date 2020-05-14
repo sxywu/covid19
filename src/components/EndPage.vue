@@ -100,8 +100,8 @@ export default {
       if (!this.teamName) return
       const otherTeamPercents = _.chain(this.$store.state.allTeams)
         .map(({dailyHealthStatus, teamName}) => {
-          if (!dailyHealthStatus[this.lastDay]) return
-          const {player, worstAlternate} = dailyHealthStatus[this.lastDay]
+          if (!dailyHealthStatus.length) return
+          const {player, worstAlternate} = _.last(dailyHealthStatus)
           const saved = Math.max(worstAlternate[5] - player[5] || 0, 0)
           const percent = 100 * _.clamp(saved / worstAlternate[5], 0, 1)
           return _.round(percent, 2)

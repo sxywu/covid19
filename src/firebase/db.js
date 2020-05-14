@@ -12,7 +12,6 @@ let apiService = {
   getTeamNames: noop,
 }
 const FIRESTORE_COLLECTION = 'games-v2'
-const dailyStatusLength = 35
 
 if (!_.isEmpty(App)) {
   let fireStore = App.firestore()
@@ -36,9 +35,6 @@ if (!_.isEmpty(App)) {
       .get()
       .then(collectionSnapshot => {
         let teamCollection = collectionSnapshot.docs.map(docSnapShot => docSnapShot.data())
-
-        teamCollection = _.filter(teamCollection, ({dailyHealthStatus}) =>
-          dailyHealthStatus.length == dailyStatusLength)
         cb(teamCollection)
       })
       .catch(console.warn)
@@ -65,11 +61,7 @@ if (!_.isEmpty(App)) {
       .get()
       .then(collectionSnapshot => {
         let teamCollection = collectionSnapshot.docs.map(docSnapShot => docSnapShot.data())
-        teamCollection = _.chain(teamCollection)
-          .filter(({dailyHealthStatus}) => dailyHealthStatus.length === dailyStatusLength)
-          .uniqBy('teamName')
-          .value()
-        cb(teamCollection)
+        cb(_.uniqBy(teamCollection, 'teamName'))
       })
   }
   let getFilteredGamesWithDefault = ({
