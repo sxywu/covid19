@@ -8,6 +8,7 @@
             deaths: formatNumber(lastHealthStatus.player[5] || 0),
             saved: formatNumber(saved), percent,
           })"></span>  <span v-if="percentBetter" v-html="$t('end.otherTeams', {
+            teamName,
             percentBetter,
           })"></span>
         </p>
@@ -67,6 +68,9 @@ export default {
     Footnotes,
   },
   computed: {
+    teamName() {
+      return this.$store.state.teamName
+    },
     week() {
       return this.$store.state.totalWeeks
     },
@@ -93,14 +97,15 @@ export default {
       return _.round(percent, 2)
     },
     percentBetter() {
+      if (!this.teamName) return
       const otherTeamPercents = _.chain(this.$store.state.allTeams)
-        .map(({dailyHealthStatus}) => {
+        .map(({dailyHealthStatus, teamName}) => {
           if (!dailyHealthStatus[this.lastDay]) return
           const {player, worstAlternate} = dailyHealthStatus[this.lastDay]
           const saved = Math.max(worstAlternate[5] - player[5] || 0, 0)
           const percent = 100 * _.clamp(saved / worstAlternate[5], 0, 1)
           return _.round(percent, 2)
-        }).filter().sortBy().value()
+        }).filter(d => !_.isUndefined(d)).sortBy().value()
       let moreThan = 0
       _.some(otherTeamPercents, percent => {
         if (this.percent < percent) return true
@@ -158,7 +163,7 @@ export default {
 header {
   position: relative;
   z-index: 1000;
-  max-width: 600px;
+  max-width: 550px;
   p {
     text-align: center;
   }
