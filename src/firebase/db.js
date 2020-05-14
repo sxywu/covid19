@@ -12,6 +12,8 @@ let apiService = {
   getTeamNames: noop,
 }
 const FIRESTORE_COLLECTION = 'games-v2'
+const dailyStatusLength = 35
+
 if (!_.isEmpty(App)) {
   let fireStore = App.firestore()
   let getAllGames = () => {
@@ -22,14 +24,10 @@ if (!_.isEmpty(App)) {
       .collection(FIRESTORE_COLLECTION)
       .limit(limit)
       .where('numDecisions', '==', 5)
+      .where('teamName', '==', filters.teamName || '')
     if (filters.zipCode) {
       query = query.where('zipCode', '==', filters.zipCode)
     }
-
-    if (filters.teamName) {
-      query = query.where('teamName', '==', filters.teamName)
-    }
-
     if (filters.locale && filters.locale !== 'en') {
       query = query.where('locale', '==', filters.locale)
     }
@@ -37,7 +35,11 @@ if (!_.isEmpty(App)) {
     query
       .get()
       .then(collectionSnapshot => {
-        cb(collectionSnapshot.docs.map(docSnapShot => docSnapShot.data()))
+        let teamCollection = collectionSnapshot.docs.map(docSnapShot => docSnapShot.data())
+
+        teamCollection = _.filter(teamCollection, ({dailyHealthStatus}) =>
+          dailyHealthStatus.length == dailyStatusLength)
+        cb(teamCollection)
       })
       .catch(console.warn)
   }
@@ -64,7 +66,7 @@ if (!_.isEmpty(App)) {
       .then(collectionSnapshot => {
         let teamCollection = collectionSnapshot.docs.map(docSnapShot => docSnapShot.data())
         teamCollection = _.chain(teamCollection)
-          .filter(({dailyHealthStatus}) => dailyHealthStatus.length === 35)
+          .filter(({dailyHealthStatus}) => dailyHealthStatus.length === dailyStatusLength)
           .uniqBy('teamName')
           .value()
         cb(teamCollection)
