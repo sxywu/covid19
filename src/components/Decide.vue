@@ -1,5 +1,5 @@
 <template>
-  <div id="decideArea">
+  <div id="decideArea" :class="$mq">
     <!-- IF THIS IS EIGHT WEEK -->
     <div v-if="day === totalDays">
       <h1 class="header">{{ $t('decide.h1.5weeks') }}</h1>
@@ -175,11 +175,6 @@ export default {
 
 <style lang="scss" scoped>
 #decideArea {
-  @include respond-to('small') {
-    z-index: 20;
-    top: 0;
-    align-items: flex-start;
-  }
   position: absolute;
   width: 100%;
   height: 100%;
@@ -189,6 +184,8 @@ export default {
   border: 1px solid $gray;
   background: rgba(255, 255, 255, 0.95);
   text-align: center;
+  overflow-x: hidden;
+  overflow-y: scroll;
 }
 
 .header {
@@ -274,5 +271,16 @@ h1,
     padding: 3rem 0;
   }
   padding: 1rem 0;
+}
+
+#decideArea.sm {
+  position: fixed;
+  z-index: 20;
+  top: 0;
+  align-items: flex-start;
+}
+
+#decideArea.md {
+  align-items: start;
 }
 </style>
