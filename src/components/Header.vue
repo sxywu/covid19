@@ -41,11 +41,10 @@
       </div>
     </div>
     <!-- ON DESKTOP -->
-    <div class="item">
-      <img v-if="!isPhone" src="../assets/small-gathering.svg" height="22" />
+    <div class="item" v-if="!isPhone">
+      <img src="../assets/small-gathering.svg" height="22" />
       <div class="item-content">
         <h3 class="label">
-          <img v-if="isPhone" src="../assets/small-gathering.svg" height="15" />
           {{ $t('happiness') }}
         </h3>
         <ProgressBar
