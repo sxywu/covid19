@@ -651,9 +651,11 @@ export default new Vuex.Store({
       state.createdAt = new Date()
     },
     setCountry(state) {
-      const country = (navigator.language || navigator.userLanguage).split('-')[1]
+      const availableCountries = ['us', 'fr']
+      let country = (navigator.language || navigator.userLanguage).split('-')[1]
       // if no country found, just default to US
-      state.country = country ? country.toLowerCase() : 'us'
+      country = country ? country.toLowerCase() : 'us'
+      state.country = _.includes(availableCountries, country) ? country : 'us'
     },
     setTeamName(state, teamName) {
       state.teamName = teamName
