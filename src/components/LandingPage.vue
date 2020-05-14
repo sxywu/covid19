@@ -191,7 +191,7 @@ export default {
       return this.$store.state.teamName
     },
     teamNames() {
-      return _.map(this.$store.state.teamNames, d => d.toLowerCase())
+      return _.map(this.$store.state.allTeams, d => d.teamName.toLowerCase())
     },
     enableSubmit() {
       if (!this.zipCode && !this.communitySize) return false

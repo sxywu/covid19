@@ -57,7 +57,7 @@ export default {
   created() {
     this.$store.commit('setCountry')
     this.$store.dispatch('getRawData')
-    this.$store.dispatch('getAllTeamNames')
+    this.$store.dispatch('getAllTeams')
     this.$store.dispatch('getPastGames')
   },
 }
