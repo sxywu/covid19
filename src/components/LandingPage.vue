@@ -27,11 +27,9 @@
                   :disabled="!!newTeamName"
                   checked
                 />
-                <label>{{
-                  teamName ?
+                <label v-html="teamName ?
                     $t('landing.joinTeamName', {name: teamName}) :
-                    $t('landing.joinRandomTeam')
-                  }}</label>
+                    $t('landing.joinRandomTeam')" />
               </div>
             </div>
             <span>{{ $t('or') }}</span>
@@ -271,7 +269,9 @@ export default {
         ).zip
         this.$store.commit('setCommunitySize', this.communitySize)
       }
-      this.$store.commit('setTeamName', this.newTeamName)
+      if (this.newTeamName) {
+        this.$store.commit('setTeamName', this.newTeamName)
+      }
       this.$store.commit('setGameIdAndCreatedAt')
       this.$store.commit('setZipCode', this.zipCode)
       this.$store.commit('setCurrentPage', 'game')
