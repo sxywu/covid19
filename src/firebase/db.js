@@ -63,7 +63,11 @@ if (!_.isEmpty(App)) {
       .get()
       .then(collectionSnapshot => {
         let teamCollection = collectionSnapshot.docs.map(docSnapShot => docSnapShot.data())
-        cb(_.uniqBy(teamCollection, 'teamName'))
+        teamCollection = _.chain(teamCollection)
+          .filter(({dailyHealthStatus}) => dailyHealthStatus.length === 35)
+          .uniqBy('teamName')
+          .value()
+        cb(teamCollection)
       })
   }
   let getFilteredGamesWithDefault = ({

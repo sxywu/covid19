@@ -95,11 +95,12 @@ export default {
     percentBetter() {
       const otherTeamPercents = _.chain(this.$store.state.allTeams)
         .map(({dailyHealthStatus}) => {
+          if (!dailyHealthStatus[this.lastDay]) return
           const {player, worstAlternate} = dailyHealthStatus[this.lastDay]
           const saved = Math.max(worstAlternate[5] - player[5] || 0, 0)
           const percent = 100 * _.clamp(saved / worstAlternate[5], 0, 1)
           return _.round(percent, 2)
-        }).sortBy().value()
+        }).filter().sortBy().value()
       let moreThan = 0
       _.some(otherTeamPercents, percent => {
         if (this.percent < percent) return true
