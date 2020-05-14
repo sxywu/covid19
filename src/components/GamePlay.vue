@@ -78,7 +78,6 @@
         />
         <LineChart
           v-bind="{
-            width: 460,
             height: bottomHeight,
             ageGroups,
             colorsByHealth,
@@ -122,7 +121,6 @@
           <LineChart
             v-bind="{
               isPhone,
-              width,
               height: 120,
               ageGroups,
               colorsByHealth,
@@ -214,7 +212,7 @@ export default {
     return {
       width: this.isPhone ? window.innerWidth : maxWidth,
       height: this.isPhone ? window.innerHeight : maxHeight,
-      topHeight: this.isPhone ? 55 : 75,
+      topHeight: this.isPhone? 55 : 75,
       rightWidth: 320,
       chartsHeight: 275,
       bottomHeight: this.isPhone ? 55 : 180,
@@ -300,6 +298,7 @@ export default {
         this.width = Math.min(window.innerWidth - padding, maxWidth)
         this.height = Math.min((1 / widthHeightRatio) * this.width, maxHeight)
       }
+      this.rightWidth = Math.max(this.width * 0.25, 280)
     },
     updateDecision(decisions) {
       this.showDecision = false
@@ -374,6 +373,7 @@ export default {
     position: relative;
     display: grid;
     height: 100%;
+    grid-template-columns: auto min-content;
     grid-template-rows: min-content 1fr min-content;
   }
 
@@ -405,7 +405,7 @@ export default {
 
   #bottomPanel {
     display: grid;
-    grid-template-columns: 0.75fr 1fr 1.25fr;
+    grid-template-columns: min-content 1fr 1.25fr;
     grid-row: 3;
     grid-gap: 1rem;
     padding: 1rem;
