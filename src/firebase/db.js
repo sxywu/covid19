@@ -92,7 +92,6 @@ if (!_.isEmpty(App)) {
       .collection(FIRESTORE_COLLECTION)
       .orderBy('teamName', 'desc')
       .orderBy('createdAt', 'desc')
-      .where('teamName', '>', '')
       .get()
       .then(collectionSnapshot => {
         let teamCollection = collectionSnapshot.docs.map(docSnapShot => docSnapShot.data())
