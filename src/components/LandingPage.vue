@@ -275,6 +275,8 @@ export default {
       this.$store.commit('setGameIdAndCreatedAt')
       this.$store.commit('setZipCode', this.zipCode)
       this.$store.commit('setCurrentPage', 'game')
+
+      event.preventDefault()
     },
     createFormError({ condition, event, fieldName, errorMessage }) {
       this.errors[fieldName] = condition ? errorMessage : null
