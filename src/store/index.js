@@ -738,7 +738,7 @@ export default new Vuex.Store({
           })
           if (teamName) {
             // if there's team name, make sure it matches what's in DB
-            teamName = allPastGames[0].teamName
+            teamName = allPastGames.length ? allPastGames[0].teamName : ''
           }
 
           commit('setTeamName', teamName)
