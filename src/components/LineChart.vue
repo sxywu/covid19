@@ -79,7 +79,7 @@ export default {
       legendSVGWidth: 20,
       // margin: this.isPhone ? {top: 30, right: 10, bottom: 20, left: 20} :
       //   { top: 30, right: 15, bottom: 20, left: 20 },
-      margin: { top: 30, right: 15, bottom: 20, left: 20 },
+      margin: { top: 12, right: 15, bottom: 20, left: 20 },
       paths: [],
       rect: {},
       line: {},

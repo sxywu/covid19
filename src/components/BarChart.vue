@@ -17,7 +17,7 @@ import * as d3 from 'd3'
 import _ from 'lodash'
 
 const healthStatus = [2, 3, 4, 5]
-const margin = { top: 30, right: 0, bottom: 20, left: 20 }
+const margin = { top: 12, right: 0, bottom: 20, left: 20 }
 export default {
   name: 'BarChart',
   props: [
