@@ -56,12 +56,13 @@
             </div>
             <!-- TEAM NAME SUBTEXT -->
             <div :style="{'grid-column': isPhone ? '' : '3/3'}">
-              <sup v-if="!errors['teamName']">
+              <sup v-if="!newTeamName">
                 {{ $t('landing.errors.invalidName') }}
               </sup>
               <sup v-if="errors['teamName']" class="teamNameError">
                 {{ errors['teamName'] }}
               </sup>
+              <Share v-if="newTeamName && !errors['teamName']" type="small" />
             </div>
           </div>
         </form>
@@ -121,6 +122,7 @@
           </button>
           <!-- ERROR MESSAGES -->
           <div style="max-width: 320px">
+            <Share v-if="newTeamName && !errors['teamName']" type="small" />
             <sup v-if="errors['teamName']" class="teamNameError">
               {{ errors['teamName'] }}
             </sup>
@@ -143,12 +145,13 @@
 <script>
 import _ from 'lodash'
 import Beeswarm from './Beeswarm'
+import Share from './Share'
 
 const validZip = /(^\d{5}$)|(^\d{5}-\d{4}$)/
 const validName = /^[a-z\d\-_]+$/i
 export default {
   name: 'LandingPage',
-  components: { Beeswarm },
+  components: { Beeswarm, Share },
   props: ['isPhone'],
   data() {
     return {
