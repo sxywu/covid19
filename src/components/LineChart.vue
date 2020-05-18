@@ -317,6 +317,10 @@ export default {
   align-items: center;
 }
 
+h3 {
+  text-align: left;
+}
+
 svg.chart {
   width: 100%;
   overflow: visible;

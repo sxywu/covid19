@@ -238,13 +238,13 @@ export default {
   display: inline-block;
 }
 
+h3 {
+  text-align: left;
+}
+
 svg {
   width: 100%;
   overflow: visible;
-}
-
-.header {
-  font-weight: 700;
 }
 
 .axis {
