@@ -59,7 +59,7 @@
       <div class="decided">
         <div>
           <h1 class="header">{{ $tc('decide.h1.numTimes', playerCurrentWeek, {count: playerCurrentWeek}) }}</h1>
-          <p class="body">{{ $t('decide.rest') }}</p>
+          <p class="body" v-html="teamName ? $t('decide.restTeam', {teamName}) : $t('decide.rest')" />
         </div>
         <Beeswarm
           v-bind="{
@@ -124,6 +124,9 @@ export default {
     },
     week() {
       return this.$store.getters.week
+    },
+    teamName() {
+      return this.$store.state.teamName
     },
     dailyHealthStatus() {
       return this.$store.getters.dailyHealthStatus

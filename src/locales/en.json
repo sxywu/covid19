@@ -84,6 +84,7 @@
     },
     "cta": "Decide",
     "rest": "and here's what the rest of your team decided to do:",
+    "restTeam": "and here's what the rest of Team <span class='underline'>{teamName}</span> decided to do:",
     "average": "Average: {count} times",
     "start": "Start Next Week →",
     "businessAsUsual": "Your community has become restless and your local government is under pressure to reopen.  Would you like to see what the next four weeks might look like if everyone in your community went back to business as usual*?<p><sup>*you won't have to make any more decisions.</sup></p>",
