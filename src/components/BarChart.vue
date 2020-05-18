@@ -89,6 +89,7 @@ export default {
       }
     },
     people() {
+      this.calculateDimensions()
       this.startBarChart()
     },
     infected() {

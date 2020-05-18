@@ -135,7 +135,7 @@
   "end": {
     "h1": "In the span of {week} weeks...",
     "numbers": "Your community suffered <strong>{deaths}</strong> deaths, but were able to save <strong>{saved}</strong> lives—{percent}% of potential deaths.",
-    "otherTeams": "Together, your team was able to save more lives than <strong>{percentBetter}%</strong> of other teams.",
+    "otherTeams": "Together, Team <span class='underline'>{teamName}</span> was able to save more lives than <strong>{percentBetter}%</strong> of other teams.",
     "decisionsTogether": "This is because of the decisions you collectively made:",
     "closerLook": "Which led to the following numbers:",
     "together": "You may have felt that your decisions had little influence over the weeks—but in fact, your community was able to achieve these numbers precisely because of your decisions, compounded by the decision of everyone else in your team. In turn, <strong>your future teammates will be helped by the decisions you made today</strong>.",

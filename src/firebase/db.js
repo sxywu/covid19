@@ -12,6 +12,7 @@ let apiService = {
   getTeamNames: noop,
 }
 const FIRESTORE_COLLECTION = 'games-v2'
+
 if (!_.isEmpty(App)) {
   let fireStore = App.firestore()
   let getAllGames = () => {
@@ -22,14 +23,10 @@ if (!_.isEmpty(App)) {
       .collection(FIRESTORE_COLLECTION)
       .limit(limit)
       .where('numDecisions', '==', 5)
+      .where('teamName', '==', filters.teamName || '')
     if (filters.zipCode) {
       query = query.where('zipCode', '==', filters.zipCode)
     }
-
-    if (filters.teamName) {
-      query = query.where('teamName', '==', filters.teamName)
-    }
-
     if (filters.locale && filters.locale !== 'en') {
       query = query.where('locale', '==', filters.locale)
     }
@@ -37,7 +34,8 @@ if (!_.isEmpty(App)) {
     query
       .get()
       .then(collectionSnapshot => {
-        cb(collectionSnapshot.docs.map(docSnapShot => docSnapShot.data()))
+        let teamCollection = collectionSnapshot.docs.map(docSnapShot => docSnapShot.data())
+        cb(teamCollection)
       })
       .catch(console.warn)
   }

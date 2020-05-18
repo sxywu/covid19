@@ -9,19 +9,18 @@
   "exercise": "Sport",
   "week": "semaine",
   "day": "jour",
-  "outOf": "out of",
   "available": "disponible",
   "ageGroups": {
-    "0": "moins de 19",
+    "0": "- de 19",
     "20": "20 à 39",
     "40": "40 à 59",
     "60": "60 à 79",
-    "80": "plus de 80"
+    "80": "+ de 80"
   },
   "healthStatus": {
-    "healthy": "Non infecté",
-    "recovered": "Guéri",
-    "infectedAsymptomatic": "Infecté, pas de symptômes",
+    "healthy": "Non infectés",
+    "recovered": "Guéris",
+    "infectedAsymptomatic": "Infectés, pas de symptômes",
     "mildSymptoms": "Symptômes moyens",
     "severeSymptoms": "Symptômes sévères",
     "deceased": "Décédés"
@@ -43,58 +42,78 @@
     }
   },
   "header": {
-    "wentOut": "% sortis",
+    "wentOut": "% de personnes sorties",
     "hospitalCapacity": "Capacité hospitalière"
   },
   "decide": {
     "h1": {
       "prevWeek": "La semaine précédente...",
-      "numTimes": "Tu as décidé de ne pas sortir cette semaine | Tu as décidé de sortir une fois cette semaine. | Tu as décidé de sortir {count} fois cette semaine.",
+      "numTimes": "Tu as décidé de ne pas sortir cette semaine... | Tu as décidé de sortir une fois cette semaine... | Tu as décidé de sortir {count} fois cette semaine...",
       "8weeks": "Tu as combattu le virus pendant 8 semaines."
     },
-    "prevTimes": "Tu n’es pas du tout sorti. | Tu es sorti une fois. | Tu es sorti <strong>{count}</strong> fois",
-    "avgTimes": "et les habitants de ton quartier sont sortis un nombre moyen de <strong>{count}</strong> fois.",
-    "newCasesTotal": "Cela a mené à  <strong>{count}</strong> nouveaux cas dans ton quartier",
-    "newCasesAvoided": "<strong>{count} moins</strong> que si vous aviez fait comme si de rien n’était.",
+    "prevTimes": "Tu n’es pas sorti du tout, | Tu es sorti une fois pour {activity}, | Tu es sorti <strong>{total}</strong> fois, dont {max} fois pour {activity},",
+    "avgTimes": " et les habitants de ton quartier sont sortis <strong>{count}</strong> fois.",
+    "newCasesTotal": " Cela a induit <strong>{count}</strong> nouveaux cas dans ton quartier",
+    "newCasesAvoided": "<strong>{count} de moins</strong> que si vous aviez fait comme si de rien n’était.",
     "foodLow": "Attention! Tu vas bientôt manquer de nourriture.",
     "exerciseLow": "Attention!  Tu n’as pas fait de sport depuis un moment.",
     "bothLow": "Attention!  Tu vas bientôt manquer de nourriture et tu n’as pas fait de sport depuis un moment..",
     "h2Question": "Combien de fois vas-tu sortir cette semaine ?",
-    "range": {
-      "0": "Rester<br />à la maison",
-      "1": "Aller<br />faire un tour",
-      "2": "Aller<br />faire des courses",
-      "3": "Aller<br />courrir",
-      "4": "Déjeuner<br />entre amis",
-      "5": "Dîner<br />en famille",
-      "6": "Aller<br />à une fête",
-      "7": "Aller<br />à un concert"
+    "activities": {
+      "groceries": {
+        "label": "Nourriture",
+        "byline": "Faire ses courses ou livraison à domicile"
+      },
+      "exercise": {
+        "label": "Sport",
+        "byline": "Faire une ballade ou un jogging"
+      },
+      "small": {
+        "label": "Petits évènements",
+        "byline": "Activités entre amis ou en famille"
+      },
+      "large": {
+        "label": "Grands évènements",
+        "byline": "Aller à une fête ou à un concert"
+      }
     },
     "cta": "Valider",
-    "rest": "Voilà ce que le reste de ton quartier a décidé de faire:",
+    "rest": "et voilà ce que tes coéquipiers ont décidé de faire:",
     "average": "Moyenne: {count} fois",
     "start": "Commencer la semaine suivante →",
     "businessAsUsual": "Ton gouvernement local décide désormais de mettre fin au confinement. Veux-tu voir à quoi cela ressemblerait si tous les membres de ton quartier recommençaient à sortir tous les jours à nouveau* ?<p><sup>*tu n’auras pas à prendre de décision.</sup></p>",
     "start4weeks": "Commencer les 4 semaines suivantes →",
     "finish": "Non, j’arrête ici"
   },
+  "beeswarm": {
+    "h3": "Les sorties de tes coéquipiers par activité | Les sorties de tes coéquipiers par activité sur les {count} dernières semaines",
+    "axis": {
+      "out": "sont sortis",
+      "times": "fois"
+    },
+    "legend": {
+      "you": "toi",
+      "teammates": "tes coéquipiers",
+      "npc": "PNJ"
+    }
+  },
   "communityStats": {
     "total": "total des cas",
     "avoided": "cas évités"
   },
   "barChart": {
-    "label": "Nombre d’infections par groupes d’âges"
+    "label": "Nbr d’infections par groupes d’âges"
   },
   "lineChart": {
-    "label": "Nombre d’infections par jour",
+    "label": "Nbr d’infections par jour",
     "hospital": "Capacité hospitalière atteinte",
     "legend": {
-      "total": "{count} Infecté",
       "5": "Pas de mort | Une mort | {count} morts",
+      "total": "{count} Infecté",
       "currentWeek": "semaine en cours",
       "types": {
-        "player": "Tes décisions",
-        "worstAlternate": "Comme d’habitude"
+        "player": "Avec tes décisions",
+        "worstAlternate": "Sans restrictions"
       }
     }
   },
@@ -118,7 +137,6 @@
   "footnotes": {
     "disclaimer": "Avertissement",
     "fullDisclaimer": "Nous avons fait de notre mieux pour que nos chiffres se rapprochent de ceux du COVID-19, mais les chiffres du COVID-19 sont encore très nouveaux et fluctuent très vite. Nous voulons donc souligner que nous modélisons <em>un</em> virus, pas <em>le</em> virus.<br /><br />Pour plus de détails, merci d’aller voir notre <a href='https://observablehq.com/@osserman/people-of-the-pandemic-simulation-methodology' target='_new'>méthodologie complète (en anglais)</a>.",
-
     "methodology": "Méthodologie",
     "fullMethodology": "<a href='https://observablehq.com/@osserman/people-of-the-pandemic-simulation-methodology' target='_new'>Méthodologie Complète</a>",
     "methodologyHere": "Notre méthodologie a été conçue avec soin et est basée sur des recherches.<br />Lire le détails de la méthodologie (en anglais).<a href='https://observablehq.com/@osserman/people-of-the-pandemic-simulation-methodology' target='_new'>here</a>.",
@@ -127,7 +145,6 @@
     "observable": "Merci à Jeremy Ashkenas et Anjana Vakil pour <a href='https://observablehq.com/' target='_new'>Observable</a> leur soutien.",
     "feedback": "Et merci aux personnes suivantes pour leur retours:"
   },
-
   "failed": {
     "heading": {
       "food": "Oh non! Tu n’as plus de nourriture",

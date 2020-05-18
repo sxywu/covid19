@@ -651,9 +651,11 @@ export default new Vuex.Store({
       state.createdAt = new Date()
     },
     setCountry(state) {
-      const country = (navigator.language || navigator.userLanguage).split('-')[1]
+      const availableCountries = ['us', 'fr']
+      let country = (navigator.language || navigator.userLanguage).split('-')[1]
       // if no country found, just default to US
-      state.country = country ? country.toLowerCase() : 'us'
+      country = country ? country.toLowerCase() : 'us'
+      state.country = _.includes(availableCountries, country) ? country : 'us'
     },
     setTeamName(state, teamName) {
       state.teamName = teamName
@@ -719,12 +721,13 @@ export default new Vuex.Store({
       // first, see if there's a team name
       const url = document.URL.toLowerCase()
       let teamName = ''
-      if (_.includes(url, 'team')) {
+      if ((/.*\/#\/team-[a-z\d\-_]+$/i).test(url)) {
+        // make sure team name in url is valid
         teamName = _.trim(url.split('team-')[1])
       }
 
-      apiService.getFilteredGamesWithDefault({
-        filters: {teamName},
+      apiService.getFilteredGames({
+        filters: {teamName, limit: 100},
         cb: data => {
           allPastGames = _.map(data, ({id, teamName, decisions}) => {
             decisions = _.map(JSON.parse(decisions), (d, i) => {
@@ -734,8 +737,8 @@ export default new Vuex.Store({
             return {id, teamName, decisions}
           })
 
+          commit('setTeamName', teamName)
           commit('setSampledPastGames', _.sampleSize(allPastGames, numPastPlayers))
-          commit('setTeamName', data[0].teamName || '')
           dispatch('updateURL')
         },
       })
