@@ -13,7 +13,7 @@
         />
       </clipPath>
       <g v-for="d in beds" :transform="`translate(${d.x}, ${d.y})scale(${scale})`">
-        <image :href="bedImage" />
+        <image :href="bedImage" :width="bedWidth" :height="bedHeight" />
         <circle v-if="!isPhone"
           :cx="bedWidth / 2"
           :cy="bedHeight / 2"
