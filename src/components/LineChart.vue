@@ -79,7 +79,7 @@ export default {
       legendSVGWidth: 20,
       // margin: this.isPhone ? {top: 30, right: 10, bottom: 20, left: 20} :
       //   { top: 30, right: 15, bottom: 20, left: 20 },
-      margin: { top: 30, right: 15, bottom: 20, left: 20 },
+      margin: { top: 12, right: 15, bottom: 20, left: 20 },
       paths: [],
       rect: {},
       line: {},
@@ -315,6 +315,10 @@ export default {
   grid-template-columns: auto 140px;
   grid-template-rows: repeat(2, auto);
   align-items: center;
+}
+
+h3 {
+  text-align: left;
 }
 
 svg.chart {

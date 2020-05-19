@@ -23,7 +23,7 @@ if (!_.isEmpty(App)) {
       .collection(FIRESTORE_COLLECTION)
       .limit(limit)
       .where('numDecisions', '==', 5)
-      .where('teamName', '==', filters.teamName || '')
+      .where('lowerCaseName', '==', filters.teamName.toLowerCase() || '')
     if (filters.zipCode) {
       query = query.where('zipCode', '==', filters.zipCode)
     }
@@ -54,14 +54,14 @@ if (!_.isEmpty(App)) {
   let getTeamNames = ({cb}) => {
     return fireStore
       .collection(FIRESTORE_COLLECTION)
-      .orderBy('teamName', 'desc')
+      .orderBy('lowerCaseName', 'desc')
       .orderBy('createdAt', 'desc')
-      .where('teamName', '>', '')
+      .where('lowerCaseName', '>', '')
       .where('numDecisions', '==', 5)
       .get()
       .then(collectionSnapshot => {
         let teamCollection = collectionSnapshot.docs.map(docSnapShot => docSnapShot.data())
-        cb(_.uniqBy(teamCollection, 'teamName'))
+        cb(_.uniqBy(teamCollection, 'lowerCaseName'))
       })
   }
   let getFilteredGamesWithDefault = ({
@@ -84,6 +84,34 @@ if (!_.isEmpty(App)) {
       },
     })
   }
+  // save lower case version of team name for case insensitivity
+  let setLowerCaseTeamNames = () => {
+    // first, go get all games with team name
+    // (can't use getTeamNames because that gives only most recent game for each team)
+    fireStore
+      .collection(FIRESTORE_COLLECTION)
+      .orderBy('teamName', 'desc')
+      .orderBy('createdAt', 'desc')
+      .get()
+      .then(collectionSnapshot => {
+        let teamCollection = collectionSnapshot.docs.map(docSnapShot => docSnapShot.data())
+        _.chain(teamCollection)
+          .groupBy(({teamName}) => teamName.toLowerCase())
+          // .filter((games, teamName) => teamName === 'puppy-party')
+          .each((games) => {
+            // go through and add lower case team name to each game
+            // and then store the game
+            const {teamName} = _.last(games)
+            _.each(games, game => {
+              setGameById(game.id, Object.assign(game, {
+                teamName,
+                lowerCaseName: game.teamName.toLowerCase()
+              }))
+            })
+          }).value()
+      })
+  }
+
   apiService = {
     getAllGames,
     getFilteredGames,
@@ -91,6 +119,7 @@ if (!_.isEmpty(App)) {
     setGameById,
     getFilteredGamesWithDefault,
     getTeamNames,
+    setLowerCaseTeamNames,
   }
 } else {
   console.warn('Firebase app not set up. This session will not be saved.')

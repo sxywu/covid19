@@ -1,42 +1,58 @@
 <template>
   <div id="share">
-    <h3>{{ $t('share.heading') }}</h3>
-    <form>
-      <input
-        :value="siteUrl"
-        v-on:focus="$event.target.select()"
-        v-on:click="$event.target.select()"
-        readonly
-      />
-      <button
-        type="button"
-        v-clipboard:copy="siteUrl"
-        v-clipboard:success="onCopy"
-        :class="{'copied': isCopied}"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-          <title>link</title>
-          <g
-            stroke-linejoin="round"
-            stroke-linecap="round"
-            stroke-width="2"
-            fill="none"
-            stroke="currentColor"
-          >
-            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
-          </g>
-        </svg>
-        <span v-if="this.isCopied">{{ $t('share.success') }}</span>
-        <span v-else>{{ $t('share.buttonCta') }}</span>
-      </button>
-    </form>
+    <div v-if="type === 'small'">
+      <sup v-if="isCopied">
+        {{ $t('share.small.copied') }}
+        <a v-clipboard:copy="siteUrl" v-clipboard:success="onCopy">
+          {{ $t('share.small.again') }}
+        </a>
+      </sup>
+      <sup v-else>
+        <a v-clipboard:copy="siteUrl" v-clipboard:success="onCopy">
+          {{ $t('share.small.copy') }}
+        </a>
+      </sup>
+    </div>
+    <div v-else>
+      <h3>{{ $t('share.heading') }}</h3>
+      <form>
+        <input
+          :value="siteUrl"
+          v-on:focus="$event.target.select()"
+          v-on:click="$event.target.select()"
+          readonly
+        />
+        <button
+          type="button"
+          v-clipboard:copy="siteUrl"
+          v-clipboard:success="onCopy"
+          :class="{'copied': isCopied}"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+            <title>link</title>
+            <g
+              stroke-linejoin="round"
+              stroke-linecap="round"
+              stroke-width="2"
+              fill="none"
+              stroke="currentColor"
+            >
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+            </g>
+          </svg>
+          <span v-if="isCopied">{{ $t('share.success') }}</span>
+          <span v-else>{{ $t('share.buttonCta') }}</span>
+        </button>
+      </form>
+    </div>
   </div>
 </template>
 
 <script>
 export default {
   name: "Share",
+  props: ['type'],
   data: function() {
     return {
       siteUrl: location.href,
@@ -44,9 +60,9 @@ export default {
     };
   },
   methods: {
-    onCopy: function(e) {
+    onCopy: function({event}) {
       this.isCopied = true;
-      e.preventDefault();
+      event && event.preventDefault();
     }
   }
 };

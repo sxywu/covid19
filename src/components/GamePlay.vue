@@ -213,7 +213,7 @@ export default {
       width: this.isPhone ? window.innerWidth : maxWidth,
       height: this.isPhone ? window.innerHeight : maxHeight,
       topHeight: this.isPhone? 55 : 75,
-      rightWidth: 320,
+      rightWidth: 340,
       chartsHeight: 275,
       bottomHeight: this.isPhone ? 55 : 180,
       tl: new gsap.timeline({ paused: true }),
@@ -298,7 +298,7 @@ export default {
         this.width = Math.min(window.innerWidth - padding, maxWidth)
         this.height = Math.min((1 / widthHeightRatio) * this.width, maxHeight)
       }
-      this.rightWidth = Math.max(this.width * 0.25, 280)
+      this.rightWidth = _.clamp(this.width * 0.3, 280, 340)
     },
     updateDecision(decisions) {
       this.showDecision = false

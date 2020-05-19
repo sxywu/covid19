@@ -16,6 +16,7 @@
       <p>{{ $t('end.decisionsTogether') }}</p>
       <Beeswarm v-bind="{type: 'all', width: isPhone ? 300 : 700}" />
       <p>{{ $t('end.closerLook') }}</p>
+
       <div class="charts">
         <BarChart
           v-bind="{
@@ -32,6 +33,7 @@
           }"
         />
       </div>
+      <Legend v-bind="{healthStatus, colorsByHealth, isMinimal: true}" />
       <hr />
 
       <p v-html="$t('end.together')"></p>
@@ -56,12 +58,14 @@ import BarChart from './BarChart'
 import LineChart from './LineChart'
 import Beeswarm from './Beeswarm'
 import Footnotes from './Footnotes'
+import Legend from './Legend'
 
 export default {
   name: 'EndPage',
-  props: ['isPhone', 'onUpdate', 'ageGroups', 'colorsByHealth'],
+  props: ['isPhone', 'onUpdate', 'ageGroups', 'healthStatus', 'colorsByHealth'],
   components: {
     BarChart,
+    Legend,
     LineChart,
     Beeswarm,
     Share,

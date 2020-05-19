@@ -719,7 +719,7 @@ export default new Vuex.Store({
     },
     getPastGames({commit, dispatch}) {
       // first, see if there's a team name
-      const url = document.URL.toLowerCase()
+      const url = document.URL
       let teamName = ''
       if ((/.*\/#\/team-[a-z\d\-_]+$/i).test(url)) {
         // make sure team name in url is valid
@@ -736,6 +736,10 @@ export default new Vuex.Store({
             })
             return {id, teamName, decisions}
           })
+          if (teamName) {
+            // if there's team name, make sure it matches what's in DB
+            teamName = allPastGames.length ? allPastGames[0].teamName : ''
+          }
 
           commit('setTeamName', teamName)
           commit('setSampledPastGames', _.sampleSize(allPastGames, numPastPlayers))
@@ -774,6 +778,7 @@ export default new Vuex.Store({
         createdAt,
         country,
         teamName: newTeamName || teamName,
+        lowerCaseName: (newTeamName || teamName).toLowerCase(),
       })
     },
     resetGame({commit, dispatch, state}) {
