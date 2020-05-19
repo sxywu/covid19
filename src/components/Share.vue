@@ -2,14 +2,14 @@
   <div id="share">
     <div v-if="type === 'small'">
       <sup v-if="isCopied">
-        Team link copied!
+        {{ $t('share.small.copied') }}
         <a v-clipboard:copy="siteUrl" v-clipboard:success="onCopy">
-          Copy again.
+          {{ $t('share.small.again') }}
         </a>
       </sup>
       <sup v-else>
         <a v-clipboard:copy="siteUrl" v-clipboard:success="onCopy">
-          Copy and share your team link.
+          {{ $t('share.small.copy') }}
         </a>
       </sup>
     </div>
@@ -60,9 +60,9 @@ export default {
     };
   },
   methods: {
-    onCopy: function(e) {
+    onCopy: function({event}) {
       this.isCopied = true;
-      e.preventDefault();
+      event && event.preventDefault();
     }
   }
 };

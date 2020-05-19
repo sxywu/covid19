@@ -127,7 +127,8 @@
   },
   "hospital": {
     "null": "Your Hospital",
-    "beds": "{filledBeds} Filled / {totalAvailableBeds} Available ({totalBeds} Total Beds)"
+    "beds": "{filledBeds} Filled / {totalAvailableBeds} Available ({totalBeds} Total Beds)",
+    "others": "& one other | & {count} others"
   },
   "population": {
     "city": "{city}, {state} {zip}",
@@ -165,6 +166,11 @@
   "share": {
     "heading": "Invite others to join your team.",
     "buttonCta": "Copy",
-    "success": "Copied"
+    "success": "Copied",
+    "small": {
+      "copy": "Copy and share your team link",
+      "copied": "Team link copied!",
+      "again": "Copy again"
+    }
   }
 }

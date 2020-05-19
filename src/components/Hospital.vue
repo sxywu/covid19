@@ -3,7 +3,7 @@
     <h3 class="label">
       {{ hospital ? hospital.name : $t('hospital.null') }}
       <span v-if="hospital && hospitals && hospitals.length > 1" style="white-space: nowrap">
-        & {{ hospitals.length - 1 }} others
+        {{ $tc('hospital.others', hospitals.length - 1)}}
       </span>
     </h3>
     <div class="stats label">
