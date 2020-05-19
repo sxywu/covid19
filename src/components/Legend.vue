@@ -1,12 +1,8 @@
 <template>
   <div id="legend" :class="$mq">
-    <h5 class="label" v-if="!isPhone">Legend</h5>
-    <ul>
-      <li v-if="!isPhone" v-for="i in [0, 2, 3, 4, 5, 1]" :key="i">
-        <div class="legend-circle" :style="{background: colorsByHealth[i]}" />
-        <span class="legend-label">{{ healthStatus[i] }}</span>
-      </li>
-      <li v-if="isPhone" v-for="i in [0, 2, 3, 1, 4, 5]" :key="i">
+    <h5 class="label" v-if="!isPhone && !isMinimal">Legend</h5>
+    <ul :class="isMinimal ? 'minimal' : ''">
+      <li v-for="i in order" :key="i">
         <div class="legend-circle" :style="{background: colorsByHealth[i]}" />
         <span class="legend-label">{{ healthStatus[i] }}</span>
       </li>
@@ -17,15 +13,30 @@
 <script>
 export default {
   name: 'Legend',
-  props: ['isPhone', 'healthStatus', 'colorsByHealth'],
+  props: ['isMinimal', 'isPhone', 'healthStatus', 'colorsByHealth'],
+  data() {
+    return {
+      order: this.isMinimal ? [2, 3, 4, 5] :
+        (this.isPhone ? [0, 2, 3, 1, 4, 5] : [0, 2, 3, 4, 5, 1])
+    }
+  },
 }
 </script>
 
 <style lang="scss" scoped>
 #legend {
+  text-align: left;
+
   ul {
     white-space: nowrap;
   }
+  ul.minimal {
+    width: 100%;
+    display: grid;
+    grid-column-gap: 0.5rem;
+    grid-template-columns: repeat(4, min-content);
+  }
+
   ul,
   li {
     list-style-type: none;
@@ -59,6 +70,10 @@ export default {
     margin: 0.25rem 0;
     padding: 0 8px;
   }
+  ul.minimal {
+    grid-template-columns: repeat(2, min-content);
+  }
+
   li {
     grid-template-columns: 14px 1fr;
   }
