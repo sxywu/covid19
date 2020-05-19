@@ -1,12 +1,17 @@
 <template>
   <div id="hospital" :class="$mq">
-    <h3 class="label">{{ hospital ? hospital.name : $t('hospital.null') }}</h3>
+    <h3 class="label">
+      {{ hospital ? hospital.name : $t('hospital.null') }}
+      <span v-if="hospital && hospitals && hospitals.length > 1" style="white-space: nowrap">
+        & {{ hospitals.length - 1 }} others
+      </span>
+    </h3>
     <div class="stats label">
       <div>
         {{ $t('hospital.beds', {filledBeds, totalAvailableBeds, totalBeds}) }}
       </div>
     </div>
-    <svg ref="svg" :width="width" :height="height">
+    <svg ref="svg" :width="isPhone ? width : null" :height="isPhone ? height : null">
       <clipPath id="bedClip">
         <path
           d="M17.72,116.38,130.36,55.75,186,87.22v15.24L78,163.75,17.39,128.3Z"
@@ -84,15 +89,18 @@ export default {
     },
   },
   mounted() {
+    window.addEventListener('resize', this.setupBeds)
     this.setupBeds()
     this.updateBeds()
+  },
+  destroyed() {
+    window.removeEventListener('resize', this.setupBeds)
   },
   watch: {
     hospital() {
       this.$nextTick(this.setupBeds)
     },
     infected() {
-      this.setupBeds()
       this.updateBeds()
     },
   },
@@ -119,11 +127,11 @@ export default {
       }
     },
     setupBeds() {
-      if (!this.totalBeds) return
+      if (!this.totalBeds || !this.hospital) return
 
       // get SVG dimensions
-      const {top, left, width, height} = this.$refs.svg.getBoundingClientRect()
-      Object.assign(this.$data, {top, left, width, height})
+      const {width, height} = this.$refs.svg.getBoundingClientRect()
+      Object.assign(this.$data, {width, height})
 
       if (this.isPhone) {
         // if phone, then just calculate 10 beds
@@ -140,7 +148,7 @@ export default {
       } else {
         // if desktop
         // calculate bed scale according to svg dimensions
-        let {scale, perRow, numRows} = this.calculateBedScale(0.1, 0.3)
+        let {scale, perRow, numRows} = this.calculateBedScale(0.01, 0.3)
         this.scale = scale
         const scaledBedWidth = this.bedWidth * scale
         const scaledBedHeight = this.bedHeight * scale
