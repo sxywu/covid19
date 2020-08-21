@@ -30,5 +30,5 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 
 
 ### License
-This work by [Shirley Wu](www.sxywu.com) is licensed under
+This work is licensed under
 <a rel="license" href="https://creativecommons.org/licenses/by-sa/4.0">CC BY-SA 4.0</a>.
