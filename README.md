@@ -61,8 +61,23 @@ We'd greatly appreciate your help in two areas: translating the project into you
 ### Localization
 The localization files can be found in `src/locales/`.  Copy over [`en.json`](src/locales/en.json) file and rename it with your ISO-639-1 two-letter language code.  Add your translations.
 
-### Data Contribution
+### Data
+To add country-specific data, create a new folder under `public/` with your **two-letter country code** (ISO 3166-1 alpha-2).
 
+Within the folder, add three files:
+
+    [two-letter country code]/
+    ├── hospitals-by-zip-code.csv
+    ├── population-by-zip-code.csv
+    └── zip-to-city-county.csv
+
+For each country, we need the following information:
+- Age breakdown by zip code (`population-by-zip-code.csv`)
+- Number of hospital beds by zip code OR county (`hospitals-by-zip-code.csv`)
+- Map between zip code to county (`zip-to-city-county.csv`)
+
+Age breakdown by 20 year brackets (https://observablehq.com/@osserman/people-of-the-pandemic-simulation-methodology#parameters)
+Zip code to county mapping necessary for number of hospital beds calculation (https://observablehq.com/@osserman/people-of-the-pandemic-simulation-methodology#housesAndDestinations)
 
 ## License
 This work is licensed under
