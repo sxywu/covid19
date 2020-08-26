@@ -15,16 +15,6 @@ npm run serve
 npm run build
 ```
 
-### Run your tests
-```
-npm run test
-```
-
-### Lints and fixes files
-```
-npm run lint
-```
-
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
 
@@ -65,7 +55,16 @@ Now when you click make a descision in the game, it will be stored in your datab
 
 You can take a look at the methods we use to interact with the database in `src/firebase/db.js`.
 
-### License
+## Contributing
+We'd greatly appreciate your help in two areas: translating the project into your own local language, and/or supplying local data for your country.
+
+### Localization
+The localization files can be found in `src/locales/`.  Copy over [`en.json`](src/locales/en.json) file and rename it with your ISO-639-1 two-letter language code.  Add your translations.
+
+### Data Contribution
+
+
+## License
 This work is licensed under
 <a rel="license" href="https://creativecommons.org/licenses/by-sa/4.0">CC BY-SA 4.0</a>.
 
