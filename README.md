@@ -33,7 +33,7 @@ File includes **total population** as well as population per age group for every
 Example: [public/us/population-by-zip-code.csv](public/us/population-by-zip-code.csv)
 
 #### Number of hospital beds
-This file can take in the number of beds per **hospital**, or by **county**—whichever is easier to obtain for your country.  This file is used for calculating the number of beds that might be available to the people living in a zip code, which is an [equation of number of beds in the county multipled by ratio of population in zip code to in county](https://observablehq.com/@osserman/people-of-the-pandemic-simulation-methodology#housesAndDestinations).
+This file can take in the number of beds per **hospital**, or by **county**—whichever is easier to obtain for your country.  This file is used for [calculating the number of beds](https://observablehq.com/@osserman/people-of-the-pandemic-simulation-methodology#housesAndDestinations) that might be available to the people living in a zip code, which is an equation of number of beds in the county multipled by ratio of population in zip code to in county.
 
 **Columns (by zip code)**: `name, city, zip, beds`  
 Required columns: zip code, total number of beds in hospital.
