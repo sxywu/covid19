@@ -1,5 +1,9 @@
-# covid19
+# People of the Pandemic Game
+A hyperlocal cooperative simulation game.
 
+[People of the Pandemic](https://peopleofthepandemicgame.com/) was a game developed in March to May 2020 by Shirley Wu and Stephen Osserman with production support from egghead.  Its aim is to show how an infectious disease might spread through a particular community, and thus uses population and hospital data from real zip codes supported by open source data.  However, because of the rapidly changing numbers of the COVID-19 virus, it does not rely on COVID-19 data.
+
+Currently, the game is **only localized for the US and France**.  Please read the **Contributing** section if you are able to supply data for your country.
 
 ## Contributing
 We'd greatly appreciate your help in two areas: translating the project into your own local language, and/or supplying local data for your country.
@@ -43,7 +47,7 @@ Example: [public/fr/hospitals-by-zip-code.csv](public/fr/hospitals-by-zip-code.c
 #### Map zip code to county
 This file is used for supporting the [hospital beds calculation](https://observablehq.com/@osserman/people-of-the-pandemic-simulation-methodology#housesAndDestinations), as well as displaying the city and state names in the game.
 
-**Columns**: `zip, city, state, county`. 
+**Columns**: `zip, city, state, county`  
 Example: [public/us/zip-to-city-county.csv](public/us/zip-to-city-county.csv)
 
 ## Project setup
