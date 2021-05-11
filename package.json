@@ -16,7 +16,7 @@
     "d3": "^5.15.0",
     "firebase": "^7.13.1",
     "gsap": "^3.2.6",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.21",
     "node-firestore-import-export": "^0.14.1",
     "p5": "^1.0.0",
     "request": "^2.88.2",
